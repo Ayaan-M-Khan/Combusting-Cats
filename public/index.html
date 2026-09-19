@@ -91,41 +91,220 @@
       overflow: visible !important;
     }
 
-    /* 2. Dedicated Card Anatomy, Headroom & Elevation */
-    .card-item, .card {
-      position: relative;
-      width: 145px;
-      height: 220px;
-      transform-origin: bottom center;
-      transition: transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.2s ease;
-      z-index: 10;
-      user-select: none;
-      flex-shrink: 0;
-      border-radius: 12px;
-      background: #ffffff;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+    /* Clear top headroom so enlarged cards never clip on hover */
+    .hand-tray, #handContainer, #player-hand-container {
+      padding-top: 75px !important;
+      overflow: visible !important;
     }
+
+    /* 2. Generous card sizing with complete text visibility */
+    .card, .card-item {
+      position: relative;
+      width: 175px;
+      min-width: 175px;
+      height: 265px;
+      min-height: 265px;
+      background: #ffffff;
+      border-radius: 14px;
+      border: 3px solid #e0e0e0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 8px 10px;
+      box-sizing: border-box;
+      transform-origin: bottom center;
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.2s ease;
+      user-select: none;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
     @media (max-width: 640px) {
-      .card-item, .card {
-        width: 115px;
-        height: 180px;
+      .card, .card-item {
+        width: 145px;
+        min-width: 145px;
+        height: 230px;
+        min-height: 230px;
+        padding: 6px 8px;
+      }
+      .card-art-frame {
+        height: 72px !important;
+      }
+      .card-action-box {
+        font-size: 9.5px !important;
+        line-height: 1.25 !important;
+        padding: 4px 5px !important;
       }
     }
 
     /* Lift cleanly on hover without clipping */
-    .card-item:hover, .card:hover {
-      transform: translateY(-55px) scale(1.16) !important;
+    .card:hover, .card-item:hover {
+      transform: translateY(-60px) scale(1.15) !important;
       z-index: 1000 !important;
-      box-shadow: 0 24px 38px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 120, 0, 0.5) !important;
+      box-shadow: 0 24px 40px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 140, 0, 0.45) !important;
     }
 
     /* Selected state: elevated and highlighted with glowing border */
-    .card-item.selected, .card.selected {
-      transform: translateY(-40px) scale(1.08) !important;
+    .card.selected, .card-item.selected {
+      transform: translateY(-45px) scale(1.08) !important;
       z-index: 500 !important;
+      border-color: #f59e0b !important;
       outline: 3.5px solid #ffb703 !important;
-      outline-offset: 1px;
       box-shadow: 0 0 26px rgba(255, 183, 3, 0.95), 0 16px 30px rgba(0, 0, 0, 0.75) !important;
+    }
+
+    /* Internal Card Layout (No Text Clipping) */
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.2;
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    .card-header .card-badge {
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .card-header .card-title {
+      font-family: 'Bangers', cursive;
+      font-size: 13px;
+      font-weight: 800;
+      color: #0c0a09;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-header .card-flavor {
+      font-family: 'Fredoka', cursive, sans-serif;
+      font-size: 9.5px;
+      color: #666666;
+      font-style: italic;
+      line-height: 1.2;
+      margin-top: 2px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-art-frame {
+      height: 90px;
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f4f4f6;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 4px 0;
+      pointer-events: none;
+      flex-shrink: 0;
+      padding: 4px;
+    }
+
+    .card-art-frame svg {
+      width: 100%;
+      height: 100%;
+      max-height: 82px;
+    }
+
+    .card-action-box {
+      margin-top: 6px;
+      padding: 5px 6px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 6px;
+      font-size: 10.5px;
+      line-height: 1.35;
+      color: #1a1a1a;
+      font-weight: 600;
+      text-align: center;
+      white-space: normal;
+      word-wrap: break-word;
+      overflow: visible;
+      flex-shrink: 0;
+    }
+
+    /* Avatar Container & Comic Reaction Bubbles */
+    .avatar-container {
+      position: relative; /* Anchor point for bubbles */
+    }
+
+    .reaction-bubble {
+      position: absolute;
+      bottom: 110%; /* Sits directly above/beside the avatar */
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      background: #ffffff;
+      color: #111111;
+      border: 3px solid #222222;
+      border-radius: 16px;
+      padding: 6px 14px;
+      font-size: 16px;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+      z-index: 1200;
+      pointer-events: none;
+      animation: popSpeechBubble 3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+
+    /* Comic speech bubble tail pointing down to avatar */
+    .reaction-bubble::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 8px 8px 0 8px;
+      border-style: solid;
+      border-color: #222222 transparent transparent transparent;
+    }
+
+    /* For top opponent avatars where bubble appears below */
+    .reaction-bubble.bubble-down {
+      bottom: auto;
+      top: 110%;
+      animation: popSpeechBubbleDown 3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+    .reaction-bubble.bubble-down::after {
+      top: auto;
+      bottom: 100%;
+      border-width: 0 8px 8px 8px;
+      border-style: solid;
+      border-color: transparent transparent #222222 transparent;
+    }
+
+    @keyframes popSpeechBubble {
+      0% { transform: translateX(-50%) scale(0); opacity: 0; }
+      15% { transform: translateX(-50%) scale(1.15); opacity: 1; }
+      25% { transform: translateX(-50%) scale(1); }
+      80% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateX(-50%) translateY(-15px) scale(0.9); opacity: 0; }
+    }
+
+    @keyframes popSpeechBubbleDown {
+      0% { transform: translateX(-50%) scale(0); opacity: 0; }
+      15% { transform: translateX(-50%) scale(1.15); opacity: 1; }
+      25% { transform: translateX(-50%) scale(1); }
+      80% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateX(-50%) translateY(15px) scale(0.9); opacity: 0; }
     }
 
     /* Center-Table Animated Combo Announcement Banner */
@@ -773,17 +952,35 @@
         <!-- Controls row: Status, Auto-Sort, Selection, Play Button -->
         <div class="flex flex-wrap items-center justify-between gap-2 px-2">
           <div class="flex items-center gap-2">
-            <!-- My Avatar Box (anchor for player's speech bubbles) -->
-            <div id="my-avatar-box" class="flex items-center gap-2 bg-stone-900/90 border-2 border-yellow-500/70 hover:border-yellow-400 px-2.5 py-1 rounded-xl shadow-md transition-colors">
-              <div id="my-avatar-icon" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-yellow-400 bg-stone-800 relative flex items-center justify-center">
-                <!-- SVG Avatar -->
-              </div>
-              <div class="flex flex-col text-left leading-none">
-                <div class="flex items-center gap-1">
-                  <span id="my-avatar-name" class="font-bangers text-xs sm:text-sm text-yellow-300 truncate max-w-[85px]">You</span>
-                  <span class="font-bangers text-[10px] text-lime-400">(YOU)</span>
+            <!-- My Avatar Container (anchor for reaction bubble) -->
+            <div class="avatar-container relative flex items-center">
+              <div id="my-avatar-box" class="flex items-center gap-2 bg-stone-900/90 border-2 border-yellow-500/70 hover:border-yellow-400 px-2.5 py-1 rounded-xl shadow-md transition-colors">
+                <div id="my-avatar-icon" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-yellow-400 bg-stone-800 relative flex items-center justify-center">
+                  <!-- SVG Avatar -->
                 </div>
-                <span id="my-avatar-cards-count" class="font-fredoka text-[10px] text-stone-400 mt-0.5">0 cards</span>
+                <div class="flex flex-col text-left leading-none">
+                  <div class="flex items-center gap-1">
+                    <span id="my-avatar-name" class="font-bangers text-xs sm:text-sm text-yellow-300 truncate max-w-[85px]">You</span>
+                    <span class="font-bangers text-[10px] text-lime-400">(YOU)</span>
+                  </div>
+                  <span id="my-avatar-cards-count" class="font-fredoka text-[10px] text-stone-400 mt-0.5">0 cards</span>
+                </div>
+              </div>
+
+              <!-- Clickable speech bubble emote button (💬) immediately beside the bottom-left player avatar icon (YOU) -->
+              <button id="btn-avatar-emote-trigger" title="Quick Reaction" class="comic-btn ml-1.5 w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500 hover:bg-amber-400 border-2 border-stone-950 flex items-center justify-center text-stone-950 font-bangers text-base sm:text-lg shadow-md hover:scale-105 active:scale-95 transition-transform cursor-pointer">
+                💬
+              </button>
+
+              <!-- Quick Reaction Bar Popover (opens above the avatar) -->
+              <div id="avatar-reaction-picker" class="hidden absolute bottom-[115%] left-0 z-50 bg-stone-900/95 border-2 border-amber-500/80 rounded-2xl p-2 shadow-[0_10px_30px_rgba(0,0,0,0.9)] flex items-center gap-1.5 whitespace-nowrap animate-fade-in backdrop-blur-md">
+                <button class="avatar-reaction-opt px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-600/40 text-base sm:text-lg hover:scale-115 transition-transform cursor-pointer" data-reaction="🔥" title="Combustion">🔥</button>
+                <button class="avatar-reaction-opt px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-600/40 text-base sm:text-lg hover:scale-115 transition-transform cursor-pointer" data-reaction="🙀" title="Panic">🙀</button>
+                <button class="avatar-reaction-opt px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-600/40 text-base sm:text-lg hover:scale-115 transition-transform cursor-pointer" data-reaction="💨" title="Evac">💨</button>
+                <button class="avatar-reaction-opt px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-600/40 text-base sm:text-lg hover:scale-115 transition-transform cursor-pointer" data-reaction="🧊" title="Coolant">🧊</button>
+                <button class="avatar-reaction-opt px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-amber-500 hover:text-stone-950 text-amber-200 font-bangers text-xs tracking-wider hover:scale-105 transition-transform cursor-pointer" data-reaction="Help!">Help!</button>
+                <button class="avatar-reaction-opt px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-amber-500 hover:text-stone-950 text-amber-200 font-bangers text-xs tracking-wider hover:scale-105 transition-transform cursor-pointer" data-reaction="GG">GG</button>
+                <button class="avatar-reaction-opt px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-amber-500 hover:text-stone-950 text-amber-200 font-bangers text-xs tracking-wider hover:scale-105 transition-transform cursor-pointer" data-reaction="Boom!">Boom!</button>
               </div>
             </div>
 
@@ -1218,8 +1415,31 @@
           setTimeout(() => this.playTone(freq, 'triangle', 0.25, 0.2), i * 130);
         });
       }
+      bubblePop() {
+        if (!this.enabled) return;
+        this.init();
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(450, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.09);
+        } catch (e) {}
+      }
     }
     const sounds = new SoundEngine();
+
+    function playSFX(name) {
+      if (sounds && typeof sounds[name] === 'function') {
+        sounds[name]();
+      }
+    }
 
     // --- PROCEDURAL VFX CANVAS ENGINE ---
     class VFXEngine {
@@ -1932,39 +2152,39 @@
       }
     }
 
-    // Explicit Rule Mechanics for Bottom of Reference Card Anatomy
+    // Explicit Rule Mechanics for Bottom of Reference Card Anatomy (No text clipping)
     function getCardRuleText(card) {
       if (card.bracketRule) return card.bracketRule;
       const t = (card.type || '').toUpperCase();
       switch (t) {
         case 'COOLANT_FOAM':
         case 'DEFUSE':
-          return '[ { DEFUSE: RE-INSERT CAT INTO DECK } ]';
+          return '<span class="font-extrabold text-sky-800">[ DEFUSE ]</span> Immediately extinguishes a Combustion Cat. Secretly re-insert it anywhere into the fuel deck.';
         case 'THERMAL_BLAST':
         case 'ATTACK':
-          return '[ { ATTACK: END TURN. NEXT PLAYER TAKES 2 } ]';
+          return '<span class="font-extrabold text-orange-800">[ ATTACK ]</span> End your turn without drawing. Forces the next player to immediately take 2 turns.';
         case 'EMERGENCY_EVAC':
         case 'SKIP':
-          return '[ { SKIP: END YOUR TURN WITHOUT DRAWING } ]';
+          return '<span class="font-extrabold text-emerald-800">[ SKIP ]</span> Immediately ends 1 of your pending turns without drawing a card.';
         case 'INFRARED_SCAN':
         case 'SEE_THE_FUTURE':
-          return '[ { SCAN: PRIVATELY VIEW TOP 3 CARDS } ]';
+          return '<span class="font-extrabold text-pink-800">[ SEE THE FUTURE ]</span> Privately peek at the top 3 cards of the fuel deck without altering them.';
         case 'TIMELINE_SCRAMBLE':
         case 'ALTER_THE_FUTURE':
-          return '[ { ALTER: REORDER TOP 3 CARDS IN DECK } ]';
+          return '<span class="font-extrabold text-purple-800">[ ALTER THE FUTURE ]</span> Privately view and rearrange the top 3 cards of the fuel deck in any order.';
         case 'THERMODYNAMIC_VORTEX':
         case 'SHUFFLE':
-          return '[ { SHUFFLE: THOROUGHLY RANDOMIZE DECK } ]';
+          return '<span class="font-extrabold text-amber-800">[ SHUFFLE ]</span> Thoroughly randomize the entire draw deck.';
         case 'FELINE_BLACKMAIL':
         case 'FAVOR':
-          return '[ { FAVOR: FORCE RIVAL TO GIVE YOU 1 CARD } ]';
+          return '<span class="font-extrabold text-indigo-800">[ FAVOR ]</span> Force an opponent to give you 1 card of their choice.';
         case 'NOPE':
-          return '[ { NOPE: STOP ANY ACTION AT ANY TIME } ]';
+          return '<span class="font-extrabold text-red-800">[ NOPE ]</span> Stop the action of any player at any time.';
         case 'COMBUSTION_CAT':
         case 'BOMB':
-          return '[ { MELTDOWN: DEFUSE OR GET VAPORIZED } ]';
+          return '<span class="font-extrabold text-red-800">[ EXPLODE ]</span> Show immediately. Unless you have Coolant Foam, you are vaporized.';
         default:
-          return '[ { COMBO ONLY: PAIR=STEAL, 3=DEMAND, 5=LOOT } ]';
+          return '<span class="font-extrabold text-stone-800">[ COMBO ONLY ]</span> Powerless alone. Match 2 to steal random, 3 to demand a card, or 5 to search discard.';
       }
     }
 
@@ -2014,51 +2234,37 @@
       }
     }
 
-    // High-Fidelity Reference Card HTML Generator
+    // High-Fidelity Reference Card HTML Generator (Structured Flexbox Layout)
     function renderComicCardHTML(card, options = {}) {
       if (!card) return '';
       const badgeColor = card.badgeColor || '#000000';
       const funnySetup = getCardFunnySetup(card);
       const ruleText = getCardRuleText(card);
-      const shortTitle = (card.title || 'CARD').split(' ')[0];
 
       return `
-        <div class="w-full h-full rounded-[9px] border-2 flex flex-col justify-between p-1.5 sm:p-2 select-none relative overflow-hidden bg-white" style="border-color:${badgeColor}">
-          <!-- Top Header: Icon Badge, Title & Flavor Text -->
-          <div class="flex items-start gap-1.5 sm:gap-2 leading-tight">
-            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shadow-sm shrink-0" style="background-color:${badgeColor}">
-              ${getCardIconWhite(card.iconName, 'w-3.5 h-3.5 sm:w-4 sm:h-4')}
+        <!-- Section 1: Top Header (.card-header) -->
+        <div class="card-header">
+          <div class="card-badge" style="background-color:${badgeColor}">
+            ${getCardIconWhite(card.iconName, 'w-3.5 h-3.5')}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="card-title">
+              ${card.title || 'CARD'}
             </div>
-            <div class="flex-1 min-w-0">
-              <div class="font-bangers text-[13px] sm:text-[15px] leading-none text-stone-950 tracking-wide uppercase truncate">
-                ${card.title || 'CARD'}
-              </div>
-              <div class="font-fredoka text-[7.5px] sm:text-[8.5px] text-stone-500 italic leading-tight truncate mt-0.5">
-                ${funnySetup}
-              </div>
+            <div class="card-flavor">
+              ${funnySetup}
             </div>
           </div>
+        </div>
 
-          <!-- Center Illustrated Art Window -->
-          <div class="w-full flex-1 my-1 rounded-[7px] border border-stone-950/15 overflow-hidden flex items-center justify-center relative bg-gradient-to-b from-stone-50 to-stone-100 p-0.5 pointer-events-none">
-            ${getCardArtSVG(card)}
-          </div>
+        <!-- Section 2: Center Art Frame (.card-art-frame) -->
+        <div class="card-art-frame">
+          ${getCardArtSVG(card)}
+        </div>
 
-          <!-- Bottom: Bracketed Action / Rules & Inverted Micro Badge -->
-          <div class="flex flex-col gap-0.5 shrink-0">
-            <div class="w-full bg-stone-950 text-white rounded-[5px] px-1 py-0.5 text-center font-fredoka text-[7px] sm:text-[8px] font-bold leading-tight tracking-tight shadow-sm truncate">
-              ${ruleText}
-            </div>
-            <div class="flex items-center justify-between text-[6.5px] sm:text-[7px] font-bangers text-stone-400 px-0.5">
-              <span class="tracking-widest uppercase opacity-80">LAB REACTOR ED.</span>
-              <div class="flex items-center gap-1 transform rotate-180">
-                <span class="text-stone-700">${shortTitle}</span>
-                <div class="w-3 h-3 rounded-full flex items-center justify-center" style="background:${badgeColor}">
-                  ${getCardIconWhite(card.iconName, 'w-2 h-2')}
-                </div>
-              </div>
-            </div>
-          </div>
+        <!-- Section 3: Bottom Action Box (.card-action-box) -->
+        <div class="card-action-box">
+          ${ruleText}
         </div>
       `;
     }
@@ -2431,6 +2637,10 @@
         showSpeechBubble(data.senderId, data.message, 'emote');
       });
 
+      socket.on('player_reacted', (data) => {
+        showAvatarReaction(data.playerId, data.reactionText);
+      });
+
       socket.on('kicked', () => {
         showComboNotification('PARTY UPDATE', 'You have been kicked by the host.', '🚪');
         showScreen('menu');
@@ -2600,7 +2810,7 @@
         const isActive = state.activePlayerIndex === idx;
         const opp = document.createElement('div');
         opp.id = `opp-box-${p.id}`;
-        opp.className = `flex flex-col items-center p-1.5 rounded-xl border-2 transition-all ${
+        opp.className = `avatar-container flex flex-col items-center p-1.5 rounded-xl border-2 transition-all ${
           p.isDead
             ? 'opacity-40 border-stone-900 bg-stone-950/70'
             : isActive
@@ -2650,7 +2860,8 @@
       (state.myHand || []).forEach((card) => {
         const isSelected = selectedCards.some((c) => c.id === card.id);
         const cardElem = document.createElement('div');
-        cardElem.className = `card-item ${isSelected ? 'selected' : ''}`;
+        cardElem.className = `card card-item ${isSelected ? 'selected' : ''}`;
+        cardElem.style.borderColor = isSelected ? '#f59e0b' : (card.badgeColor || '#e0e0e0');
         cardElem.innerHTML = renderComicCardHTML(card);
 
         cardElem.addEventListener('click', () => {
@@ -3797,6 +4008,89 @@
     };
     document.getElementById('btn-menu-sound').addEventListener('click', toggleSoundFn);
     document.getElementById('btn-game-sound').addEventListener('click', toggleSoundFn);
+
+    // --- AVATAR ANCHORED REACTION & SPEECH BUBBLE SYSTEM ---
+    function showAvatarReaction(playerId, reactionText) {
+      if (!reactionText) return;
+
+      const myId = (localGameState && localGameState.myId) || (socket && socket.id);
+      let targetElem = null;
+
+      if (playerId === myId || !playerId) {
+        targetElem = document.getElementById('my-avatar-box') || document.querySelector('.avatar-container');
+      } else {
+        targetElem = document.getElementById(`opp-box-${playerId}`);
+      }
+
+      if (!targetElem) {
+        targetElem = document.getElementById(`lobby-player-${playerId}`);
+      }
+
+      if (!targetElem) {
+        targetElem = document.getElementById('my-avatar-box') || document.getElementById('player-status-badge');
+      }
+
+      if (!targetElem) return;
+
+      // Clean up previous reaction bubbles within this container
+      const prevBubbles = targetElem.querySelectorAll('.reaction-bubble');
+      prevBubbles.forEach((b) => b.remove());
+
+      const bubble = document.createElement('div');
+      bubble.className = 'reaction-bubble';
+
+      // Check if target element is near the top of the viewport (e.g. top opponents row)
+      const rect = targetElem.getBoundingClientRect();
+      if (rect.top < 130) {
+        bubble.classList.add('bubble-down');
+      }
+
+      bubble.innerText = reactionText;
+      targetElem.appendChild(bubble);
+
+      // Play cartoon pop sound
+      playSFX('bubblePop');
+
+      // Automatically remove bubble DOM element after 3-second animation ends
+      setTimeout(() => {
+        if (bubble.parentNode) {
+          bubble.remove();
+        }
+      }, 3000);
+    }
+
+    // Avatar Reaction Bar & Emote Button Controls
+    const btnAvatarEmoteTrigger = document.getElementById('btn-avatar-emote-trigger');
+    const avatarReactionPicker = document.getElementById('avatar-reaction-picker');
+
+    if (btnAvatarEmoteTrigger && avatarReactionPicker) {
+      btnAvatarEmoteTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        avatarReactionPicker.classList.toggle('hidden');
+      });
+    }
+
+    document.querySelectorAll('.avatar-reaction-opt').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const reactionText = btn.getAttribute('data-reaction') || btn.innerText;
+        if (socket && currentRoomId) {
+          socket.emit('send_reaction', { roomId: currentRoomId, reactionText });
+        } else {
+          // Preview or local fallback
+          showAvatarReaction(socket?.id || 'me', reactionText);
+        }
+        if (avatarReactionPicker) avatarReactionPicker.classList.add('hidden');
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (avatarReactionPicker && !avatarReactionPicker.classList.contains('hidden')) {
+        if (!avatarReactionPicker.contains(e.target) && !btnAvatarEmoteTrigger?.contains(e.target)) {
+          avatarReactionPicker.classList.add('hidden');
+        }
+      }
+    });
 
     // --- DEEP LINKING SUPPORT (?room=KTN-789) ---
     window.addEventListener('DOMContentLoaded', () => {

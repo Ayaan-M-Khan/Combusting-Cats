@@ -1591,6 +1591,21 @@ io.on('connection', (socket) => {
     });
   });
 
+  // 14b. AVATAR REACTION / SPEECH BUBBLE
+  socket.on('send_reaction', ({ roomId, reactionText }) => {
+    const room = rooms.get(roomId);
+    if (!room) return;
+
+    const sender = room.players.find((p) => p.socketId === socket.id);
+    if (!sender) return;
+
+    io.to(roomId).emit('player_reacted', {
+      playerId: sender.id,
+      reactionText: (reactionText || '').slice(0, 30),
+      playerName: sender.name,
+    });
+  });
+
   // 15. LEAVE ROOM
   socket.on('leave_room', ({ roomId }) => {
     const room = rooms.get(roomId);
