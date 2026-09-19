@@ -86,22 +86,97 @@
       transform: translateY(6px);
     }
 
-    /* Comic card styles */
-    .card-item {
-      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease;
+    /* 1. Remove Restrictive Overflow across all hand wrappers */
+    .hand-container, .hand-wrapper, #playerHand, #player-hand-container, .hand-tray, footer, #screen-game {
+      overflow: visible !important;
+    }
+
+    /* 2. Dedicated Card Anatomy, Headroom & Elevation */
+    .card-item, .card {
+      position: relative;
+      width: 145px;
+      height: 220px;
       transform-origin: bottom center;
+      transition: transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.2s ease;
+      z-index: 10;
       user-select: none;
+      flex-shrink: 0;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
     }
-    .card-item:hover {
-      transform: translateY(-26px) scale(1.06) !important;
-      z-index: 40 !important;
-      box-shadow: 0 16px 32px rgba(0,0,0,0.7), 0 0 15px rgba(249, 115, 22, 0.4);
+    @media (max-width: 640px) {
+      .card-item, .card {
+        width: 115px;
+        height: 180px;
+      }
     }
-    .card-item.selected {
-      transform: translateY(-36px) scale(1.09) !important;
-      z-index: 50 !important;
-      border-color: #f97316 !important;
-      box-shadow: 0 0 24px rgba(249, 115, 22, 0.9), 0 18px 34px rgba(0,0,0,0.8) !important;
+
+    /* Lift cleanly on hover without clipping */
+    .card-item:hover, .card:hover {
+      transform: translateY(-55px) scale(1.16) !important;
+      z-index: 1000 !important;
+      box-shadow: 0 24px 38px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 120, 0, 0.5) !important;
+    }
+
+    /* Selected state: elevated and highlighted with glowing border */
+    .card-item.selected, .card.selected {
+      transform: translateY(-40px) scale(1.08) !important;
+      z-index: 500 !important;
+      outline: 3.5px solid #ffb703 !important;
+      outline-offset: 1px;
+      box-shadow: 0 0 26px rgba(255, 183, 3, 0.95), 0 16px 30px rgba(0, 0, 0, 0.75) !important;
+    }
+
+    /* Center-Table Animated Combo Announcement Banner */
+    .combo-announcement {
+      position: absolute;
+      top: -72px;
+      left: 50%;
+      transform: translate(-50%, 0);
+      pointer-events: none;
+      z-index: 80;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .combo-announcement.active {
+      opacity: 1;
+      animation: comboPopIn 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+
+    .combo-announcement.fading-out {
+      opacity: 0;
+      transform: translate(-50%, -10px) scale(0.85);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .combo-announcement.bursting {
+      animation: comboBurst 0.38s cubic-bezier(0.12, 0.88, 0.25, 1) forwards;
+    }
+
+    @keyframes comboPopIn {
+      0% { transform: translate(-50%, -24px) scale(0.65); opacity: 0; }
+      70% { transform: translate(-50%, 0) scale(1.12); opacity: 1; }
+      100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+    }
+
+    @keyframes comboBurst {
+      0% {
+        transform: translate(-50%, 0) scale(1);
+        opacity: 1;
+        filter: brightness(1);
+      }
+      45% {
+        transform: translate(-50%, -10px) scale(1.35);
+        opacity: 1;
+        filter: brightness(1.7) drop-shadow(0 0 25px #ffb703);
+      }
+      100% {
+        transform: translate(-50%, -28px) scale(1.55);
+        opacity: 0;
+        filter: brightness(2.4) drop-shadow(0 0 40px #ffffff);
+      }
     }
 
     /* Custom parchment scroll texture */
@@ -124,6 +199,100 @@
       background: #ea580c;
       border-radius: 4px;
     }
+
+    /* Comic Speech Bubbles */
+    .comic-speech-bubble {
+      position: fixed;
+      transform: translateX(-50%) scale(0.6);
+      opacity: 0;
+      border-radius: 16px;
+      padding: 6px 14px;
+      font-family: 'Bangers', cursive;
+      font-size: 13px;
+      line-height: 1.25;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 100;
+      border-width: 3px;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.6), 0 2px 5px rgba(0, 0, 0, 0.3);
+      animation: bubble-pop-in 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      max-width: 280px;
+      text-align: center;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    @keyframes bubble-pop-in {
+      0% {
+        transform: translateX(-50%) translateY(10px) scale(0.4);
+        opacity: 0;
+      }
+      75% {
+        transform: translateX(-50%) translateY(-3px) scale(1.08);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(-50%) translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .comic-speech-bubble.bubble-exit {
+      animation: bubble-pop-out 0.32s ease-out forwards;
+    }
+
+    @keyframes bubble-pop-out {
+      0% {
+        transform: translateX(-50%) translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(-50%) translateY(-12px) scale(0.75);
+        opacity: 0;
+      }
+    }
+
+    /* 3D Physical Card Slam & Recoil Animations */
+    @keyframes slot-recoil {
+      0% { transform: scale(1) translateY(0); }
+      25% { transform: scale(0.93) translateY(5px); }
+      55% { transform: scale(1.04) translateY(-2px); }
+      100% { transform: scale(1) translateY(0); }
+    }
+    .slot-recoil-anim {
+      animation: slot-recoil 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes table-thud-shake {
+      0% { transform: translate(0, 0); }
+      20% { transform: translate(0, 3px) rotate(0.12deg); }
+      40% { transform: translate(-2px, -2px) rotate(-0.1deg); }
+      70% { transform: translate(1px, 1px) rotate(0.04deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    .table-thud-shake {
+      animation: table-thud-shake 0.22s ease-out forwards;
+    }
+
+    /* Comic Onomatopoeia Impact Pop */
+    .comic-impact-word {
+      position: fixed;
+      pointer-events: none;
+      z-index: 95;
+      font-family: 'Bangers', cursive;
+      color: #fef08a;
+      -webkit-text-stroke: 2px #1c0a00;
+      text-shadow: 0 4px 0 #000, 0 0 16px rgba(249, 115, 22, 0.85);
+      font-size: 26px;
+      letter-spacing: 0.08em;
+      animation: comic-impact-pop 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes comic-impact-pop {
+      0% { transform: translate(-50%, -50%) scale(0.2) rotate(var(--rot, -15deg)); opacity: 0; }
+      35% { transform: translate(-50%, -50%) scale(1.35) rotate(var(--rot, -15deg)); opacity: 1; }
+      70% { transform: translate(-50%, -50%) scale(1) rotate(var(--rot, -15deg)); opacity: 1; }
+      100% { transform: translate(-50%, -65%) scale(0.85) rotate(var(--rot, -15deg)); opacity: 0; }
+    }
   </style>
 </head>
 <body class="bg-stone-950 text-stone-100 font-fredoka overflow-hidden select-none m-0 p-0">
@@ -132,6 +301,12 @@
   <!-- 0. PROCEDURAL VFX CANVAS (OVERLAY)                          -->
   <!-- ============================================================ -->
   <canvas id="vfxCanvas" class="fixed inset-0 pointer-events-none z-40 w-full h-full"></canvas>
+
+  <!-- 3D Card Slam Perspective Stage Layer -->
+  <div id="card-slam-stage" class="fixed inset-0 pointer-events-none z-[90] overflow-hidden" style="perspective: 1200px; perspective-origin: 50% 50%;"></div>
+
+  <!-- Floating Speech Bubbles Layer (covers entire screen, clicks pass through, above tabletop) -->
+  <div id="speech-bubbles-layer" class="fixed inset-0 pointer-events-none z-[100] overflow-hidden"></div>
 
   <!-- ============================================================ -->
   <!-- 1. SCREEN: MAIN MENU                                         -->
@@ -365,6 +540,16 @@
       <div id="lobby-members-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 w-full">
         <!-- Dynamic Player Cards rendered via JS -->
       </div>
+
+      <!-- Lobby Quick Emotes Strip -->
+      <div class="flex items-center justify-center gap-2 mt-3 bg-stone-900/80 border-2 border-stone-800 py-1.5 px-3.5 rounded-2xl">
+        <span class="font-bangers text-xs text-amber-300">REACT:</span>
+        <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="👋 Hey!">👋</button>
+        <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="😼 Ready!">😼</button>
+        <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="⚡ Let's go!">⚡</button>
+        <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="💣 Watch out!">💣</button>
+        <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="😈 Hehe">😈</button>
+      </div>
     </main>
 
     <!-- Bottom: Lobby Controls -->
@@ -451,7 +636,21 @@
       </div>
 
       <!-- Middle: Draw Deck & Discard Pile -->
-      <div class="flex items-center gap-6 sm:gap-10">
+      <div class="relative flex items-center gap-6 sm:gap-10">
+        <!-- Center-Table Animated Combo Announcement Banner -->
+        <div id="comboBanner" class="combo-announcement">
+          <div class="px-5 py-2 sm:px-7 sm:py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-400 border-3 border-stone-950 shadow-[0_8px_25px_rgba(245,158,11,0.7),0_0_15px_rgba(255,255,255,0.4)] flex flex-col items-center justify-center text-center whitespace-nowrap">
+            <div class="font-bangers text-xl sm:text-2xl text-stone-950 tracking-wider drop-shadow-sm leading-none flex items-center gap-2">
+              <span id="combo-banner-icon-left">🔥</span>
+              <span id="combo-banner-title">2 OF A KIND!</span>
+              <span id="combo-banner-icon-right">🔥</span>
+            </div>
+            <div id="combo-banner-subtext" class="font-fredoka text-xs sm:text-sm font-bold text-stone-900 tracking-wide mt-0.5">
+              Steal a random card
+            </div>
+          </div>
+        </div>
+
         <!-- Draw Pile (Clickable to Draw Card on your turn) -->
         <div id="deck-container" class="flex flex-col items-center cursor-pointer group">
           <div id="deck-card" class="relative w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-gradient-to-br from-[#801818] to-[#450a0a] border-4 border-stone-950 shadow-[0_10px_0_#1c0f08] flex flex-col items-center justify-center p-3 text-center transition-all group-hover:scale-103 group-hover:-translate-y-1">
@@ -506,13 +705,62 @@
           </div>
         </div>
 
-        <!-- In-Game Emote Reactions -->
-        <div class="flex items-center gap-1.5 bg-black/40 p-1.5 rounded-xl border border-stone-800">
-          <button class="btn-emote text-base hover:scale-125 transition-transform" data-emote="😼 Meow!">😼</button>
-          <button class="btn-emote text-base hover:scale-125 transition-transform" data-emote="💣 Help!">💣</button>
-          <button class="btn-emote text-base hover:scale-125 transition-transform" data-emote="🛡️ Defused!">🛡️</button>
-          <button class="btn-emote text-base hover:scale-125 transition-transform" data-emote="🔥 GG!">🔥</button>
-          <button class="btn-emote text-base hover:scale-125 transition-transform" data-emote="😈 Hehe">😈</button>
+        <!-- In-Game Emote Reactions & Phrase Drawer -->
+        <div class="relative flex items-center gap-1.5 bg-black/60 p-1.5 rounded-xl border border-stone-800">
+          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="😼 Meow!">😼</button>
+          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="💣 Help!">💣</button>
+          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="🛡️ Defused!">🛡️</button>
+          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="🔥 GG!">🔥</button>
+          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="😱 Eek!">😱</button>
+          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="😈 Hehe">😈</button>
+          <button id="btn-toggle-emote-panel" title="More Emotes & Tactical Phrases" class="comic-btn px-2 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 font-bangers text-[11px] text-white flex items-center gap-1 cursor-pointer">
+            <span>💬 MORE</span>
+          </button>
+
+          <!-- Floating Emote Popover Drawer -->
+          <div id="emote-popover-panel" class="hidden absolute bottom-full right-0 mb-2 w-64 sm:w-72 bg-stone-900 border-2 border-amber-500 rounded-2xl p-3 shadow-2xl z-50 flex flex-col gap-2.5">
+            <div class="flex items-center justify-between border-b border-stone-800 pb-1.5">
+              <span class="font-bangers text-xs text-yellow-400 tracking-wider">💬 TACTICAL SPEECH & EMOTES</span>
+              <button id="btn-close-emote-panel" class="text-stone-400 hover:text-white text-xs cursor-pointer font-bold px-1">✕</button>
+            </div>
+            
+            <!-- Tactical Callouts -->
+            <div>
+              <div class="font-bangers text-[10px] text-amber-200/70 mb-1">CALLOUT PHRASES:</div>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Not today! 🛡️">Not today! 🛡️</button>
+                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Uh oh... 💣">Uh oh... 💣</button>
+                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="You're cooked! 🔥">You're cooked! 🔥</button>
+                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Stay frosty! ❄️">Stay frosty! ❄️</button>
+                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Nice try! 😼">Nice try! 😼</button>
+                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Science rules! 🧪">Science rules! 🧪</button>
+                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Don't draw! ⚠️">Don't draw! ⚠️</button>
+                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Oops! 😹">Oops! 😹</button>
+              </div>
+            </div>
+
+            <!-- Extra Emoji Row -->
+            <div>
+              <div class="font-bangers text-[10px] text-amber-200/70 mb-1">REACTIONS:</div>
+              <div class="flex items-center justify-between bg-black/50 p-1.5 rounded-xl border border-stone-800">
+                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="🍿">🍿</button>
+                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="💀">💀</button>
+                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="🧊">🧊</button>
+                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="🚀">🚀</button>
+                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="🎉">🎉</button>
+                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="⚡">⚡</button>
+                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="😎">😎</button>
+              </div>
+            </div>
+
+            <!-- Custom Message Field -->
+            <div class="flex items-center gap-1.5 pt-1 border-t border-stone-800">
+              <input id="input-quick-chat" maxlength="32" placeholder="Custom cat speech..." class="flex-1 bg-black/70 border border-stone-700 focus:border-yellow-400 rounded-lg px-2 py-1 text-xs text-amber-100 font-fredoka focus:outline-none" />
+              <button id="btn-send-custom-chat" class="comic-btn px-2.5 py-1 bg-lime-500 hover:bg-lime-400 text-stone-950 font-bangers text-xs rounded-lg cursor-pointer">
+                SEND
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -525,6 +773,20 @@
         <!-- Controls row: Status, Auto-Sort, Selection, Play Button -->
         <div class="flex flex-wrap items-center justify-between gap-2 px-2">
           <div class="flex items-center gap-2">
+            <!-- My Avatar Box (anchor for player's speech bubbles) -->
+            <div id="my-avatar-box" class="flex items-center gap-2 bg-stone-900/90 border-2 border-yellow-500/70 hover:border-yellow-400 px-2.5 py-1 rounded-xl shadow-md transition-colors">
+              <div id="my-avatar-icon" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-yellow-400 bg-stone-800 relative flex items-center justify-center">
+                <!-- SVG Avatar -->
+              </div>
+              <div class="flex flex-col text-left leading-none">
+                <div class="flex items-center gap-1">
+                  <span id="my-avatar-name" class="font-bangers text-xs sm:text-sm text-yellow-300 truncate max-w-[85px]">You</span>
+                  <span class="font-bangers text-[10px] text-lime-400">(YOU)</span>
+                </div>
+                <span id="my-avatar-cards-count" class="font-fredoka text-[10px] text-stone-400 mt-0.5">0 cards</span>
+              </div>
+            </div>
+
             <div id="player-status-badge" class="font-bangers text-base sm:text-lg text-yellow-300 flex items-center gap-2 bg-stone-900/80 px-3 py-1 rounded-xl border border-stone-800">
               <span>WAITING FOR OPPONENT...</span>
             </div>
@@ -559,7 +821,7 @@
         </div>
 
         <!-- Horizontal Fanned Cards Tray -->
-        <div id="player-hand-container" class="w-full flex items-end justify-center overflow-x-auto pb-2 pt-6 min-h-[160px] gap-[-20px]">
+        <div id="player-hand-container" class="hand-container hand-wrapper hand-tray w-full flex items-end justify-center overflow-visible pt-16 pb-4 min-h-[250px] gap-1 sm:gap-2.5 select-none">
           <!-- Rendered dynamically -->
         </div>
 
@@ -805,8 +1067,49 @@
         this.playTone(360, 'sine', 0.08, 0.12);
         setTimeout(() => this.playTone(520, 'sine', 0.06, 0.08), 30);
       }
+      bubblePop() {
+        this.playTone(600, 'sine', 0.07, 0.12);
+        setTimeout(() => this.playTone(850, 'sine', 0.08, 0.1), 40);
+      }
       cardPlay() {
         this.playTone(520, 'triangle', 0.12, 0.18);
+      }
+      cardSlam() {
+        this.init();
+        if (!this.enabled) return;
+        try {
+          const now = this.ctx.currentTime;
+          // 1. High-frequency friction card snap/slap (sharp transient noise)
+          const bufferSize = Math.floor(this.ctx.sampleRate * 0.05);
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1);
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'highpass';
+          filter.frequency.setValueAtTime(1200, now);
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.35, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          noise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(this.ctx.destination);
+          noise.start(now);
+
+          // 2. Heavy low-end wooden table thud (punchy descending pitch sine/triangle)
+          const osc = this.ctx.createOscillator();
+          const thudGain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(175, now);
+          osc.frequency.exponentialRampToValueAtTime(38, now + 0.16);
+          thudGain.gain.setValueAtTime(0.48, now);
+          thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          osc.connect(thudGain);
+          thudGain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        } catch (e) {}
       }
       defuse() {
         // Cryogenic foam hiss + neutralizing chime
@@ -1004,6 +1307,35 @@
           });
         }
       }
+      cardSlamImpact(cx, cy, color = '#f97316') {
+        if (!this.ctx) return;
+        // Kinetic expanding shockwave ring
+        this.shockwaves.push({
+          x: cx,
+          y: cy,
+          radius: 14,
+          maxRadius: 135,
+          alpha: 0.95,
+          color: color || '#f97316'
+        });
+        // Kinetic tabletop sparks and impact specks
+        for (let i = 0; i < 32; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 2.5 + Math.random() * 8;
+          this.particles.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: 2.5 + Math.random() * 5,
+            color: [color || '#f97316', '#facc15', '#ffffff', '#fdba74', '#78350f'][Math.floor(Math.random() * 5)],
+            alpha: 1,
+            decay: 0.024 + Math.random() * 0.022,
+            gravity: 0.1,
+            type: 'spark'
+          });
+        }
+      }
       sparkle(cx, cy, color = '#facc15', count = 20) {
         if (!this.ctx) return;
         for (let i = 0; i < count; i++) {
@@ -1132,6 +1464,8 @@
     let autoSortEnabled = true;
     let pendingDemandTargetId = null;
     let pendingDemandCards = [];
+    let currentDiscardRotation = 2;
+    let lastPlayedCardOrigin = null;
 
     // All distinct card types for 3-of-a-kind demand menu & rules
     const ALL_CARD_TYPES = [
@@ -1469,6 +1803,27 @@
         `;
       }
 
+      if (type === 'NOPE' || icon === 'nope') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <circle cx="60" cy="60" r="46" fill="#450a0a" stroke="#dc2626" stroke-width="2.5"/>
+            <!-- Crossed Red Laser Beams / Stop Barrier -->
+            <line x1="26" y1="26" x2="94" y2="94" stroke="#ef4444" stroke-width="4.5" stroke-linecap="round"/>
+            <line x1="94" y1="26" x2="26" y2="94" stroke="#ef4444" stroke-width="4.5" stroke-linecap="round"/>
+            <!-- Jackanope Antlers -->
+            <path d="M42,42 L28,16 M28,16 L18,22 M28,16 L32,8 M78,42 L92,16 M92,16 L102,22 M92,16 L88,8" stroke="#fef08a" stroke-width="3" stroke-linecap="round"/>
+            <!-- Jackanope Face -->
+            <ellipse cx="60" cy="60" rx="22" ry="24" fill="#fafaf9" stroke="#000" stroke-width="2"/>
+            <!-- Big Stop Hand/Paw in foreground -->
+            <circle cx="60" cy="63" r="16" fill="#dc2626" stroke="#fff" stroke-width="2"/>
+            <text x="60" y="68" font-family="'Bangers', cursive" font-size="13" fill="#fff" text-anchor="middle">NOPE</text>
+            <!-- Angry eyes -->
+            <polygon points="46,48 54,52 46,54" fill="#000"/>
+            <polygon points="74,48 66,52 74,54" fill="#000"/>
+          </svg>
+        `;
+      }
+
       // Default: CAT_TICKING_TABBY or Generic
       return `
         <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
@@ -1492,6 +1847,8 @@
     // --- CARD SVG ICON GENERATOR ---
     function getCardIcon(iconName) {
       switch (iconName) {
+        case 'nope':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-red-500"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>`;
         case 'combustion_cat':
         case 'bomb':
           return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-orange-500"><path d="M12 2a1 1 0 0 1 1 1v1.07A8.001 8.001 0 0 1 20 12a8 8 0 1 1-16 0c0-3.96 2.87-7.25 6.67-7.91L11 3a1 1 0 0 1 1-1zm0 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm7-3l1.5-1.5M18 1l1.5 1.5"/></svg>`;
@@ -1529,6 +1886,388 @@
         default:
           return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-lime-400"><circle cx="12" cy="12" r="9"/></svg>`;
       }
+    }
+
+    // White Card Icon for badges inside cards
+    function getCardIconWhite(iconName, size = 'w-3.5 h-3.5 sm:w-4 sm:h-4') {
+      switch (iconName) {
+        case 'nope':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>`;
+        case 'combustion_cat':
+        case 'bomb':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><path d="M12 2a1 1 0 0 1 1 1v1.07A8.001 8.001 0 0 1 20 12a8 8 0 1 1-16 0c0-3.96 2.87-7.25 6.67-7.91L11 3a1 1 0 0 1 1-1zm0 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm7-3l1.5-1.5M18 1l1.5 1.5"/></svg>`;
+        case 'coolant_foam':
+        case 'laser':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>`;
+        case 'thermal_blast':
+        case 'paw':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><ellipse cx="12" cy="15" rx="5" ry="4"/><circle cx="7" cy="8" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="8" r="2"/></svg>`;
+        case 'emergency_evac':
+        case 'run':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/></svg>`;
+        case 'infrared_scan':
+        case 'eye':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`;
+        case 'timeline_scramble':
+        case 'vortex':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
+        case 'thermodynamic_vortex':
+        case 'shuffle':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`;
+        case 'feline_blackmail':
+        case 'grab':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><path d="M18 10V5a3 3 0 0 0-6 0v5H9V7a3 3 0 0 0-6 0v8a7 7 0 0 0 14 0v-5z"/></svg>`;
+        case 'cat_static':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>`;
+        case 'cat_nuclear':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><polygon points="12,2 2,22 22,22"/></svg>`;
+        case 'cat_plasma':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><circle cx="12" cy="12" r="8"/><path d="M12 2v20M2 12h20"/></svg>`;
+        case 'cat_volcano':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><path d="M2 22h20L15 4h-6L2 22zm10-14l3.5 12h-7L12 8z"/></svg>`;
+        case 'cat_tabby':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><circle cx="12" cy="12" r="9"/><polyline points="12,6 12,12 16,14"/></svg>`;
+        default:
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="${size} text-white"><circle cx="12" cy="12" r="9"/></svg>`;
+      }
+    }
+
+    // Explicit Rule Mechanics for Bottom of Reference Card Anatomy
+    function getCardRuleText(card) {
+      if (card.bracketRule) return card.bracketRule;
+      const t = (card.type || '').toUpperCase();
+      switch (t) {
+        case 'COOLANT_FOAM':
+        case 'DEFUSE':
+          return '[ { DEFUSE: RE-INSERT CAT INTO DECK } ]';
+        case 'THERMAL_BLAST':
+        case 'ATTACK':
+          return '[ { ATTACK: END TURN. NEXT PLAYER TAKES 2 } ]';
+        case 'EMERGENCY_EVAC':
+        case 'SKIP':
+          return '[ { SKIP: END YOUR TURN WITHOUT DRAWING } ]';
+        case 'INFRARED_SCAN':
+        case 'SEE_THE_FUTURE':
+          return '[ { SCAN: PRIVATELY VIEW TOP 3 CARDS } ]';
+        case 'TIMELINE_SCRAMBLE':
+        case 'ALTER_THE_FUTURE':
+          return '[ { ALTER: REORDER TOP 3 CARDS IN DECK } ]';
+        case 'THERMODYNAMIC_VORTEX':
+        case 'SHUFFLE':
+          return '[ { SHUFFLE: THOROUGHLY RANDOMIZE DECK } ]';
+        case 'FELINE_BLACKMAIL':
+        case 'FAVOR':
+          return '[ { FAVOR: FORCE RIVAL TO GIVE YOU 1 CARD } ]';
+        case 'NOPE':
+          return '[ { NOPE: STOP ANY ACTION AT ANY TIME } ]';
+        case 'COMBUSTION_CAT':
+        case 'BOMB':
+          return '[ { MELTDOWN: DEFUSE OR GET VAPORIZED } ]';
+        default:
+          return '[ { COMBO ONLY: PAIR=STEAL, 3=DEMAND, 5=LOOT } ]';
+      }
+    }
+
+    // Flavor text / funny setup at top of card
+    function getCardFunnySetup(card) {
+      if (card.funnySetup) return card.funnySetup;
+      const t = (card.type || '').toUpperCase();
+      switch (t) {
+        case 'COOLANT_FOAM':
+        case 'DEFUSE':
+          return 'A squirt gun filled with cryo-nitrogen';
+        case 'THERMAL_BLAST':
+        case 'ATTACK':
+          return 'Release containment valves onto the next sector';
+        case 'EMERGENCY_EVAC':
+        case 'SKIP':
+          return 'Sprint through the emergency decontamination hatch';
+        case 'INFRARED_SCAN':
+        case 'SEE_THE_FUTURE':
+          return 'Consult high-res thermal imaging feeds';
+        case 'TIMELINE_SCRAMBLE':
+        case 'ALTER_THE_FUTURE':
+          return 'Tinker recklessly with quantum feline chronology';
+        case 'THERMODYNAMIC_VORTEX':
+        case 'SHUFFLE':
+          return 'Fire the centrifuge to scramble the fuel stacks';
+        case 'FELINE_BLACKMAIL':
+        case 'FAVOR':
+          return 'Blackmail a technician with camera feeds';
+        case 'NOPE':
+          return 'A jackanope bounds into the room to ruin your hopes';
+        case 'COMBUSTION_CAT':
+        case 'BOMB':
+          return 'Volatile feline with enough energy to level the lab';
+        case 'CAT_STATIC_SPARK':
+          return 'Rub against synthetic carpet to charge 50,000 volts';
+        case 'CAT_NUCLEAR_NACHO':
+          return 'Fed exclusively on irradiated breakroom cheese dip';
+        case 'CAT_PLASMA_PURR':
+          return 'Purrs at vibrational frequencies that ionize the room';
+        case 'CAT_VOLCANO_WHISKER':
+          return 'Whiskers dipped in molten cooling pipe magma';
+        case 'CAT_TICKING_TABBY':
+          return 'Swallowed an experimental atomic chronometer';
+        default:
+          return card.subTitle || 'Lab Reactor Volatile Specimen';
+      }
+    }
+
+    // High-Fidelity Reference Card HTML Generator
+    function renderComicCardHTML(card, options = {}) {
+      if (!card) return '';
+      const badgeColor = card.badgeColor || '#000000';
+      const funnySetup = getCardFunnySetup(card);
+      const ruleText = getCardRuleText(card);
+      const shortTitle = (card.title || 'CARD').split(' ')[0];
+
+      return `
+        <div class="w-full h-full rounded-[9px] border-2 flex flex-col justify-between p-1.5 sm:p-2 select-none relative overflow-hidden bg-white" style="border-color:${badgeColor}">
+          <!-- Top Header: Icon Badge, Title & Flavor Text -->
+          <div class="flex items-start gap-1.5 sm:gap-2 leading-tight">
+            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shadow-sm shrink-0" style="background-color:${badgeColor}">
+              ${getCardIconWhite(card.iconName, 'w-3.5 h-3.5 sm:w-4 sm:h-4')}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-bangers text-[13px] sm:text-[15px] leading-none text-stone-950 tracking-wide uppercase truncate">
+                ${card.title || 'CARD'}
+              </div>
+              <div class="font-fredoka text-[7.5px] sm:text-[8.5px] text-stone-500 italic leading-tight truncate mt-0.5">
+                ${funnySetup}
+              </div>
+            </div>
+          </div>
+
+          <!-- Center Illustrated Art Window -->
+          <div class="w-full flex-1 my-1 rounded-[7px] border border-stone-950/15 overflow-hidden flex items-center justify-center relative bg-gradient-to-b from-stone-50 to-stone-100 p-0.5 pointer-events-none">
+            ${getCardArtSVG(card)}
+          </div>
+
+          <!-- Bottom: Bracketed Action / Rules & Inverted Micro Badge -->
+          <div class="flex flex-col gap-0.5 shrink-0">
+            <div class="w-full bg-stone-950 text-white rounded-[5px] px-1 py-0.5 text-center font-fredoka text-[7px] sm:text-[8px] font-bold leading-tight tracking-tight shadow-sm truncate">
+              ${ruleText}
+            </div>
+            <div class="flex items-center justify-between text-[6.5px] sm:text-[7px] font-bangers text-stone-400 px-0.5">
+              <span class="tracking-widest uppercase opacity-80">LAB REACTOR ED.</span>
+              <div class="flex items-center gap-1 transform rotate-180">
+                <span class="text-stone-700">${shortTitle}</span>
+                <div class="w-3 h-3 rounded-full flex items-center justify-center" style="background:${badgeColor}">
+                  ${getCardIconWhite(card.iconName, 'w-2 h-2')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- 3D CARD SLAM ANIMATION ENGINE ---
+    const COMIC_IMPACT_WORDS = ['WHAM!', 'SLAP!', 'THUD!', 'SMACK!', 'SLAM!', 'BAM!'];
+
+    function spawnComicImpactWord(x, y) {
+      const layer = document.getElementById('speech-bubbles-layer');
+      if (!layer) return;
+      const word = COMIC_IMPACT_WORDS[Math.floor(Math.random() * COMIC_IMPACT_WORDS.length)];
+      const el = document.createElement('div');
+      el.className = 'comic-impact-word';
+      const rot = (Math.random() - 0.5) * 36;
+      el.style.setProperty('--rot', `${rot}deg`);
+      el.style.left = `${x + (Math.random() - 0.5) * 35}px`;
+      el.style.top = `${y + (Math.random() - 0.5) * 20}px`;
+      el.innerText = word;
+      layer.appendChild(el);
+      setTimeout(() => {
+        if (el.parentNode) el.remove();
+      }, 400);
+    }
+
+    function triggerCardSlam(card, originInfo, onImpact) {
+      if (!card) return;
+      const stage = document.getElementById('card-slam-stage');
+      const discardSlot = document.getElementById('discard-card-slot');
+      if (!stage || !discardSlot) return;
+
+      // 1. Calculate Target Coordinates (Center of the Discard Card Slot)
+      const targetRect = discardSlot.getBoundingClientRect();
+      const targetW = targetRect.width > 20 ? targetRect.width : 144;
+      const targetH = targetRect.height > 20 ? targetRect.height : 208;
+      const targetX = targetRect.left + targetW / 2;
+      const targetY = targetRect.top + targetH / 2;
+
+      // 2. Calculate Start Coordinates based on origin
+      let startX = window.innerWidth / 2;
+      let startY = window.innerHeight - 100;
+
+      if (originInfo) {
+        if (originInfo.nodeType) {
+          const rect = originInfo.getBoundingClientRect();
+          startX = rect.left + rect.width / 2;
+          startY = rect.top + rect.height / 2;
+        } else if (typeof originInfo.x === 'number' && typeof originInfo.y === 'number') {
+          startX = originInfo.x;
+          startY = originInfo.y;
+        } else if (typeof originInfo === 'string') {
+          const myId = (localGameState && localGameState.myId) || (socket && socket.id);
+          if (originInfo === myId || originInfo === 'me') {
+            const handContainer = document.getElementById('player-hand-container');
+            if (handContainer) {
+              const rect = handContainer.getBoundingClientRect();
+              startX = rect.left + rect.width / 2;
+              startY = rect.top + rect.height / 2;
+            }
+          } else {
+            const oppElem = document.getElementById(`opp-box-${originInfo}`);
+            if (oppElem) {
+              const rect = oppElem.getBoundingClientRect();
+              startX = rect.left + rect.width / 2;
+              startY = rect.bottom;
+            } else {
+              startX = window.innerWidth / 2;
+              startY = 90;
+            }
+          }
+        }
+      }
+
+      const deltaX = startX - targetX;
+      const deltaY = startY - targetY;
+
+      // 3. Randomized 3D Rotation Angles & Scale Parameters
+      const isFromBottom = startY > targetY;
+      const startRotX = isFromBottom 
+        ? (36 + Math.random() * 26)   // 36deg to 62deg backward pitch
+        : (-36 - Math.random() * 26); // forward tilt from opponent at top
+      const startRotY = (Math.random() - 0.5) * 64; // -32deg to +32deg roll
+      const startRotZ = (Math.random() - 0.5) * 55; // -27deg to +27deg yaw spin
+
+      const midRotX = startRotX * 0.42;
+      const midRotY = startRotY * 0.32;
+      const midRotZ = startRotZ * 0.65;
+
+      // Final resting rotation on table: natural haphazard tabletop card angle
+      const finalRotZ = (Math.random() - 0.5) * 22; // -11deg to +11deg
+      currentDiscardRotation = finalRotZ;
+
+      // Scale animation: raised up high, dramatic wind-up, violent squash slam, bounce, and settle
+      const startScale = 1.85 + Math.random() * 0.25;
+      const midScale = startScale + 0.12;
+
+      // 4. Create the Animated Card Element in the 3D Perspective Stage
+      const slamEl = document.createElement('div');
+      slamEl.className = 'absolute rounded-xl bg-white shadow-2xl pointer-events-none select-none overflow-hidden';
+      slamEl.style.width = `${targetW}px`;
+      slamEl.style.height = `${targetH}px`;
+      slamEl.style.left = `${targetRect.left}px`;
+      slamEl.style.top = `${targetRect.top}px`;
+      slamEl.style.transformOrigin = '50% 50%';
+      slamEl.style.willChange = 'transform, box-shadow, opacity';
+      slamEl.style.zIndex = '90';
+
+      slamEl.innerHTML = renderComicCardHTML(card);
+      stage.appendChild(slamEl);
+
+      // 5. Execute 3D Slam Animation
+      const slamDuration = 480; // ms
+      const impactTimeRatio = 0.78; // 374ms
+
+      const keyframes = [
+        {
+          transform: `translate3d(${deltaX}px, ${deltaY}px, 220px) rotateX(${startRotX}deg) rotateY(${startRotY}deg) rotateZ(${startRotZ}deg) scale(${startScale})`,
+          boxShadow: '0 45px 50px -10px rgba(0,0,0,0.7), 0 0 30px rgba(249,115,22,0.4)',
+          filter: 'brightness(1.15) contrast(1.05)',
+          opacity: 0.95,
+          offset: 0
+        },
+        {
+          transform: `translate3d(${deltaX * 0.45}px, ${deltaY * 0.4 - 35}px, 280px) rotateX(${midRotX}deg) rotateY(${midRotY}deg) rotateZ(${midRotZ}deg) scale(${midScale})`,
+          boxShadow: '0 60px 70px -15px rgba(0,0,0,0.85), 0 0 45px rgba(251,191,36,0.5)',
+          filter: 'brightness(1.2) contrast(1.1)',
+          opacity: 1,
+          offset: 0.38
+        },
+        {
+          transform: `translate3d(0px, 0px, 0px) rotateX(0deg) rotateY(0deg) rotateZ(${finalRotZ}deg) scale(0.92)`,
+          boxShadow: '0 4px 8px rgba(0,0,0,0.9), 0 0 25px rgba(249,115,22,0.85)',
+          filter: 'brightness(1.0) contrast(1.0)',
+          opacity: 1,
+          offset: impactTimeRatio
+        },
+        {
+          transform: `translate3d(0px, -6px, 15px) rotateX(2deg) rotateY(1deg) rotateZ(${finalRotZ}deg) scale(1.05)`,
+          boxShadow: '0 14px 20px rgba(0,0,0,0.75)',
+          opacity: 1,
+          offset: 0.89
+        },
+        {
+          transform: `translate3d(0px, 0px, 0px) rotateX(0deg) rotateY(0deg) rotateZ(${finalRotZ}deg) scale(1)`,
+          boxShadow: '0 8px 18px rgba(0,0,0,0.65)',
+          opacity: 1,
+          offset: 1
+        }
+      ];
+
+      let impacted = false;
+      const triggerImpact = () => {
+        if (impacted) return;
+        impacted = true;
+
+        // Punchy card slap & wood table thud sound
+        if (sounds && sounds.cardSlam) {
+          sounds.cardSlam();
+        }
+
+        // Procedural shockwave and kinetic tabletop sparks
+        if (vfx && vfx.cardSlamImpact) {
+          vfx.cardSlamImpact(targetX, targetY, card.badgeColor || '#ea580c');
+        }
+
+        // Discard slot squash and spring recoil
+        discardSlot.classList.remove('slot-recoil-anim');
+        void discardSlot.offsetWidth;
+        discardSlot.classList.add('slot-recoil-anim');
+        setTimeout(() => discardSlot.classList.remove('slot-recoil-anim'), 320);
+
+        // Subtle tabletop camera thud vibration
+        const screenGame = document.getElementById('screen-game');
+        if (screenGame) {
+          screenGame.classList.remove('table-thud-shake');
+          void screenGame.offsetWidth;
+          screenGame.classList.add('table-thud-shake');
+          setTimeout(() => screenGame.classList.remove('table-thud-shake'), 240);
+        }
+
+        // Comic Onomatopoeia Pop ("WHAM!", "SLAP!", "THUD!")
+        spawnComicImpactWord(targetX, targetY - 20);
+
+        if (onImpact) onImpact();
+      };
+
+      const impactTimer = setTimeout(triggerImpact, slamDuration * impactTimeRatio);
+
+      const anim = slamEl.animate(keyframes, {
+        duration: slamDuration,
+        easing: 'cubic-bezier(0.2, 0.85, 0.32, 1)',
+        fill: 'forwards'
+      });
+
+      anim.onfinish = () => {
+        clearTimeout(impactTimer);
+        triggerImpact();
+
+        // Update discard slot to display this card permanently with resting angle
+        if (localGameState) {
+          localGameState.topDiscard = card;
+          renderGameTable(localGameState);
+        }
+
+        setTimeout(() => {
+          if (slamEl.parentNode) {
+            slamEl.remove();
+          }
+        }, 40);
+      };
     }
 
     // --- INITIALIZE SOCKET ---
@@ -1572,15 +2311,35 @@
 
       // Multi-card combo announcement toast
       socket.on('combo_result', (data) => {
-        sounds.cardPlay();
+        if (data.cards && Array.isArray(data.cards) && data.cards.length > 0) {
+          data.cards.forEach((c, idx) => {
+            setTimeout(() => {
+              const origin = (data.attackerId === socket.id && lastPlayedCardOrigin) ? lastPlayedCardOrigin : data.attackerId;
+              triggerCardSlam(c, origin);
+            }, idx * 115);
+          });
+          lastPlayedCardOrigin = null;
+        } else {
+          sounds.cardPlay();
+        }
+
         if (data.type === 'THREE_OF_A_KIND') {
           if (data.success) {
             showComboNotification('🎯 3-OF-A-KIND SUCCESS!', `${data.attackerName} demanded ${data.demandedTitle} from ${data.victimName} and stole it!`, '🎯');
+            if (data.attackerId) showSpeechBubble(data.attackerId, `🎯 Demanded ${data.demandedTitle}! Yoink!`, 'attack');
+            if (data.victimId) showSpeechBubble(data.victimId, `🙀 You guessed it...`, 'emote');
           } else {
             showComboNotification('❌ 3-OF-A-KIND MISSED!', `${data.attackerName} demanded ${data.demandedTitle} from ${data.victimName}, but they had none!`, '💨');
+            if (data.attackerId) showSpeechBubble(data.attackerId, `❌ Demanded ${data.demandedTitle}!`, 'scramble');
+            if (data.victimId) showSpeechBubble(data.victimId, `😼 Nope! Don't have it!`, 'coolant');
           }
         } else if (data.type === 'PAIR') {
           showComboNotification('😼 PAIR STEAL!', `${data.attackerName} played a pair of ${data.cardTitle}s and stole a random card from ${data.victimName}!`, '😼');
+          if (data.attackerId) showSpeechBubble(data.attackerId, `🐾 Double trouble! Yoink!`, 'attack');
+          if (data.victimId) showSpeechBubble(data.victimId, `😿 Hey! My card!`, 'emote');
+        } else if (data.type === 'FIVE_DIFFERENT') {
+          showComboNotification('✨ 5-CARD COMBO!', `${data.attackerName} scavenged the discard pile!`, '✨');
+          if (data.attackerId) showSpeechBubble(data.attackerId, `✨ 5-Card Lab Combo! Salvage time!`, 'scan');
         }
       });
 
@@ -1602,6 +2361,13 @@
       });
 
       socket.on('card_played', (data) => {
+        // Trigger randomized 3D physical table slam animation
+        if (data.card) {
+          const origin = (data.playerId === socket.id && lastPlayedCardOrigin) ? lastPlayedCardOrigin : data.playerId;
+          lastPlayedCardOrigin = null;
+          triggerCardSlam(data.card, origin);
+        }
+
         const type = (data.card?.type || '').toUpperCase();
         if (type === 'COOLANT_FOAM' || type === 'DEFUSE') {
           sounds.defuse();
@@ -1627,20 +2393,34 @@
         } else if (type.startsWith('CAT_')) {
           sounds.catSound();
           vfx.sparkle(window.innerWidth / 2, window.innerHeight / 2, '#fbbf24', 15);
-        } else {
-          sounds.cardPlay();
+        }
+
+        // Trigger comic speech bubble above the player who played the card
+        if (data.playerId && data.card) {
+          showCardPlaySpeechBubble(data.playerId, data.card);
         }
       });
 
       socket.on('kitten_defused', (data) => {
+        if (data.card) {
+          const origin = (data.playerId === socket.id && lastPlayedCardOrigin) ? lastPlayedCardOrigin : data.playerId;
+          lastPlayedCardOrigin = null;
+          triggerCardSlam(data.card, origin);
+        }
         sounds.defuse();
         vfx.coolantSpray(window.innerWidth / 2, window.innerHeight / 2);
         showComboNotification('❄️ CORE COOLED!', `${data.playerName || 'Technician'} deployed Coolant Foam! Cat secured into reactor core.`, '❄️');
+        if (data.playerId) {
+          showSpeechBubble(data.playerId, '❄️ Core cooled! Cat secured!', 'coolant');
+        }
       });
 
       socket.on('player_exploded', (data) => {
         triggerExplosionVisual();
         showComboNotification('💥 DETONATION!', `${data.playerName || 'Technician'} drew a Combustion Cat and suffered vaporisation!`, '💥');
+        if (data.playerId) {
+          showSpeechBubble(data.playerId, '💥 ME-OWCH! Meltdown!', 'explosion');
+        }
       });
 
       socket.on('game_over', (data) => {
@@ -1648,7 +2428,7 @@
       });
 
       socket.on('chat_message', (data) => {
-        showFloatingChat(data.senderId, data.message);
+        showSpeechBubble(data.senderId, data.message, 'emote');
       });
 
       socket.on('kicked', () => {
@@ -1685,6 +2465,7 @@
       data.players.forEach((p) => {
         const isMe = p.id === socket.id;
         const card = document.createElement('div');
+        card.id = `lobby-player-${p.id}`;
         card.className = `flex flex-col items-center justify-between p-4 rounded-2xl bg-stone-900/90 border-3 ${
           p.isReady ? 'border-lime-500 shadow-[0_0_15px_rgba(132,204,22,0.3)]' : 'border-stone-800'
         } relative`;
@@ -1788,27 +2569,12 @@
       // 3. Top Discard Card
       const discardSlot = document.getElementById('discard-card-slot');
       if (state.topDiscard) {
-        discardSlot.className = 'w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-white border-3 border-stone-950 flex flex-col justify-between p-2 shadow-xl rotate-2';
-        discardSlot.style.borderColor = state.topDiscard.badgeColor || '#000';
-        discardSlot.innerHTML = `
-          <div class="flex items-center justify-between">
-            <span class="font-bangers text-[11px] px-1.5 py-0.5 rounded text-white" style="background-color:${state.topDiscard.badgeColor}">
-              ${state.topDiscard.title.split(' ')[0]}
-            </span>
-            ${getCardIcon(state.topDiscard.iconName)}
-          </div>
-          <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto flex items-center justify-center pointer-events-none">
-            ${getCardArtSVG(state.topDiscard)}
-          </div>
-          <div class="font-bangers text-center text-stone-900 text-xs sm:text-sm leading-tight truncate">
-            ${state.topDiscard.title}
-          </div>
-          <div class="font-fredoka text-[9px] text-stone-600 text-center italic line-clamp-2">
-            ${state.topDiscard.subTitle}
-          </div>
-        `;
+        discardSlot.className = 'w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-white shadow-xl overflow-hidden relative select-none';
+        discardSlot.style.transform = `rotate(${currentDiscardRotation}deg)`;
+        discardSlot.innerHTML = renderComicCardHTML(state.topDiscard);
       } else {
-        discardSlot.className = 'w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-black/40 border-3 border-dashed border-stone-700 flex flex-col items-center justify-center p-2 text-center relative rotate-2';
+        discardSlot.className = 'w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-black/40 border-3 border-dashed border-stone-700 flex flex-col items-center justify-center p-2 text-center relative';
+        discardSlot.style.transform = 'rotate(0deg)';
         discardSlot.innerHTML = `<span class="font-bangers text-stone-500 text-sm">DISCARD PILE</span>`;
       }
 
@@ -1859,6 +2625,15 @@
         opponentsRow.appendChild(opp);
       });
 
+      // 5b. Update My Avatar Box
+      const myP = state.players.find((p) => p.id === state.myId);
+      const myAvatarBox = document.getElementById('my-avatar-box');
+      if (myP && myAvatarBox) {
+        document.getElementById('my-avatar-icon').innerHTML = getAvatarSVG(myP.avatarId);
+        document.getElementById('my-avatar-name').innerText = myP.name || 'You';
+        document.getElementById('my-avatar-cards-count').innerText = `${(state.myHand || []).length} cards`;
+      }
+
       // 6. Active turn status badge
       const activeP = state.players[state.activePlayerIndex];
       const statusBadge = document.getElementById('player-status-badge');
@@ -1875,28 +2650,8 @@
       (state.myHand || []).forEach((card) => {
         const isSelected = selectedCards.some((c) => c.id === card.id);
         const cardElem = document.createElement('div');
-        cardElem.className = `card-item relative w-24 h-38 sm:w-32 sm:h-50 rounded-2xl bg-white border-3 border-stone-950 flex flex-col justify-between p-2 shadow-lg cursor-pointer select-none ${
-          isSelected ? 'selected' : ''
-        }`;
-        cardElem.style.borderColor = card.badgeColor || '#000';
-
-        cardElem.innerHTML = `
-          <div class="flex items-center justify-between">
-            <span class="font-bangers text-[10px] sm:text-xs px-1.5 py-0.5 rounded text-white" style="background-color:${card.badgeColor}">
-              ${card.title.split(' ')[0]}
-            </span>
-            ${getCardIcon(card.iconName)}
-          </div>
-          <div class="w-12 h-12 sm:w-16 sm:h-16 mx-auto flex items-center justify-center pointer-events-none">
-            ${getCardArtSVG(card)}
-          </div>
-          <div class="font-bangers text-center text-stone-950 text-xs sm:text-sm leading-tight px-1 truncate">
-            ${card.title}
-          </div>
-          <div class="font-fredoka text-[8px] sm:text-[9px] text-stone-700 text-center italic leading-tight line-clamp-2">
-            ${card.subTitle}
-          </div>
-        `;
+        cardElem.className = `card-item ${isSelected ? 'selected' : ''}`;
+        cardElem.innerHTML = renderComicCardHTML(card);
 
         cardElem.addEventListener('click', () => {
           toggleSelectCard(card);
@@ -1922,28 +2677,79 @@
       }
     }
 
-    // --- COMBO DETECTION LOGIC ---
+    // --- COMBO DETECTION & BANNER LOGIC ---
+    let currentComboBannerType = null;
+
+    function updateComboBanner(combo) {
+      const banner = document.getElementById('comboBanner');
+      const titleEl = document.getElementById('combo-banner-title');
+      const subtextEl = document.getElementById('combo-banner-subtext');
+      const iconLeft = document.getElementById('combo-banner-icon-left');
+      const iconRight = document.getElementById('combo-banner-icon-right');
+      if (!banner || !titleEl || !subtextEl) return;
+
+      if (combo && combo.valid && combo.bannerText) {
+        titleEl.innerText = combo.bannerText;
+        subtextEl.innerText = combo.bannerSubtext || '';
+        const icon = combo.bannerIcon || '🔥';
+        if (iconLeft) iconLeft.innerText = icon;
+        if (iconRight) iconRight.innerText = icon;
+
+        banner.classList.remove('fading-out', 'bursting');
+        banner.classList.add('active');
+        currentComboBannerType = combo.type;
+      } else {
+        if (banner.classList.contains('active')) {
+          banner.classList.remove('active');
+          banner.classList.add('fading-out');
+          setTimeout(() => {
+            if (banner.classList.contains('fading-out')) {
+              banner.classList.remove('fading-out');
+            }
+          }, 260);
+        }
+        currentComboBannerType = null;
+      }
+    }
+
+    function triggerComboBannerBurst() {
+      const banner = document.getElementById('comboBanner');
+      if (!banner) return;
+      banner.classList.remove('active', 'fading-out');
+      banner.classList.add('bursting');
+      if (sounds && sounds.spark) sounds.spark();
+      const rect = banner.getBoundingClientRect();
+      if (vfx && vfx.sparkle) {
+        vfx.sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2, '#ffb703', 25);
+      }
+      setTimeout(() => {
+        banner.classList.remove('bursting');
+      }, 420);
+    }
+
     function detectCombo(cards) {
       if (!cards || cards.length === 0) {
-        return { valid: false, type: null, playLabel: 'PLAY CARD', desc: 'Select card(s) to play' };
+        return { valid: false, type: null, playLabel: 'PLAY CARD', desc: 'Select card(s) to play', bannerText: null };
       }
 
-      // Single card
+      // Single card - STRICT: Cat cards cannot be played alone!
       if (cards.length === 1) {
         const c = cards[0];
         if (c.category === 'cat') {
           return {
             valid: false,
             type: 'CAT_SINGLE',
-            playLabel: 'NEEDS PAIR OR TRIO',
-            desc: 'Cat cards have no action alone. Match 2 for a random steal, or 3 for a named demand!'
+            playLabel: 'SELECT FULL COMBO (2, 3, OR 5)',
+            desc: 'Cat cards have no action alone! Select 2 matching, 3 matching, or 5 unique cards.',
+            bannerText: null
           };
         }
         return {
           valid: true,
           type: 'SINGLE',
           playLabel: `PLAY ${c.title.split(' ')[0].toUpperCase()}`,
-          desc: c.subTitle || 'Play action card'
+          desc: c.subTitle || 'Play action card',
+          bannerText: null
         };
       }
 
@@ -1953,7 +2759,10 @@
           return {
             valid: true,
             type: 'PAIR',
-            playLabel: 'PLAY PAIR (STEAL RANDOM)',
+            bannerText: '2 OF A KIND!',
+            bannerSubtext: 'Steal 1 random card from an opponent',
+            bannerIcon: '😼',
+            playLabel: 'PLAY 2 OF A KIND!',
             desc: `2-of-a-Kind (${cards[0].title}s): Steal 1 random card from an opponent!`
           };
         }
@@ -1961,7 +2770,8 @@
           valid: false,
           type: 'INVALID_PAIR',
           playLabel: 'PAIR REQUIRES MATCHING CARDS',
-          desc: 'Both cards must be the exact same card type.'
+          desc: 'Both cards must be the exact same card type.',
+          bannerText: null
         };
       }
 
@@ -1971,7 +2781,10 @@
           return {
             valid: true,
             type: 'THREE_OF_A_KIND',
-            playLabel: 'PLAY 3-OF-A-KIND (DEMAND CARD)',
+            bannerText: '3 OF A KIND!',
+            bannerSubtext: 'Demand a specific card from an opponent',
+            bannerIcon: '🎯',
+            playLabel: 'PLAY 3 OF A KIND!',
             desc: `3-of-a-Kind (${cards[0].title}s): Name any card and demand it from an opponent!`
           };
         }
@@ -1979,7 +2792,8 @@
           valid: false,
           type: 'INVALID_TRIO',
           playLabel: 'TRIO REQUIRES 3 MATCHING CARDS',
-          desc: 'All 3 cards must be the exact same card type.'
+          desc: 'All 3 cards must be the exact same card type.',
+          bannerText: null
         };
       }
 
@@ -1990,7 +2804,10 @@
           return {
             valid: true,
             type: 'FIVE_DIFFERENT',
-            playLabel: 'PLAY 5-CARD COMBO (RECOVER)',
+            bannerText: '5 OF A KIND!',
+            bannerSubtext: 'Scavenge & retrieve any card from Discard',
+            bannerIcon: '✨',
+            playLabel: 'PLAY 5 OF A KIND!',
             desc: '5 Unique Cards: Scavenge the Discard Pile and claim any card of your choice!'
           };
         }
@@ -1998,7 +2815,8 @@
           valid: false,
           type: 'INVALID_FIVE',
           playLabel: 'REQUIRES 5 UNIQUE CARDS',
-          desc: `You selected duplicates (${uniqueTypes.size}/5 unique). All 5 cards must be different!`
+          desc: `You selected duplicates (${uniqueTypes.size}/5 unique). All 5 cards must be different!`,
+          bannerText: null
         };
       }
 
@@ -2007,7 +2825,8 @@
         valid: false,
         type: 'INVALID_COUNT',
         playLabel: `${cards.length} CARDS SELECTED`,
-        desc: 'Combos supported: 2 matching (pair), 3 matching (trio), or 5 unique cards.'
+        desc: 'Combos supported: 2 matching (pair), 3 matching (trio), or 5 unique cards.',
+        bannerText: null
       };
     }
 
@@ -2048,6 +2867,7 @@
         btn.disabled = true;
         btn.innerText = 'PLAY CARD';
         if (statusBar) statusBar.classList.add('hidden');
+        updateComboBanner(null);
         return;
       }
 
@@ -2055,10 +2875,14 @@
         btn.disabled = true;
         btn.innerText = 'PLAY CARD';
         if (statusBar) statusBar.classList.add('hidden');
+        updateComboBanner(null);
         return;
       }
 
       const combo = detectCombo(selectedCards);
+
+      // Update Center Floating Combo Banner
+      updateComboBanner(combo);
 
       if (statusBar) {
         statusBar.classList.remove('hidden');
@@ -2111,6 +2935,18 @@
 
       const combo = detectCombo(selectedCards);
       if (!combo.valid) return;
+
+      // Trigger center combo banner burst if playing a combo
+      if (combo.bannerText) {
+        triggerComboBannerBurst();
+      }
+
+      // Capture origin of selected card on player's hand for smooth launch
+      const firstSelectedEl = document.querySelector('.card-item.selected');
+      if (firstSelectedEl) {
+        const r = firstSelectedEl.getBoundingClientRect();
+        lastPlayedCardOrigin = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+      }
 
       // 1. Single Card
       if (combo.type === 'SINGLE') {
@@ -2225,19 +3061,8 @@
       grid.innerHTML = '';
       cards.forEach((c) => {
         const el = document.createElement('div');
-        el.className = 'w-24 h-38 sm:w-28 sm:h-44 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg';
-        el.style.borderColor = c.badgeColor || '#000';
-        el.innerHTML = `
-          <div class="flex justify-between items-center">
-            <span class="font-bangers text-[10px] text-white px-1 rounded" style="background:${c.badgeColor}">${c.title.split(' ')[0]}</span>
-            ${getCardIcon(c.iconName)}
-          </div>
-          <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto flex items-center justify-center">
-            ${getCardArtSVG(c)}
-          </div>
-          <div class="font-bangers text-stone-900 text-xs text-center leading-tight truncate">${c.title}</div>
-          <div class="text-[9px] text-stone-500 italic text-center line-clamp-1">${c.subTitle}</div>
-        `;
+        el.className = 'w-24 h-38 sm:w-28 sm:h-44 shadow-lg flex-shrink-0';
+        el.innerHTML = renderComicCardHTML(c);
         grid.appendChild(el);
       });
       document.getElementById('modal-see-future').classList.remove('hidden');
@@ -2260,17 +3085,13 @@
         const el = document.createElement('div');
         el.className = 'flex flex-col items-center gap-1';
         el.innerHTML = `
-          <div class="w-24 h-38 sm:w-28 sm:h-44 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg" style="border-color:${c.badgeColor}">
-            <div class="font-bangers text-[10px] text-stone-400">#${idx + 1} ${idx === 0 ? '(TOP)' : ''}</div>
-            <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto flex items-center justify-center">
-              ${getCardArtSVG(c)}
-            </div>
-            <div class="font-bangers text-stone-900 text-xs text-center truncate">${c.title}</div>
-            <div class="text-[9px] text-stone-500 italic text-center line-clamp-1">${c.subTitle}</div>
+          <div class="text-[11px] font-bangers text-yellow-300">#${idx + 1} ${idx === 0 ? '(TOP)' : ''}</div>
+          <div class="w-24 h-38 sm:w-28 sm:h-44 shadow-lg flex-shrink-0">
+            ${renderComicCardHTML(c)}
           </div>
           <div class="flex gap-1 mt-1">
-            ${idx > 0 ? `<button class="px-2 py-0.5 bg-stone-800 rounded text-xs hover:bg-stone-700" onclick="swapAlter(${idx}, ${idx - 1})">◀</button>` : ''}
-            ${idx < pendingAlterCards.length - 1 ? `<button class="px-2 py-0.5 bg-stone-800 rounded text-xs hover:bg-stone-700" onclick="swapAlter(${idx}, ${idx + 1})">▶</button>` : ''}
+            ${idx > 0 ? `<button class="px-2 py-0.5 bg-stone-800 rounded text-xs hover:bg-stone-700 text-white font-bangers" onclick="swapAlter(${idx}, ${idx - 1})">◀</button>` : ''}
+            ${idx < pendingAlterCards.length - 1 ? `<button class="px-2 py-0.5 bg-stone-800 rounded text-xs hover:bg-stone-700 text-white font-bangers" onclick="swapAlter(${idx}, ${idx + 1})">▶</button>` : ''}
           </div>
         `;
         grid.appendChild(el);
@@ -2334,16 +3155,8 @@
 
       hand.forEach((card) => {
         const btn = document.createElement('button');
-        btn.className = 'comic-btn w-22 h-34 sm:w-26 sm:h-40 rounded-xl bg-white border-2 p-1.5 flex flex-col justify-between text-left hover:scale-105';
-        btn.style.borderColor = card.badgeColor || '#000';
-        btn.innerHTML = `
-          <div class="font-bangers text-[9px] text-white px-1 rounded truncate" style="background:${card.badgeColor}">${card.title.split(' ')[0]}</div>
-          <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto flex items-center justify-center pointer-events-none">
-            ${getCardArtSVG(card)}
-          </div>
-          <div class="font-bangers text-stone-900 text-[11px] text-center leading-tight truncate">${card.title}</div>
-          <div class="text-[8px] text-stone-500 italic text-center line-clamp-1">${card.subTitle}</div>
-        `;
+        btn.className = 'comic-btn w-24 h-38 sm:w-28 sm:h-44 text-left hover:scale-105 shadow-md flex-shrink-0 transition-transform rounded-xl overflow-hidden';
+        btn.innerHTML = renderComicCardHTML(card);
         btn.addEventListener('click', () => {
           socket.emit('favor_give', { roomId: currentRoomId, cardId: card.id });
           document.getElementById('modal-favor-give').classList.add('hidden');
@@ -2418,21 +3231,8 @@
         emptyMsg.classList.add('hidden');
         eligible.forEach((card) => {
           const cardElem = document.createElement('div');
-          cardElem.className = 'w-24 h-38 sm:w-28 sm:h-44 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg cursor-pointer hover:scale-105 hover:shadow-xl transition-all';
-          cardElem.style.borderColor = card.badgeColor || '#000';
-          cardElem.innerHTML = `
-            <div class="flex justify-between items-center">
-              <span class="font-bangers text-[9px] text-white px-1.5 py-0.5 rounded truncate" style="background:${card.badgeColor}">
-                ${card.title.split(' ')[0]}
-              </span>
-              ${getCardIcon(card.iconName)}
-            </div>
-            <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto flex items-center justify-center pointer-events-none">
-              ${getCardArtSVG(card)}
-            </div>
-            <div class="font-bangers text-stone-900 text-xs text-center leading-tight truncate">${card.title}</div>
-            <div class="font-fredoka text-[9px] text-stone-600 italic text-center leading-tight line-clamp-1">${card.subTitle}</div>
-          `;
+          cardElem.className = 'w-24 h-38 sm:w-28 sm:h-44 shadow-lg cursor-pointer hover:scale-105 hover:shadow-xl transition-all flex-shrink-0 rounded-xl overflow-hidden';
+          cardElem.innerHTML = renderComicCardHTML(card);
           cardElem.addEventListener('click', () => {
             socket.emit('select_discard_card', {
               roomId: currentRoomId,
@@ -2507,26 +3307,356 @@
       }, 700);
     }
 
-    // In-game Emote Speech Bubbles
-    document.querySelectorAll('.btn-emote').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const emote = btn.getAttribute('data-emote');
-        if (socket && currentRoomId) {
-          socket.emit('send_chat', { roomId: currentRoomId, emote });
-        }
-      });
-    });
+    // --- TEMPORARY COMIC SPEECH BUBBLES ENGINE ---
+    const activeSpeechBubbles = new Map();
 
-    function showFloatingChat(senderId, text) {
-      const targetElem = document.getElementById(`opp-box-${senderId}`) || document.getElementById('player-status-badge');
+    const CARD_SPEECH_LINES = {
+      COOLANT_FOAM: [
+        '❄️ Coolant deployed! Core safe!',
+        '🧯 Cat cooled! Crisis averted!',
+        '🧊 Temperature dropping!',
+        '🛡️ Core stabilized! Phew!'
+      ],
+      DEFUSE: [
+        '❄️ Coolant deployed! Core safe!',
+        '🧯 Cat cooled! Crisis averted!',
+        '🧊 Temperature dropping!',
+        '🛡️ Core stabilized! Phew!'
+      ],
+      THERMAL_BLAST: [
+        '🔥 Take double shifts!',
+        '💥 Thermal blast incoming!',
+        '🚀 Overheat protocol active!',
+        '😈 Suffer two turns!'
+      ],
+      ATTACK: [
+        '🔥 Take double shifts!',
+        '💥 Thermal blast incoming!',
+        '🚀 Overheat protocol active!',
+        '😈 Suffer two turns!'
+      ],
+      EMERGENCY_EVAC: [
+        '💨 Evacuation hatch open!',
+        '🏃 Skipping my shift!',
+        '🚪 Containment sealed, bye!',
+        '✨ Safe for now!'
+      ],
+      SKIP: [
+        '💨 Evacuation hatch open!',
+        '🏃 Skipping my shift!',
+        '🚪 Containment sealed, bye!',
+        '✨ Safe for now!'
+      ],
+      INFRARED_SCAN: [
+        '🔮 Scanning reactor core...',
+        '👀 I see what is coming!',
+        '📡 Reading thermal signatures...',
+        '👁️ The future is revealed!'
+      ],
+      SEE_THE_FUTURE: [
+        '🔮 Scanning reactor core...',
+        '👀 I see what is coming!',
+        '📡 Reading thermal signatures...',
+        '👁️ The future is revealed!'
+      ],
+      TIMELINE_SCRAMBLE: [
+        '⏳ Timeline scrambled!',
+        '🌀 Rewriting the future!',
+        '🔄 Sequence rearranged!',
+        '🛠️ Fixing the timeline!'
+      ],
+      ALTER_THE_FUTURE: [
+        '⏳ Timeline scrambled!',
+        '🌀 Rewriting the future!',
+        '🔄 Sequence rearranged!',
+        '🛠️ Fixing the timeline!'
+      ],
+      THERMODYNAMIC_VORTEX: [
+        '🌪️ Centrifuge spin!',
+        '🎲 Core randomized!',
+        '🌀 Whirlwind vortex!',
+        '🌪️ Good luck finding the cat!'
+      ],
+      SHUFFLE: [
+        '🌪️ Centrifuge spin!',
+        '🎲 Core randomized!',
+        '🌀 Whirlwind vortex!',
+        '🌪️ Good luck finding the cat!'
+      ],
+      FELINE_BLACKMAIL: [
+        '😼 Fork over a card!',
+        '💼 Hand over the supplies!',
+        '🤝 I will take that!',
+        '📄 Feline blackmail!'
+      ],
+      FAVOR: [
+        '😼 Fork over a card!',
+        '💼 Hand over the supplies!',
+        '🤝 I will take that!',
+        '📄 Feline blackmail!'
+      ],
+      CAT_STATIC_SPARK: [
+        '⚡ Static spark charging!',
+        '🐾 Zap zap! Electric paws!',
+        '⚡ High voltage whiskers!'
+      ],
+      CAT_NUCLEAR_NACHO: [
+        '🧀 Radioactive nacho power!',
+        '☢️ Spicy atomic feline!',
+        '💥 Nuclear crunch!'
+      ],
+      CAT_PLASMA_PURR: [
+        '🔮 Plasma field humming!',
+        '🟣 High energy purring!',
+        '⚡ Concentrated plasma!'
+      ],
+      CAT_VOLCANO_WHISKER: [
+        '🌋 Magma whiskers flared!',
+        '🔥 Liquid hot paws!',
+        '☄️ Molten feline power!'
+      ],
+      CAT_TICKING_TABBY: [
+        '⏱️ Tick tock, tabby!',
+        '⏰ Clockwork countdown!',
+        '⚙️ Feline chronometer!'
+      ],
+      NOPE: [
+        '🛑 NOPE! Not happening!',
+        '🚫 Jackanope says NOPE!',
+        '🙅 Overruled and stopped!',
+        '⚡ Denied! Action cancelled!'
+      ]
+    };
+
+    function showSpeechBubble(senderId, text, kind = 'emote') {
+      if (!senderId || !text) return;
+
+      // Find target avatar element
+      let targetElem = null;
+      const myId = (localGameState && localGameState.myId) || (socket && socket.id);
+
+      if (senderId === myId) {
+        targetElem = document.getElementById('my-avatar-box') || document.getElementById('player-status-badge');
+      } else {
+        targetElem = document.getElementById(`opp-box-${senderId}`);
+      }
+
+      // If in lobby, check lobby member card
+      if (!targetElem) {
+        targetElem = document.getElementById(`lobby-player-${senderId}`);
+      }
+
+      // Fallback to active status badge if in game
+      if (!targetElem) {
+        targetElem = document.getElementById('player-status-badge');
+      }
+
       if (!targetElem) return;
 
-      const bubble = document.createElement('div');
-      bubble.className = 'absolute -top-7 bg-white text-stone-950 font-bangers text-xs px-2 py-0.5 rounded-full border-2 border-stone-950 shadow-lg animate-pop z-50';
-      bubble.innerText = text;
-      targetElem.appendChild(bubble);
+      const layer = document.getElementById('speech-bubbles-layer');
+      if (!layer) return;
 
-      setTimeout(() => bubble.remove(), 2500);
+      // Clean up previous active bubble for this sender
+      if (activeSpeechBubbles.has(senderId)) {
+        const oldBubble = activeSpeechBubbles.get(senderId);
+        if (oldBubble && oldBubble.parentNode) {
+          oldBubble.remove();
+        }
+        activeSpeechBubbles.delete(senderId);
+      }
+
+      const rect = targetElem.getBoundingClientRect();
+      const centerX = Math.max(90, Math.min(window.innerWidth - 90, rect.left + rect.width / 2));
+      const isTopHalf = rect.top < 220;
+
+      // Theme colors for bubble
+      let bgHex = '#ffffff';
+      let textClass = 'text-stone-950';
+      let borderHex = '#1a0804';
+
+      if (kind === 'coolant' || kind === 'defuse') {
+        bgHex = '#ecfeff'; // cyan-50
+        borderHex = '#0891b2'; // cyan-600
+        textClass = 'text-cyan-950';
+      } else if (kind === 'attack' || kind === 'blast') {
+        bgHex = '#fff7ed'; // orange-50
+        borderHex = '#ea580c'; // orange-600
+        textClass = 'text-orange-950';
+      } else if (kind === 'evac' || kind === 'skip') {
+        bgHex = '#f0fdfa'; // teal-50
+        borderHex = '#0d9488'; // teal-600
+        textClass = 'text-teal-950';
+      } else if (kind === 'scan' || kind === 'scramble') {
+        bgHex = '#faf5ff'; // purple-50
+        borderHex = '#9333ea'; // purple-600
+        textClass = 'text-purple-950';
+      } else if (kind === 'vortex') {
+        bgHex = '#f8fafc'; // slate-50
+        borderHex = '#475569'; // slate-600
+        textClass = 'text-slate-950';
+      } else if (kind === 'blackmail') {
+        bgHex = '#fefce8'; // yellow-50
+        borderHex = '#ca8a04'; // yellow-600
+        textClass = 'text-amber-950';
+      } else if (kind === 'explosion') {
+        bgHex = '#fef2f2'; // red-50
+        borderHex = '#dc2626'; // red-600
+        textClass = 'text-red-950';
+      }
+
+      const bubble = document.createElement('div');
+      bubble.className = `comic-speech-bubble ${textClass} flex items-center justify-center`;
+      bubble.style.backgroundColor = bgHex;
+      bubble.style.borderColor = borderHex;
+
+      // Inner SVG beak pointer pointing to target avatar
+      let pointerSvg = '';
+      if (isTopHalf) {
+        // Pointing UP to top avatar
+        pointerSvg = `
+          <svg class="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-2.5 overflow-visible" viewBox="0 0 16 10">
+            <polygon points="0,10 16,10 8,0" fill="${borderHex}"/>
+            <polygon points="2,10 14,10 8,2.5" fill="${bgHex}"/>
+          </svg>
+        `;
+        bubble.style.top = `${Math.max(10, rect.bottom + 10)}px`;
+        bubble.style.left = `${centerX}px`;
+      } else {
+        // Pointing DOWN to bottom avatar
+        pointerSvg = `
+          <svg class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-2.5 overflow-visible" viewBox="0 0 16 10">
+            <polygon points="0,0 16,0 8,10" fill="${borderHex}"/>
+            <polygon points="2,0 14,0 8,7.5" fill="${bgHex}"/>
+          </svg>
+        `;
+        bubble.style.bottom = `${Math.max(10, window.innerHeight - rect.top + 10)}px`;
+        bubble.style.left = `${centerX}px`;
+      }
+
+      // Safe inner text escape
+      const escaped = document.createElement('div');
+      escaped.innerText = text;
+
+      bubble.innerHTML = `
+        <span class="tracking-wide drop-shadow-sm">${escaped.innerHTML}</span>
+        ${pointerSvg}
+      `;
+
+      layer.appendChild(bubble);
+      activeSpeechBubbles.set(senderId, bubble);
+
+      if (sounds && sounds.bubblePop) {
+        sounds.bubblePop();
+      }
+
+      // Exit transition after 2.6s
+      setTimeout(() => {
+        bubble.classList.add('bubble-exit');
+        setTimeout(() => {
+          if (bubble.parentNode) bubble.remove();
+          if (activeSpeechBubbles.get(senderId) === bubble) {
+            activeSpeechBubbles.delete(senderId);
+          }
+        }, 320);
+      }, 2600);
+    }
+
+    function showCardPlaySpeechBubble(playerId, card) {
+      if (!card || !card.type) return;
+      const type = card.type.toUpperCase();
+      const quotes = CARD_SPEECH_LINES[type];
+      let text = '';
+      if (quotes && quotes.length > 0) {
+        text = quotes[Math.floor(Math.random() * quotes.length)];
+      } else {
+        text = `Playing ${card.title || 'Card'}!`;
+      }
+
+      let kind = 'emote';
+      if (type.includes('COOLANT') || type.includes('DEFUSE')) kind = 'coolant';
+      else if (type.includes('THERMAL') || type.includes('ATTACK')) kind = 'attack';
+      else if (type.includes('EVAC') || type.includes('SKIP')) kind = 'evac';
+      else if (type.includes('SCAN') || type.includes('FUTURE')) kind = 'scan';
+      else if (type.includes('SCRAMBLE')) kind = 'scramble';
+      else if (type.includes('VORTEX') || type.includes('SHUFFLE')) kind = 'vortex';
+      else if (type.includes('BLACKMAIL') || type.includes('FAVOR')) kind = 'blackmail';
+      else if (type.includes('NOPE')) kind = 'explosion';
+
+      showSpeechBubble(playerId, text, kind);
+    }
+
+    // Backwards compatibility alias
+    function showFloatingChat(senderId, text) {
+      showSpeechBubble(senderId, text, 'emote');
+    }
+
+    // Global listener for all .btn-emote triggers (including dynamically added or popovers)
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-emote');
+      if (btn) {
+        const emote = btn.getAttribute('data-emote');
+        if (emote && socket && currentRoomId) {
+          socket.emit('send_chat', { roomId: currentRoomId, emote });
+        }
+        const panel = document.getElementById('emote-popover-panel');
+        if (panel && !panel.classList.contains('hidden')) {
+          panel.classList.add('hidden');
+        }
+      }
+    });
+
+    // Emote Drawer Popover toggling
+    const btnToggleEmotePanel = document.getElementById('btn-toggle-emote-panel');
+    const emotePopoverPanel = document.getElementById('emote-popover-panel');
+    const btnCloseEmotePanel = document.getElementById('btn-close-emote-panel');
+    const inputQuickChat = document.getElementById('input-quick-chat');
+    const btnSendCustomChat = document.getElementById('btn-send-custom-chat');
+
+    if (btnToggleEmotePanel && emotePopoverPanel) {
+      btnToggleEmotePanel.addEventListener('click', (e) => {
+        e.stopPropagation();
+        emotePopoverPanel.classList.toggle('hidden');
+        if (!emotePopoverPanel.classList.contains('hidden') && inputQuickChat) {
+          inputQuickChat.focus();
+        }
+      });
+    }
+
+    if (btnCloseEmotePanel && emotePopoverPanel) {
+      btnCloseEmotePanel.addEventListener('click', (e) => {
+        e.stopPropagation();
+        emotePopoverPanel.classList.add('hidden');
+      });
+    }
+
+    // Close emote panel when clicking outside
+    document.addEventListener('click', (e) => {
+      if (emotePopoverPanel && !emotePopoverPanel.classList.contains('hidden')) {
+        if (!emotePopoverPanel.contains(e.target) && !btnToggleEmotePanel.contains(e.target)) {
+          emotePopoverPanel.classList.add('hidden');
+        }
+      }
+    });
+
+    function sendCustomQuickChat() {
+      if (!inputQuickChat || !socket || !currentRoomId) return;
+      const text = inputQuickChat.value.trim();
+      if (!text) return;
+      socket.emit('send_chat', { roomId: currentRoomId, emote: text });
+      inputQuickChat.value = '';
+      if (emotePopoverPanel) emotePopoverPanel.classList.add('hidden');
+    }
+
+    if (btnSendCustomChat) {
+      btnSendCustomChat.addEventListener('click', sendCustomQuickChat);
+    }
+    if (inputQuickChat) {
+      inputQuickChat.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendCustomQuickChat();
+        }
+      });
     }
 
     // --- MENU BUTTON ATTACHMENTS ---

@@ -36,6 +36,8 @@ const CARD_TEMPLATES = {
     title: 'COMBUSTION CAT',
     subTitle: 'CRITICAL DETONATION',
     actionText: 'VAPORIZE IMMEDIATELY',
+    funnySetup: 'A FELINE REACTOR CORE APPROACHING MAXIMUM VOLATILITY',
+    bracketRule: '[ { EXPLODE: SHOW IMMEDIATELY. UNLESS YOU HAVE COOLANT FOAM, YOU ARE VAPORIZED. } ]',
     flavorText: 'Spontaneous feline detonation imminent! Defuse immediately or face catastrophic vaporisation.',
     category: 'danger',
     badgeColor: '#f97316',
@@ -48,6 +50,8 @@ const CARD_TEMPLATES = {
     title: 'COOLANT FOAM',
     subTitle: 'CRYOGENIC EXTINGUISHER',
     actionText: 'NEUTRALIZE MELTDOWN',
+    funnySetup: 'A SQUIRT GUN FILLED WITH CRYO-NITROGEN',
+    bracketRule: '[ { DEFUSE: PLAY WHEN YOU DRAW A COMBUSTION CAT. SECRETLY RE-INSERT IT ANYWHERE IN THE DECK. } ]',
     flavorText: 'Douses the fiery feline with liquid nitrogen or catnip spray, allowing you to secretly replace the Combustion Cat anywhere in the deck.',
     category: 'defuse',
     badgeColor: '#10b981',
@@ -60,6 +64,8 @@ const CARD_TEMPLATES = {
     title: 'THERMAL BLAST',
     subTitle: 'REACTOR OVERHEAT',
     actionText: 'FORCE 2 TURNS',
+    funnySetup: 'OVERHEAT THE REACTOR WITH 1,000 MICROWAVED BURRITOS',
+    bracketRule: '[ { ATTACK: END TURN WITHOUT DRAWING. FORCES NEXT PLAYER TO TAKE 2 TURNS. } ]',
     flavorText: 'Unload thermal energy onto the next operator, forcing them to take 2 consecutive turns immediately.',
     category: 'action',
     badgeColor: '#ef4444',
@@ -71,6 +77,8 @@ const CARD_TEMPLATES = {
     title: 'EMERGENCY EVAC',
     subTitle: 'CRYO SHIELD VENT',
     actionText: 'ESCAPE TURN SAFELY',
+    funnySetup: 'LAUNCH YOURSELF THROUGH THE VENTILATION DUCT',
+    bracketRule: '[ { SKIP: IMMEDIATELY END 1 TURN WITHOUT DRAWING A CARD. } ]',
     flavorText: 'Trigger instant emergency cooling and escape your turn without drawing a card.',
     category: 'action',
     badgeColor: '#06b6d4',
@@ -82,6 +90,8 @@ const CARD_TEMPLATES = {
     title: 'INFRARED SCAN',
     subTitle: 'THERMAL SURVEILLANCE',
     actionText: 'SCAN TOP 3 CORE CARDS',
+    funnySetup: 'A THERMAL SATELLITE PEERS INTO THE FUEL CHAMBER',
+    bracketRule: '[ { SEE THE FUTURE: PRIVATELY VIEW THE TOP 3 CARDS OF THE DECK. } ]',
     flavorText: 'Scan the top 3 cards of the reactor draw core with thermal cameras.',
     category: 'action',
     badgeColor: '#8b5cf6',
@@ -93,6 +103,8 @@ const CARD_TEMPLATES = {
     title: 'TIMELINE SCRAMBLE',
     subTitle: 'REACTOR OVERHAUL',
     actionText: 'REORDER TOP 3 CARDS',
+    funnySetup: 'BEND QUANTUM SPACE-TIME WITH A RUBBER BAND',
+    bracketRule: '[ { ALTER THE FUTURE: VIEW AND REARRANGE THE TOP 3 CARDS IN ANY ORDER. } ]',
     flavorText: 'Peer into the top 3 cards and manipulate their containment sequence.',
     category: 'action',
     badgeColor: '#d946ef',
@@ -104,6 +116,8 @@ const CARD_TEMPLATES = {
     title: 'THERMODYNAMIC VORTEX',
     subTitle: 'CENTRIFUGE AGITATION',
     actionText: 'RANDOMIZE DRAW CORE',
+    funnySetup: 'AN AGITATED CAT RUNS ON THE CENTRIFUGE WHEEL',
+    bracketRule: '[ { SHUFFLE: THOROUGHLY RANDOMIZE THE ENTIRE FUEL DECK. } ]',
     flavorText: 'Activate the magnetic centrifuge to completely randomize the draw pile.',
     category: 'action',
     badgeColor: '#64748b',
@@ -115,11 +129,26 @@ const CARD_TEMPLATES = {
     title: 'FELINE BLACKMAIL',
     subTitle: 'HAZARD EXTORTION',
     actionText: 'FORCE 1 CARD BRIBE',
+    funnySetup: 'THREATEN RIVALS WITH AN UNCOMFORTABLY LONG STARE',
+    bracketRule: '[ { FAVOR: FORCE ANY RIVAL PLAYER TO GIVE YOU 1 CARD OF THEIR CHOICE. } ]',
     flavorText: 'Threaten another lab technician with a meltdown to extort 1 card from their hand.',
     category: 'action',
     badgeColor: '#eab308',
     bgTone: '#422006',
     iconName: 'feline_blackmail',
+  },
+  NOPE: {
+    type: 'NOPE',
+    title: 'NOPE',
+    subTitle: 'STOP ACTION',
+    actionText: 'CANCEL OPPONENT ACTION',
+    funnySetup: 'A JACKANOPE BOUNDS INTO THE ROOM',
+    bracketRule: '[ { NOPE: STOP THE ACTION OF ANOTHER PLAYER. CAN BE PLAYED AT ANY TIME. } ]',
+    flavorText: 'Stop the action of another player. Can be played at any time.',
+    category: 'action',
+    badgeColor: '#dc2626',
+    bgTone: '#450a0a',
+    iconName: 'nope',
   },
   // 5 Feral Feline Combo Cards
   CAT_STATIC_SPARK: {
@@ -127,6 +156,8 @@ const CARD_TEMPLATES = {
     title: 'STATIC SPARK CAT',
     subTitle: 'TESLA COIL FUR',
     actionText: 'PAIR TO STEAL',
+    funnySetup: 'RUBBED AGAINST 500 WOOL SWEATERS IN DRY WEATHER',
+    bracketRule: '[ { COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. } ]',
     flavorText: 'High-voltage friction crackling from its paws. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#f59e0b',
@@ -138,6 +169,8 @@ const CARD_TEMPLATES = {
     title: 'NUCLEAR NACHO CAT',
     subTitle: 'RADIOACTIVE SNACK',
     actionText: 'PAIR TO STEAL',
+    funnySetup: 'CRUNCHING ON GLOWING ISOTOPE-DIPPED TORTILLA CHIPS',
+    bracketRule: '[ { COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. } ]',
     flavorText: 'Irradiated cheese dust radiating lethal gamma warmth. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#84cc16',
@@ -149,6 +182,8 @@ const CARD_TEMPLATES = {
     title: 'PLASMA PURR CAT',
     subTitle: 'SUPERHEATED ION BEAM',
     actionText: 'PAIR TO STEAL',
+    funnySetup: 'PURRING AT 40,000 KELVIN WITH VIOLET ION DISCHARGE',
+    bracketRule: '[ { COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. } ]',
     flavorText: 'Vibrates at 40,000 kelvin with luminous violet discharge. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#ec4899',
@@ -160,6 +195,8 @@ const CARD_TEMPLATES = {
     title: 'VOLCANO WHISKER CAT',
     subTitle: 'MAGMA PLUME SNOUT',
     actionText: 'PAIR TO STEAL',
+    funnySetup: 'SNEEZING MOLTEN BASALT AND BUBBLING OBSIDIAN',
+    bracketRule: '[ { COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. } ]',
     flavorText: 'Bristles with molten obsidian and bubbling basalt. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#ea580c',
@@ -171,6 +208,8 @@ const CARD_TEMPLATES = {
     title: 'TICKING TABBY',
     subTitle: 'CHRONO CLOCKWORK',
     actionText: 'PAIR TO STEAL',
+    funnySetup: 'AN INTRICATE CLOCKWORK MECHANISM COUNTING DOWN TO BOOM',
+    bracketRule: '[ { COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. } ]',
     flavorText: 'Gears grinding and counting down to spontaneous ignition. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#10b981',
@@ -467,6 +506,27 @@ class GameRoom {
       `${nextP.name}'s turn (${newTurns} turn${newTurns > 1 ? 's' : ''} to take)`
     );
 
+    // Bot reaction to thermal attack (multiple turns)
+    if (nextP && nextP.isBot && newTurns > 1) {
+      const reactions = [
+        '😱 Double shifts?! Why me?!',
+        '🔥 That is uncalled for!',
+        '😼 Challenge accepted!',
+        '💣 You will pay for this!',
+        '⚡ Thermal overload incoming!'
+      ];
+      const botMsg = reactions[Math.floor(Math.random() * reactions.length)];
+      setTimeout(() => {
+        io.to(this.id).emit('chat_message', {
+          senderId: nextP.id,
+          senderName: nextP.name,
+          senderAvatar: nextP.avatarId,
+          message: botMsg,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        });
+      }, 400);
+    }
+
     this.broadcastGameState();
     this.checkBotTurn();
   }
@@ -645,6 +705,7 @@ class GameRoom {
         io.to(this.id).emit('kitten_defused', {
           playerId: currentP.id,
           playerName: currentP.name,
+          card: defuseCard,
         });
 
         if (currentP.isBot) {
@@ -713,6 +774,28 @@ class GameRoom {
       playerId: currentP.id,
       playerName: currentP.name,
     });
+
+    // Bot occasional banter if drawing safely under high tension
+    const kittenCount = this.drawPile.filter((c) => c.type === 'COMBUSTION_CAT' || c.type === 'EXPLODING_KITTEN').length;
+    const chance = this.drawPile.length > 0 ? (kittenCount / this.drawPile.length) * 100 : 0;
+    if (currentP.isBot && chance > 22 && Math.random() < 0.4) {
+      const safeReactions = [
+        '😅 Phew! Still in one piece!',
+        '😼 Too cool to explode!',
+        '❄️ Temperature under control!',
+        '🧊 Crisis avoided!'
+      ];
+      const botMsg = safeReactions[Math.floor(Math.random() * safeReactions.length)];
+      setTimeout(() => {
+        io.to(this.id).emit('chat_message', {
+          senderId: currentP.id,
+          senderName: currentP.name,
+          senderAvatar: currentP.avatarId,
+          message: botMsg,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        });
+      }, 300);
+    }
 
     if (this.turnsRemaining > 1) {
       this.turnsRemaining--;
@@ -916,6 +999,12 @@ class GameRoom {
     const card = currentP.hand.splice(cardIdx, 1)[0];
     this.discardPile.push(card);
 
+    io.to(this.id).emit('card_played', {
+      playerId: currentP.id,
+      playerName: currentP.name,
+      card,
+    });
+
     this.log(
       currentP.name,
       currentP.avatarId,
@@ -996,9 +1085,12 @@ class GameRoom {
     io.to(this.id).emit('combo_result', {
       type: 'PAIR',
       success: true,
+      attackerId: currentP.id,
       attackerName: currentP.name,
+      victimId: victim.id,
       victimName: victim.name,
       cardTitle: cardsToPlay[0].title,
+      cards: cardsToPlay,
     });
 
     this.broadcastGameState();
@@ -1041,10 +1133,13 @@ class GameRoom {
       io.to(this.id).emit('combo_result', {
         type: 'THREE_OF_A_KIND',
         success: true,
+        attackerId: currentP.id,
         attackerName: currentP.name,
+        victimId: victim.id,
         victimName: victim.name,
         cardTitle: cardsToPlay[0].title,
         demandedTitle: demandedTemplate.title,
+        cards: cardsToPlay,
       });
     } else {
       this.log(
@@ -1056,10 +1151,13 @@ class GameRoom {
       io.to(this.id).emit('combo_result', {
         type: 'THREE_OF_A_KIND',
         success: false,
+        attackerId: currentP.id,
         attackerName: currentP.name,
+        victimId: victim.id,
         victimName: victim.name,
         cardTitle: cardsToPlay[0].title,
         demandedTitle: demandedTemplate.title,
+        cards: cardsToPlay,
       });
     }
 
@@ -1087,6 +1185,15 @@ class GameRoom {
       currentP.avatarId,
       `✨ 5-CARD COMBO! ${currentP.name} played 5 different cards to scavenge the Discard Pile!`
     );
+
+    io.to(this.id).emit('combo_result', {
+      type: 'FIVE_DIFFERENT',
+      success: true,
+      attackerId: currentP.id,
+      attackerName: currentP.name,
+      cardTitle: '5-Card Lab Combo',
+      cards: cardsToPlay,
+    });
 
     if (currentP.isBot) {
       const eligible = this.discardPile.filter((c) => c.type !== 'COMBUSTION_CAT' && c.type !== 'EXPLODING_KITTEN');
