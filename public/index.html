@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exploding Kittens - Multiplayer Online</title>
+  <title>Exploding Kittens</title>
+  <meta name="description" content="A browser-based digital card game clone of Exploding Kittens with interactive tabletop, gauge, comic art, and AI bots." />
+  <meta property="og:title" content="Exploding Kittens" />
+  <meta property="og:description" content="A browser-based digital card game clone of Exploding Kittens with interactive tabletop, gauge, comic art, and AI bots." />
   
   <!-- Google Fonts: Bangers & Fredoka -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -990,7 +993,7 @@
       });
 
       socket.on('kicked', () => {
-        alert('You have been kicked by the host.');
+        showComboNotification('PARTY UPDATE', 'You have been kicked by the host.', '🚪');
         showScreen('menu');
       });
     }
@@ -1873,7 +1876,7 @@
       const avatarId = document.getElementById('user-avatar').value;
 
       if (!code) {
-        alert('Please enter a room code (e.g. KTN-789)');
+        showComboNotification('ATTENTION', 'Please enter a room code (e.g. KTN-789)', '⚠️');
         return;
       }
 
@@ -1884,7 +1887,7 @@
           isRoomHost = false;
           showScreen('lobby');
         } else {
-          alert(`Could not join room: ${res.error}`);
+          showComboNotification('JOIN FAILED', `Could not join room: ${res.error}`, '❌');
         }
       });
     });
@@ -1952,15 +1955,19 @@
     // 6. Copy Code & Invite Link
     document.getElementById('btn-copy-code').addEventListener('click', () => {
       if (!currentRoomCode) return;
-      navigator.clipboard.writeText(currentRoomCode);
-      alert(`Copied Room Code: ${currentRoomCode}`);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(currentRoomCode).catch(() => {});
+      }
+      showComboNotification('COPIED!', `Room Code copied: ${currentRoomCode}`, '📋');
     });
 
     document.getElementById('btn-copy-link').addEventListener('click', () => {
       if (!currentRoomCode) return;
       const url = `${window.location.origin}/?room=${currentRoomCode}`;
-      navigator.clipboard.writeText(url);
-      alert(`Copied Invite Link: ${url}`);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).catch(() => {});
+      }
+      showComboNotification('COPIED!', `Invite link copied to clipboard!`, '🔗');
     });
 
     // 7. Tutorial & Sound toggles
