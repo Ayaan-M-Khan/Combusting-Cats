@@ -477,24 +477,44 @@
     <footer class="w-full bg-gradient-to-t from-black via-black/80 to-transparent pt-3 pb-2 px-4 z-30 select-none">
       <div class="max-w-7xl mx-auto flex flex-col gap-2">
         
-        <!-- Controls row: Play Button, Turn Status -->
-        <div class="flex items-center justify-between px-2">
+        <!-- Controls row: Status, Auto-Sort, Selection, Play Button -->
+        <div class="flex flex-wrap items-center justify-between gap-2 px-2">
           <div class="flex items-center gap-2">
             <div id="player-status-badge" class="font-bangers text-base sm:text-lg text-yellow-300 flex items-center gap-2 bg-stone-900/80 px-3 py-1 rounded-xl border border-stone-800">
               <span>WAITING FOR OPPONENT...</span>
             </div>
+
+            <!-- Hand Sorting Controls -->
+            <div class="flex items-center gap-1.5 bg-stone-900/90 px-2.5 py-1 rounded-xl border border-stone-800 text-xs font-fredoka">
+              <button id="btn-toggle-autosort" title="Toggle Automatic Hand Sorting" class="comic-btn px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-yellow-300 flex items-center gap-1.5 text-xs">
+                <span>⚡ Auto-Sort:</span>
+                <span id="autosort-status-badge" class="text-lime-400 font-bold">ON</span>
+              </button>
+              <button id="btn-manual-sort" title="Sort Hand Now" class="comic-btn px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white text-xs">
+                ↕ Sort
+              </button>
+            </div>
           </div>
 
-          <!-- Play Selected Card Button -->
+          <!-- Action & Play Controls -->
           <div class="flex items-center gap-2">
+            <button id="btn-clear-selection" class="comic-btn px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 font-bangers text-stone-300 text-xs tracking-wider cursor-pointer hidden">
+              CLEAR (0)
+            </button>
             <button id="btn-play-card" class="comic-btn px-6 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 font-bangers text-stone-950 text-base tracking-wider cursor-pointer shadow-lg disabled:opacity-40 disabled:cursor-not-allowed" disabled>
               PLAY CARD
             </button>
           </div>
         </div>
 
+        <!-- Combo Feedback Banner -->
+        <div id="combo-status-bar" class="hidden mx-2 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 font-fredoka text-xs flex items-center justify-between animate-fade-in">
+          <span id="combo-status-text" class="font-medium">Multi-card combo detected</span>
+          <span id="combo-hint-text" class="text-[11px] text-amber-200/70">Ready to play</span>
+        </div>
+
         <!-- Horizontal Fanned Cards Tray -->
-        <div id="player-hand-container" class="w-full flex items-end justify-center overflow-x-auto pb-2 pt-8 min-h-[160px] gap-[-20px]">
+        <div id="player-hand-container" class="w-full flex items-end justify-center overflow-x-auto pb-2 pt-6 min-h-[160px] gap-[-20px]">
           <!-- Rendered dynamically -->
         </div>
 
@@ -601,6 +621,56 @@
     </div>
   </div>
 
+  <!-- 5b. 3-OF-A-KIND TARGETED DEMAND MODAL -->
+  <div id="modal-demand-card" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 hidden">
+    <div class="bg-[#24130b] border-4 border-fuchsia-500 rounded-3xl max-w-xl w-full p-6 text-center shadow-2xl animate-pop">
+      <div class="text-4xl mb-1">🎯</div>
+      <h2 class="font-bangers text-3xl text-fuchsia-400 mb-1">3-OF-A-KIND: DEMAND A CARD</h2>
+      <p class="font-fredoka text-xs sm:text-sm text-stone-300 mb-4">
+        Demanding from: <span id="demand-target-player-name" class="text-yellow-300 font-bold underline">Opponent</span>.<br/>
+        If they possess this card type, they must surrender it to you!
+      </p>
+
+      <div id="demand-card-options-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-5 max-h-72 overflow-y-auto p-1 text-left">
+        <!-- Generated dynamically in JS -->
+      </div>
+
+      <button id="btn-cancel-demand" class="comic-btn px-6 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 font-bangers text-stone-300 text-sm">
+        CANCEL COMBO
+      </button>
+    </div>
+  </div>
+
+  <!-- 5c. 5-CARD COMBO DISCARD PILE RECOVERY MODAL -->
+  <div id="modal-discard-browser" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 hidden">
+    <div class="bg-[#24130b] border-4 border-emerald-500 rounded-3xl max-w-2xl w-full p-6 text-center shadow-2xl animate-pop">
+      <div class="text-4xl mb-1">✨</div>
+      <h2 class="font-bangers text-3xl text-emerald-400 mb-1">5-CARD COMBO: DISCARD RECOVERY</h2>
+      <p class="font-fredoka text-xs sm:text-sm text-stone-300 mb-4">
+        You played 5 unique cards! Click any card from the Discard Pile to take it into your hand:
+      </p>
+
+      <div id="discard-browser-grid" class="flex flex-wrap items-center justify-center gap-3 mb-5 max-h-72 overflow-y-auto p-3 bg-black/40 rounded-2xl border border-stone-800">
+        <!-- Discard pile cards rendered here -->
+      </div>
+
+      <p id="discard-empty-msg" class="hidden text-stone-400 font-fredoka text-sm italic mb-4">
+        No eligible cards available in the discard pile.
+      </p>
+    </div>
+  </div>
+
+  <!-- 5d. COMBO NOTIFICATION BANNER -->
+  <div id="combo-alert-toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 -translate-y-4 max-w-md w-[92%]">
+    <div id="combo-alert-box" class="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white border-3 border-yellow-300 rounded-2xl p-3 shadow-2xl flex items-center gap-3">
+      <div id="combo-alert-icon" class="text-2xl">✨</div>
+      <div class="flex-1">
+        <div id="combo-alert-title" class="font-bangers text-base text-yellow-200 tracking-wider">COMBO EXECUTED!</div>
+        <div id="combo-alert-desc" class="font-fredoka text-xs text-stone-100">Player stole a card</div>
+      </div>
+    </div>
+  </div>
+
   <!-- 6. GAME OVER MODAL -->
   <div id="modal-game-over" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden">
     <div class="bg-[#2b170c] border-4 border-yellow-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-pop">
@@ -641,7 +711,10 @@
         <p><b class="text-purple-400 font-bangers text-base">SEE THE FUTURE (3X):</b> Privately peek at the top 3 cards of the Draw Pile.</p>
         <p><b class="text-fuchsia-400 font-bangers text-base">ALTER THE FUTURE:</b> Peek at the top 3 cards and rearrange their order!</p>
         <p><b class="text-cyan-400 font-bangers text-base">FAVOR:</b> Force any other player to give you 1 card of their choice.</p>
-        <p><b class="text-yellow-400 font-bangers text-base">CAT CARD PAIRS:</b> Play two matching Cat cards to steal 1 random card from any opponent!</p>
+        <p><b class="text-yellow-400 font-bangers text-base">2-OF-A-KIND (PAIRS):</b> Play two identical matching cards to steal 1 random card from any opponent!</p>
+        <p><b class="text-fuchsia-400 font-bangers text-base">3-OF-A-KIND (TRIO):</b> Play three identical matching cards to name an opponent and demand a specific card (e.g. Defuse)! If they have it, they must surrender it.</p>
+        <p><b class="text-emerald-400 font-bangers text-base">5-DIFFERENT CARDS:</b> Play five completely different cards to scavenge the Discard Pile and claim any card of your choice!</p>
+        <p><b class="text-amber-300 font-bangers text-base">AUTO-SORT:</b> Toggle automatic inventory sorting anytime using the Auto-Sort button on the bottom bar.</p>
       </div>
     </div>
   </div>
@@ -740,6 +813,51 @@
     let selectedCards = [];
     let pendingAlterCards = [];
     let pendingActionData = null;
+    let autoSortEnabled = true;
+    let pendingDemandTargetId = null;
+    let pendingDemandCards = [];
+
+    // All distinct card types for 3-of-a-kind demand menu
+    const ALL_CARD_TYPES = [
+      { type: 'DEFUSE', title: 'Defuse', icon: 'laser', color: '#16a34a', desc: 'Neutralize an Exploding Kitten' },
+      { type: 'ATTACK', title: 'Attack', icon: 'paw', color: '#ea580c', desc: 'End turn & force next player 2 turns' },
+      { type: 'SKIP', title: 'Skip', icon: 'run', color: '#2563eb', desc: 'End current turn without drawing' },
+      { type: 'FAVOR', title: 'Favor', icon: 'grab', color: '#0891b2', desc: 'Force opponent to give you 1 card' },
+      { type: 'SEE_THE_FUTURE', title: 'See the Future', icon: 'eye', color: '#9333ea', desc: 'Privately peek at top 3 cards' },
+      { type: 'ALTER_THE_FUTURE', title: 'Alter the Future', icon: 'vortex', color: '#c026d3', desc: 'View and rearrange top 3 cards' },
+      { type: 'SHUFFLE', title: 'Shuffle', icon: 'shuffle', color: '#57534e', desc: 'Randomize the draw deck' },
+      { type: 'CAT_HAIRY_POTATO', title: 'Hairy Potato Cat', icon: 'cat', color: '#ca8a04', desc: 'Feral cat for combos' },
+      { type: 'CAT_TACOCAT', title: 'Tacocat', icon: 'cat', color: '#d97706', desc: 'Palindromic feline combo card' },
+      { type: 'CAT_RAINBOW_RALPHING', title: 'Rainbow Cat', icon: 'cat', color: '#db2777', desc: 'Technicolor hairball combo card' },
+      { type: 'CAT_BEARD', title: 'Beard Cat', icon: 'cat', color: '#4f46e5', desc: 'Bristling facial fur combo card' },
+      { type: 'CAT_CATTERMELON', title: 'Cattermelon', icon: 'cat', color: '#059669', desc: 'Juicy summer feline combo card' },
+    ];
+
+    // Priority sorting order for hand auto-sort
+    const SORT_PRIORITY = {
+      'DEFUSE': 1,
+      'ATTACK': 2,
+      'SKIP': 3,
+      'FAVOR': 4,
+      'SEE_THE_FUTURE': 5,
+      'ALTER_THE_FUTURE': 6,
+      'SHUFFLE': 7,
+      'CAT_HAIRY_POTATO': 8,
+      'CAT_TACOCAT': 9,
+      'CAT_RAINBOW_RALPHING': 10,
+      'CAT_BEARD': 11,
+      'CAT_CATTERMELON': 12,
+    };
+
+    function sortHand(cards) {
+      if (!cards) return [];
+      return [...cards].sort((a, b) => {
+        const pA = SORT_PRIORITY[a.type] || 99;
+        const pB = SORT_PRIORITY[b.type] || 99;
+        if (pA !== pB) return pA - pB;
+        return (a.title || '').localeCompare(b.title || '');
+      });
+    }
 
     // --- AVATAR SVG GENERATOR ---
     function getAvatarSVG(avatarId) {
@@ -809,8 +927,31 @@
 
       // Authoritative masked game state
       socket.on('game_state', (state) => {
+        if (autoSortEnabled && state.myHand) {
+          state.myHand = sortHand(state.myHand);
+        }
         localGameState = state;
         renderGameTable(state);
+      });
+
+      // Discard browser for 5-card combo
+      socket.on('open_discard_browser', (data) => {
+        sounds.cardPlay();
+        showDiscardBrowserModal(data.discardPile);
+      });
+
+      // Multi-card combo announcement toast
+      socket.on('combo_result', (data) => {
+        sounds.cardPlay();
+        if (data.type === 'THREE_OF_A_KIND') {
+          if (data.success) {
+            showComboNotification('🎯 3-OF-A-KIND SUCCESS!', `${data.attackerName} demanded ${data.demandedTitle} from ${data.victimName} and stole it!`, '🎯');
+          } else {
+            showComboNotification('❌ 3-OF-A-KIND MISSED!', `${data.attackerName} demanded ${data.demandedTitle} from ${data.victimName}, but they had none!`, '💨');
+          }
+        } else if (data.type === 'PAIR') {
+          showComboNotification('😼 PAIR STEAL!', `${data.attackerName} played a pair of ${data.cardTitle}s and stole a random card from ${data.victimName}!`, '😼');
+        }
       });
 
       // Special card prompts
@@ -1113,29 +1254,107 @@
       }
     }
 
+    // --- COMBO DETECTION LOGIC ---
+    function detectCombo(cards) {
+      if (!cards || cards.length === 0) {
+        return { valid: false, type: null, playLabel: 'PLAY CARD', desc: 'Select card(s) to play' };
+      }
+
+      // Single card
+      if (cards.length === 1) {
+        const c = cards[0];
+        if (c.category === 'cat') {
+          return {
+            valid: false,
+            type: 'CAT_SINGLE',
+            playLabel: 'NEEDS PAIR OR TRIO',
+            desc: 'Cat cards have no action alone. Match 2 for a random steal, or 3 for a named demand!'
+          };
+        }
+        return {
+          valid: true,
+          type: 'SINGLE',
+          playLabel: `PLAY ${c.title.split(' ')[0].toUpperCase()}`,
+          desc: c.subTitle || 'Play action card'
+        };
+      }
+
+      // 2 Cards: Pair (2-of-a-kind)
+      if (cards.length === 2) {
+        if (cards[0].type === cards[1].type) {
+          return {
+            valid: true,
+            type: 'PAIR',
+            playLabel: 'PLAY PAIR (STEAL RANDOM)',
+            desc: `2-of-a-Kind (${cards[0].title}s): Steal 1 random card from an opponent!`
+          };
+        }
+        return {
+          valid: false,
+          type: 'INVALID_PAIR',
+          playLabel: 'PAIR REQUIRES MATCHING CARDS',
+          desc: 'Both cards must be the exact same card type.'
+        };
+      }
+
+      // 3 Cards: Trio (3-of-a-kind)
+      if (cards.length === 3) {
+        if (cards[0].type === cards[1].type && cards[1].type === cards[2].type) {
+          return {
+            valid: true,
+            type: 'THREE_OF_A_KIND',
+            playLabel: 'PLAY 3-OF-A-KIND (DEMAND CARD)',
+            desc: `3-of-a-Kind (${cards[0].title}s): Name any card and demand it from an opponent!`
+          };
+        }
+        return {
+          valid: false,
+          type: 'INVALID_TRIO',
+          playLabel: 'TRIO REQUIRES 3 MATCHING CARDS',
+          desc: 'All 3 cards must be the exact same card type.'
+        };
+      }
+
+      // 5 Cards: 5 different cards discard pile retrieval
+      if (cards.length === 5) {
+        const uniqueTypes = new Set(cards.map((c) => c.type));
+        if (uniqueTypes.size === 5) {
+          return {
+            valid: true,
+            type: 'FIVE_DIFFERENT',
+            playLabel: 'PLAY 5-CARD COMBO (RECOVER)',
+            desc: '5 Unique Cards: Scavenge the Discard Pile and claim any card of your choice!'
+          };
+        }
+        return {
+          valid: false,
+          type: 'INVALID_FIVE',
+          playLabel: 'REQUIRES 5 UNIQUE CARDS',
+          desc: `You selected duplicates (${uniqueTypes.size}/5 unique). All 5 cards must be different!`
+        };
+      }
+
+      // 4 cards or > 5 cards
+      return {
+        valid: false,
+        type: 'INVALID_COUNT',
+        playLabel: `${cards.length} CARDS SELECTED`,
+        desc: 'Combos supported: 2 matching (pair), 3 matching (trio), or 5 unique cards.'
+      };
+    }
+
     // --- CARD SELECTION & PLAY ---
     function toggleSelectCard(card) {
       if (!localGameState || !localGameState.isMyTurn) return;
 
-      if (card.category === 'cat') {
-        // Toggle pair selection
-        const existingIdx = selectedCards.findIndex((c) => c.id === card.id);
-        if (existingIdx !== -1) {
-          selectedCards.splice(existingIdx, 1);
-        } else {
-          if (selectedCards.length === 1 && selectedCards[0].type === card.type) {
-            selectedCards.push(card);
-          } else {
-            selectedCards = [card];
-          }
-        }
+      const existingIdx = selectedCards.findIndex((c) => c.id === card.id);
+      if (existingIdx !== -1) {
+        selectedCards.splice(existingIdx, 1);
       } else {
-        // Single action card
-        if (selectedCards.length === 1 && selectedCards[0].id === card.id) {
-          selectedCards = [];
-        } else {
-          selectedCards = [card];
+        if (selectedCards.length >= 5) {
+          selectedCards.shift(); // keep max 5
         }
+        selectedCards.push(card);
       }
 
       renderGameTable(localGameState);
@@ -1143,37 +1362,128 @@
 
     function updatePlayButton() {
       const btn = document.getElementById('btn-play-card');
-      if (!localGameState || !localGameState.isMyTurn || selectedCards.length === 0) {
+      const clearBtn = document.getElementById('btn-clear-selection');
+      const statusBar = document.getElementById('combo-status-bar');
+      const statusText = document.getElementById('combo-status-text');
+      const hintText = document.getElementById('combo-hint-text');
+
+      if (!clearBtn || !btn) return;
+
+      if (selectedCards.length > 0) {
+        clearBtn.classList.remove('hidden');
+        clearBtn.innerText = `CLEAR (${selectedCards.length})`;
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+
+      if (!localGameState || !localGameState.isMyTurn) {
         btn.disabled = true;
         btn.innerText = 'PLAY CARD';
+        if (statusBar) statusBar.classList.add('hidden');
         return;
       }
 
-      if (selectedCards.length === 2 && selectedCards[0].category === 'cat') {
-        btn.disabled = false;
-        btn.innerText = 'PLAY CAT PAIR (STEAL)';
-      } else if (selectedCards.length === 1 && selectedCards[0].category !== 'cat') {
-        btn.disabled = false;
-        btn.innerText = `PLAY ${selectedCards[0].title.split(' ')[0]}`;
-      } else {
+      if (selectedCards.length === 0) {
         btn.disabled = true;
         btn.innerText = 'PLAY CARD';
+        if (statusBar) statusBar.classList.add('hidden');
+        return;
       }
+
+      const combo = detectCombo(selectedCards);
+
+      if (statusBar) {
+        statusBar.classList.remove('hidden');
+        if (combo.valid) {
+          statusBar.className = 'mx-2 px-3 py-1.5 rounded-xl bg-lime-500/20 border border-lime-500/40 text-lime-300 font-fredoka text-xs flex items-center justify-between animate-fade-in';
+          statusText.innerText = `✨ ${combo.desc}`;
+          hintText.innerText = 'READY TO PLAY';
+        } else {
+          statusBar.className = 'mx-2 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 font-fredoka text-xs flex items-center justify-between animate-fade-in';
+          statusText.innerText = `⚠️ ${combo.desc}`;
+          hintText.innerText = 'INCOMPLETE';
+        }
+      }
+
+      btn.disabled = !combo.valid;
+      btn.innerText = combo.playLabel;
     }
 
-    // Execute Play Card
+    // Clear Selection Button
+    document.getElementById('btn-clear-selection').addEventListener('click', () => {
+      selectedCards = [];
+      if (localGameState) renderGameTable(localGameState);
+    });
+
+    // Auto-Sort Toggle Button
+    document.getElementById('btn-toggle-autosort').addEventListener('click', () => {
+      autoSortEnabled = !autoSortEnabled;
+      const badge = document.getElementById('autosort-status-badge');
+      if (badge) {
+        badge.innerText = autoSortEnabled ? 'ON' : 'OFF';
+        badge.className = autoSortEnabled ? 'text-lime-400 font-bold' : 'text-stone-400 font-bold';
+      }
+      if (autoSortEnabled && localGameState && localGameState.myHand) {
+        localGameState.myHand = sortHand(localGameState.myHand);
+        renderGameTable(localGameState);
+      }
+    });
+
+    // Manual Sort Button
+    document.getElementById('btn-manual-sort').addEventListener('click', () => {
+      if (localGameState && localGameState.myHand) {
+        localGameState.myHand = sortHand(localGameState.myHand);
+        renderGameTable(localGameState);
+      }
+    });
+
+    // Execute Play Card / Combo
     document.getElementById('btn-play-card').addEventListener('click', () => {
       if (!localGameState || !localGameState.isMyTurn || selectedCards.length === 0) return;
 
-      if (selectedCards.length === 2 && selectedCards[0].category === 'cat') {
-        // Cat pair: prompt target selection
+      const combo = detectCombo(selectedCards);
+      if (!combo.valid) return;
+
+      // 1. Single Card
+      if (combo.type === 'SINGLE') {
+        const card = selectedCards[0];
+        if (card.type === 'FAVOR') {
+          showTargetModal(
+            'DEMAND A FAVOR',
+            'Choose an opponent who must surrender 1 card to you:',
+            (targetId) => {
+              socket.emit('play_card', {
+                roomId: currentRoomId,
+                cardId: card.id,
+                targetPlayerId: targetId,
+              });
+              selectedCards = [];
+              renderGameTable(localGameState);
+            }
+          );
+          return;
+        }
+
+        socket.emit('play_card', {
+          roomId: currentRoomId,
+          cardId: card.id,
+        });
+        selectedCards = [];
+        renderGameTable(localGameState);
+        return;
+      }
+
+      // 2. 2-of-a-Kind (Pair)
+      if (combo.type === 'PAIR') {
+        const cardTitle = selectedCards[0].title;
         showTargetModal(
-          'CAT PAIR: STEAL A CARD!',
+          `PAIR OF ${cardTitle.toUpperCase()}S`,
           'Select an opponent to steal 1 random card from:',
           (targetId) => {
-            socket.emit('play_card', {
+            socket.emit('play_combo', {
               roomId: currentRoomId,
-              cardPairIds: selectedCards.map((c) => c.id),
+              comboType: 'PAIR',
+              cardIds: selectedCards.map((c) => c.id),
               targetPlayerId: targetId,
             });
             selectedCards = [];
@@ -1183,32 +1493,30 @@
         return;
       }
 
-      const card = selectedCards[0];
-      if (card.type === 'FAVOR') {
-        // Favor: prompt target selection
+      // 3. 3-of-a-Kind (Trio) - Targeted card demand
+      if (combo.type === 'THREE_OF_A_KIND') {
+        const cardTitle = selectedCards[0].title;
         showTargetModal(
-          'DEMAND A FAVOR',
-          'Choose an opponent who must give you 1 card:',
+          `3-OF-A-KIND (${cardTitle.toUpperCase()})`,
+          'Choose an opponent to target with your demand:',
           (targetId) => {
-            socket.emit('play_card', {
-              roomId: currentRoomId,
-              cardId: card.id,
-              targetPlayerId: targetId,
-            });
-            selectedCards = [];
-            renderGameTable(localGameState);
+            showDemandModal(targetId, selectedCards);
           }
         );
         return;
       }
 
-      // Normal action card play
-      socket.emit('play_card', {
-        roomId: currentRoomId,
-        cardId: card.id,
-      });
-      selectedCards = [];
-      renderGameTable(localGameState);
+      // 4. 5 Different Cards - Discard recovery
+      if (combo.type === 'FIVE_DIFFERENT') {
+        socket.emit('play_combo', {
+          roomId: currentRoomId,
+          comboType: 'FIVE_DIFFERENT',
+          cardIds: selectedCards.map((c) => c.id),
+        });
+        selectedCards = [];
+        renderGameTable(localGameState);
+        return;
+      }
     });
 
     // Draw Deck Click Handler
@@ -1367,6 +1675,114 @@
       });
 
       document.getElementById('modal-favor-give').classList.remove('hidden');
+    }
+
+    // 3-of-a-Kind Targeted Demand Modal
+    function showDemandModal(targetId, cards) {
+      pendingDemandTargetId = targetId;
+      pendingDemandCards = [...cards];
+
+      const targetPlayer = (localGameState?.players || []).find((p) => p.id === targetId);
+      document.getElementById('demand-target-player-name').innerText = targetPlayer ? targetPlayer.name : 'Opponent';
+
+      const grid = document.getElementById('demand-card-options-grid');
+      grid.innerHTML = '';
+
+      ALL_CARD_TYPES.forEach((item) => {
+        const btn = document.createElement('button');
+        btn.className = 'comic-btn p-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 border-2 text-left flex items-center gap-2.5 transition-all cursor-pointer';
+        btn.style.borderColor = item.color;
+        btn.innerHTML = `
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-stone-950 border border-stone-700 shrink-0">
+            ${getCardIcon(item.icon)}
+          </div>
+          <div class="overflow-hidden">
+            <div class="font-bangers text-xs sm:text-sm text-yellow-300 truncate">${item.title}</div>
+            <div class="font-fredoka text-[9px] text-stone-400 truncate">${item.desc}</div>
+          </div>
+        `;
+        btn.addEventListener('click', () => {
+          socket.emit('play_combo', {
+            roomId: currentRoomId,
+            comboType: 'THREE_OF_A_KIND',
+            cardIds: pendingDemandCards.map((c) => c.id),
+            targetPlayerId: pendingDemandTargetId,
+            demandedCardType: item.type,
+          });
+          document.getElementById('modal-demand-card').classList.add('hidden');
+          selectedCards = [];
+          pendingDemandCards = [];
+          pendingDemandTargetId = null;
+          if (localGameState) renderGameTable(localGameState);
+        });
+        grid.appendChild(btn);
+      });
+
+      document.getElementById('modal-demand-card').classList.remove('hidden');
+    }
+
+    document.getElementById('btn-cancel-demand').addEventListener('click', () => {
+      document.getElementById('modal-demand-card').classList.add('hidden');
+      pendingDemandCards = [];
+      pendingDemandTargetId = null;
+    });
+
+    // 5-Card Combo Discard Pile Recovery Modal
+    function showDiscardBrowserModal(discardPile) {
+      const modal = document.getElementById('modal-discard-browser');
+      const grid = document.getElementById('discard-browser-grid');
+      const emptyMsg = document.getElementById('discard-empty-msg');
+      grid.innerHTML = '';
+
+      const eligible = (discardPile || []).filter((c) => c.type !== 'EXPLODING_KITTEN');
+      if (eligible.length === 0) {
+        emptyMsg.classList.remove('hidden');
+      } else {
+        emptyMsg.classList.add('hidden');
+        eligible.forEach((card) => {
+          const cardElem = document.createElement('div');
+          cardElem.className = 'w-24 h-36 sm:w-28 sm:h-42 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg cursor-pointer hover:scale-105 hover:shadow-xl transition-all';
+          cardElem.style.borderColor = card.badgeColor || '#000';
+          cardElem.innerHTML = `
+            <div class="flex justify-between items-center">
+              <span class="font-bangers text-[9px] text-white px-1.5 py-0.5 rounded truncate" style="background:${card.badgeColor}">
+                ${card.title.split(' ')[0]}
+              </span>
+              ${getCardIcon(card.iconName)}
+            </div>
+            <div class="font-bangers text-stone-900 text-xs text-center leading-tight">${card.title}</div>
+            <div class="font-fredoka text-[9px] text-stone-600 italic text-center leading-tight">${card.subTitle}</div>
+          `;
+          cardElem.addEventListener('click', () => {
+            socket.emit('select_discard_card', {
+              roomId: currentRoomId,
+              cardId: card.id,
+            });
+            modal.classList.add('hidden');
+          });
+          grid.appendChild(cardElem);
+        });
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    // Dynamic Floating Combo Toast Notification
+    function showComboNotification(title, desc, icon = '✨') {
+      const toast = document.getElementById('combo-alert-toast');
+      if (!toast) return;
+
+      document.getElementById('combo-alert-title').innerText = title;
+      document.getElementById('combo-alert-desc').innerText = desc;
+      document.getElementById('combo-alert-icon').innerText = icon;
+
+      toast.classList.remove('opacity-0', '-translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', '-translate-y-4');
+      }, 4000);
     }
 
     // Game Over Modal

@@ -245,8 +245,9 @@ class GameRoom {
     this.discardPile = [];
     this.activePlayerIndex = 0;
     this.turnsRemaining = 1;
+    this.turnCountTotal = 0;
     this.actionLog = [];
-    this.turnState = 'NORMAL'; // 'NORMAL' | 'AWAITING_DEFUSE' | 'AWAITING_FAVOR' | 'ALTERING_FUTURE'
+    this.turnState = 'NORMAL'; // 'NORMAL' | 'AWAITING_DEFUSE' | 'AWAITING_FAVOR' | 'ALTERING_FUTURE' | 'SELECTING_DISCARD'
     this.turnStateData = null;
     this.botTimer = null;
     this.botKnownTopCards = {};
@@ -321,6 +322,7 @@ class GameRoom {
         gameStarted: this.gameStarted,
         activePlayerIndex: this.activePlayerIndex,
         turnsRemaining: this.turnsRemaining,
+        turnCountTotal: this.turnCountTotal,
         deckCount: this.drawPile.length,
         kittensInDeck,
         chanceOfKitten,
@@ -349,8 +351,10 @@ class GameRoom {
     this.turnStateData = null;
     this.activePlayerIndex = 0;
     this.turnsRemaining = 1;
+    this.turnCountTotal = 0;
     this.discardPile = [];
     this.botKnownTopCards = {};
+    clearTimeout(this.botTimer);
 
     // 1. Build standard pool
     const pool = [];
@@ -417,6 +421,7 @@ class GameRoom {
   }
 
   advanceTurn(newTurns = 1) {
+    clearTimeout(this.botTimer);
     const alive = this.players.filter((p) => !p.isDead);
     if (alive.length <= 1) {
       this.checkGameOver();
@@ -429,7 +434,8 @@ class GameRoom {
     }
 
     this.activePlayerIndex = nextIdx;
-    this.turnsRemaining = newTurns;
+    this.turnsRemaining = Math.max(1, newTurns);
+    this.turnCountTotal++;
     this.turnState = 'NORMAL';
     this.turnStateData = null;
 
@@ -497,15 +503,15 @@ class GameRoom {
     const shuffleCard = bot.hand.find((c) => c.type === 'SHUFFLE');
     const favor = bot.hand.find((c) => c.type === 'FAVOR');
 
-    // Cat card pairs
-    const catCounts = {};
+    // Card type counts in bot hand
+    const typeCounts = {};
     bot.hand.forEach((c) => {
-      if (c.category === 'cat') {
-        catCounts[c.type] = catCounts[c.type] || [];
-        catCounts[c.type].push(c);
-      }
+      typeCounts[c.type] = typeCounts[c.type] || [];
+      typeCounts[c.type].push(c);
     });
-    const pairType = Object.keys(catCounts).find((k) => catCounts[k].length >= 2);
+
+    const trioType = Object.keys(typeCounts).find((k) => typeCounts[k].length >= 3);
+    const pairType = Object.keys(typeCounts).find((k) => typeCounts[k].length >= 2);
 
     // Evasion if kitten is next or chance is high
     if (topIsKitten || chance > 25) {
@@ -531,15 +537,41 @@ class GameRoom {
       }
     }
 
-    // Cat pair combo steal
-    if (pairType && Math.random() < 0.6) {
-      const pair = catCounts[pairType].slice(0, 2);
+    // 3-of-a-kind combo demand
+    if (trioType && Math.random() < 0.75) {
+      const trio = typeCounts[trioType].slice(0, 3);
       const targets = this.players.filter(
         (p) => p.id !== bot.id && !p.isDead && p.hand.length > 0
       );
       if (targets.length > 0) {
         targets.sort((a, b) => b.hand.length - a.hand.length);
-        this.playCatPair(bot.id, pair.map((c) => c.id), targets[0].id);
+        this.playThreeOfAKind(bot.id, trio.map((c) => c.id), targets[0].id, 'DEFUSE');
+        return;
+      }
+    }
+
+    // 5-different cards discard retrieval (if discard has valuable Defuse or Attack)
+    const distinctTypes = Object.keys(typeCounts);
+    if (distinctTypes.length >= 5 && Math.random() < 0.65) {
+      const hasValuableInDiscard = this.discardPile.some(
+        (c) => c.type === 'DEFUSE' || c.type === 'ATTACK'
+      );
+      if (hasValuableInDiscard) {
+        const fiveCards = distinctTypes.slice(0, 5).map((t) => typeCounts[t][0]);
+        this.playFiveDifferent(bot.id, fiveCards.map((c) => c.id));
+        return;
+      }
+    }
+
+    // 2-of-a-kind pair combo steal
+    if (pairType && Math.random() < 0.6) {
+      const pair = typeCounts[pairType].slice(0, 2);
+      const targets = this.players.filter(
+        (p) => p.id !== bot.id && !p.isDead && p.hand.length > 0
+      );
+      if (targets.length > 0) {
+        targets.sort((a, b) => b.hand.length - a.hand.length);
+        this.playPair(bot.id, pair.map((c) => c.id), targets[0].id);
         return;
       }
     }
@@ -910,11 +942,11 @@ class GameRoom {
     this.checkBotTurn();
   }
 
-  // CAT PAIR COMBO
-  playCatPair(playerId, pairCardIds, targetPlayerId) {
+  // 2-OF-A-KIND (PAIR) COMBO: Steal random card
+  playPair(playerId, pairCardIds, targetPlayerId) {
     const currentP = this.players[this.activePlayerIndex];
     const victim = this.players.find((p) => p.id === targetPlayerId);
-    if (!currentP || currentP.id !== playerId || !victim || victim.isDead || victim.hand.length === 0)
+    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL' || !victim || victim.isDead || victim.hand.length === 0)
       return;
 
     const cardsToPlay = currentP.hand.filter((c) => pairCardIds.includes(c.id));
@@ -932,9 +964,153 @@ class GameRoom {
     this.log(
       currentP.name,
       currentP.avatarId,
-      `played a pair of ${cardsToPlay[0].title}s and STOLE a card from ${victim.name}!`
+      `played a pair of ${cardsToPlay[0].title}s and STOLE a random card from ${victim.name}!`
     );
 
+    io.to(this.id).emit('combo_result', {
+      type: 'PAIR',
+      success: true,
+      attackerName: currentP.name,
+      victimName: victim.name,
+      cardTitle: cardsToPlay[0].title,
+    });
+
+    this.broadcastGameState();
+    this.checkBotTurn();
+  }
+
+  // Backwards compatibility alias
+  playCatPair(playerId, pairCardIds, targetPlayerId) {
+    return this.playPair(playerId, pairCardIds, targetPlayerId);
+  }
+
+  // 3-OF-A-KIND COMBO: Targeted Card Demand
+  playThreeOfAKind(playerId, cardIds, targetPlayerId, demandedCardType) {
+    const currentP = this.players[this.activePlayerIndex];
+    const victim = this.players.find((p) => p.id === targetPlayerId);
+    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL' || !victim || victim.isDead || victim.hand.length === 0)
+      return;
+
+    const cardsToPlay = currentP.hand.filter((c) => cardIds.includes(c.id));
+    if (cardsToPlay.length !== 3) return;
+    if (cardsToPlay[0].type !== cardsToPlay[1].type || cardsToPlay[1].type !== cardsToPlay[2].type) return;
+
+    currentP.hand = currentP.hand.filter((c) => !cardIds.includes(c.id));
+    this.discardPile.push(...cardsToPlay);
+
+    const demandedIndex = victim.hand.findIndex((c) => c.type === demandedCardType);
+    const demandedTemplate = CARD_TEMPLATES[demandedCardType] || { title: demandedCardType };
+
+    if (demandedIndex !== -1) {
+      const stolenCard = victim.hand.splice(demandedIndex, 1)[0];
+      currentP.hand.push(stolenCard);
+      this.matchStats.cardsStolen++;
+
+      this.log(
+        currentP.name,
+        currentP.avatarId,
+        `🎯 3-OF-A-KIND SUCCESS! Demanded ${demandedTemplate.title} from ${victim.name} and stole it!`
+      );
+
+      io.to(this.id).emit('combo_result', {
+        type: 'THREE_OF_A_KIND',
+        success: true,
+        attackerName: currentP.name,
+        victimName: victim.name,
+        cardTitle: cardsToPlay[0].title,
+        demandedTitle: demandedTemplate.title,
+      });
+    } else {
+      this.log(
+        currentP.name,
+        currentP.avatarId,
+        `❌ 3-OF-A-KIND MISSED! Demanded ${demandedTemplate.title} from ${victim.name}, but they had none!`
+      );
+
+      io.to(this.id).emit('combo_result', {
+        type: 'THREE_OF_A_KIND',
+        success: false,
+        attackerName: currentP.name,
+        victimName: victim.name,
+        cardTitle: cardsToPlay[0].title,
+        demandedTitle: demandedTemplate.title,
+      });
+    }
+
+    this.broadcastGameState();
+    this.checkBotTurn();
+  }
+
+  // 5-DIFFERENT COMBO: Discard Pile Retrieval
+  playFiveDifferent(playerId, cardIds) {
+    const currentP = this.players[this.activePlayerIndex];
+    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL') return;
+
+    const cardsToPlay = currentP.hand.filter((c) => cardIds.includes(c.id));
+    if (cardsToPlay.length !== 5) return;
+
+    const types = new Set(cardsToPlay.map((c) => c.type));
+    if (types.size !== 5) return;
+
+    // Discard the 5 played cards
+    currentP.hand = currentP.hand.filter((c) => !cardIds.includes(c.id));
+    this.discardPile.push(...cardsToPlay);
+
+    this.log(
+      currentP.name,
+      currentP.avatarId,
+      `✨ 5-CARD COMBO! ${currentP.name} played 5 different cards to scavenge the Discard Pile!`
+    );
+
+    if (currentP.isBot) {
+      const eligible = this.discardPile.filter((c) => c.type !== 'EXPLODING_KITTEN');
+      if (eligible.length > 0) {
+        const priorityOrder = ['DEFUSE', 'ATTACK', 'ALTER_THE_FUTURE', 'SEE_THE_FUTURE', 'SKIP', 'FAVOR'];
+        let chosen = null;
+        for (const pType of priorityOrder) {
+          chosen = eligible.find((c) => c.type === pType);
+          if (chosen) break;
+        }
+        if (!chosen) chosen = eligible[0];
+
+        const cIdx = this.discardPile.findIndex((c) => c.id === chosen.id);
+        if (cIdx !== -1) {
+          const recovered = this.discardPile.splice(cIdx, 1)[0];
+          currentP.hand.push(recovered);
+          this.log(currentP.name, currentP.avatarId, `retrieved ${recovered.title} from the discard pile.`);
+        }
+      }
+      this.broadcastGameState();
+      this.checkBotTurn();
+    } else {
+      this.turnState = 'SELECTING_DISCARD';
+      this.turnStateData = {
+        requesterId: currentP.id,
+        requesterSocketId: currentP.socketId,
+      };
+      io.to(currentP.socketId).emit('open_discard_browser', {
+        discardPile: this.discardPile.filter((c) => c.type !== 'EXPLODING_KITTEN'),
+      });
+      this.broadcastGameState();
+    }
+  }
+
+  // SELECT CARD FROM DISCARD PILE
+  selectDiscardCard(playerId, cardId) {
+    if (this.turnState !== 'SELECTING_DISCARD') return;
+    const currentP = this.players[this.activePlayerIndex];
+    if (!currentP || currentP.id !== playerId) return;
+
+    const idx = this.discardPile.findIndex((c) => c.id === cardId && c.type !== 'EXPLODING_KITTEN');
+    if (idx === -1) return;
+
+    const card = this.discardPile.splice(idx, 1)[0];
+    currentP.hand.push(card);
+
+    this.log(currentP.name, currentP.avatarId, `retrieved ${card.title} from the Discard Pile!`);
+
+    this.turnState = 'NORMAL';
+    this.turnStateData = null;
     this.broadcastGameState();
     this.checkBotTurn();
   }
@@ -1195,12 +1371,23 @@ io.on('connection', (socket) => {
   });
 
   // 10. GAMEPLAY: PLAY CARD
-  socket.on('play_card', ({ roomId, cardId, targetPlayerId, cardPairIds }) => {
+  socket.on('play_card', ({ roomId, cardId, targetPlayerId, cardPairIds, comboType, cardIds, demandedCardType }) => {
     const room = rooms.get(roomId);
     if (!room || !room.gameStarted) return;
 
+    // Direct combo invocations
+    if (comboType === 'THREE_OF_A_KIND' && cardIds && targetPlayerId && demandedCardType) {
+      room.playThreeOfAKind(socket.id, cardIds, targetPlayerId, demandedCardType);
+      return;
+    }
+
+    if (comboType === 'FIVE_DIFFERENT' && cardIds) {
+      room.playFiveDifferent(socket.id, cardIds);
+      return;
+    }
+
     if (cardPairIds && cardPairIds.length === 2 && targetPlayerId) {
-      room.playCatPair(socket.id, cardPairIds, targetPlayerId);
+      room.playPair(socket.id, cardPairIds, targetPlayerId);
       return;
     }
 
@@ -1210,6 +1397,27 @@ io.on('connection', (socket) => {
     }
 
     room.playCard(socket.id, cardId);
+  });
+
+  // 10b. GAMEPLAY: PLAY COMBO
+  socket.on('play_combo', ({ roomId, comboType, cardIds, targetPlayerId, demandedCardType }) => {
+    const room = rooms.get(roomId);
+    if (!room || !room.gameStarted) return;
+
+    if (comboType === 'PAIR' || comboType === 'TWO_OF_A_KIND') {
+      room.playPair(socket.id, cardIds, targetPlayerId);
+    } else if (comboType === 'THREE_OF_A_KIND') {
+      room.playThreeOfAKind(socket.id, cardIds, targetPlayerId, demandedCardType);
+    } else if (comboType === 'FIVE_DIFFERENT') {
+      room.playFiveDifferent(socket.id, cardIds);
+    }
+  });
+
+  // 10c. GAMEPLAY: SELECT DISCARD CARD (for 5-Card Combo)
+  socket.on('select_discard_card', ({ roomId, cardId }) => {
+    const room = rooms.get(roomId);
+    if (!room || !room.gameStarted) return;
+    room.selectDiscardCard(socket.id, cardId);
   });
 
   // 11. DEFUSE KITTEN
