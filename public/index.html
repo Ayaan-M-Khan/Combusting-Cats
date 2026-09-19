@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exploding Kittens</title>
-  <meta name="description" content="A browser-based digital card game clone of Exploding Kittens with interactive tabletop, gauge, comic art, and AI bots." />
-  <meta property="og:title" content="Exploding Kittens" />
-  <meta property="og:description" content="A browser-based digital card game clone of Exploding Kittens with interactive tabletop, gauge, comic art, and AI bots." />
+  <title>Combustion Cats</title>
+  <meta name="description" content="A browser-based real-time multiplayer card game featuring volatile felines, tactical coolant defusal, thermal attacks, combos, and procedural Web Audio SFX." />
+  <meta property="og:title" content="Combustion Cats" />
+  <meta property="og:description" content="A browser-based real-time multiplayer card game featuring volatile felines, tactical coolant defusal, thermal attacks, combos, and procedural Web Audio SFX." />
   
   <!-- Google Fonts: Bangers & Fredoka -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -49,33 +49,40 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <style>
-    /* Comic wood tabletop aesthetic matching digital game screenshots */
+    /* Volcanic Laboratory Furnace Tabletop */
     .wood-tabletop {
-      background-color: #2b170c;
+      background-color: #1a0d08;
       background-image: 
-        radial-gradient(ellipse at center, rgba(146, 64, 14, 0.45) 0%, rgba(20, 10, 5, 0.95) 85%),
+        radial-gradient(ellipse at center, rgba(234, 88, 12, 0.25) 0%, rgba(15, 6, 3, 0.96) 80%),
         repeating-linear-gradient(
           0deg,
-          rgba(0, 0, 0, 0.25) 0px,
-          rgba(0, 0, 0, 0.25) 2px,
+          rgba(255, 107, 0, 0.05) 0px,
+          rgba(255, 107, 0, 0.05) 1px,
+          transparent 1px,
+          transparent 24px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(0, 0, 0, 0.4) 0px,
+          rgba(0, 0, 0, 0.4) 2px,
           transparent 2px,
-          transparent 32px
+          transparent 48px
         );
-      box-shadow: inset 0 0 160px rgba(0, 0, 0, 0.9);
+      box-shadow: inset 0 0 180px rgba(0, 0, 0, 0.95);
     }
 
     .comic-btn {
       position: relative;
-      border: 3px solid #1c0f08;
-      box-shadow: 0 6px 0 #1c0f08;
+      border: 3px solid #1a0804;
+      box-shadow: 0 6px 0 #1a0804;
       transition: all 0.15s ease-in-out;
     }
     .comic-btn:hover {
-      box-shadow: 0 3px 0 #1c0f08;
+      box-shadow: 0 3px 0 #1a0804;
       transform: translateY(3px);
     }
     .comic-btn:active {
-      box-shadow: 0 0 0 #1c0f08;
+      box-shadow: 0 0 0 #1a0804;
       transform: translateY(6px);
     }
 
@@ -86,22 +93,22 @@
       user-select: none;
     }
     .card-item:hover {
-      transform: translateY(-24px) scale(1.05) !important;
+      transform: translateY(-26px) scale(1.06) !important;
       z-index: 40 !important;
-      box-shadow: 0 14px 28px rgba(0,0,0,0.6);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.7), 0 0 15px rgba(249, 115, 22, 0.4);
     }
     .card-item.selected {
-      transform: translateY(-34px) scale(1.08) !important;
+      transform: translateY(-36px) scale(1.09) !important;
       z-index: 50 !important;
-      border-color: #fbbf24 !important;
-      box-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 16px 30px rgba(0,0,0,0.7) !important;
+      border-color: #f97316 !important;
+      box-shadow: 0 0 24px rgba(249, 115, 22, 0.9), 0 18px 34px rgba(0,0,0,0.8) !important;
     }
 
     /* Custom parchment scroll texture */
     .parchment {
       background: #fbf5e5;
-      background-image: radial-gradient(circle at 50% 50%, rgba(254, 243, 199, 0.9), rgba(243, 222, 177, 0.9));
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(180, 83, 9, 0.15);
+      background-image: radial-gradient(circle at 50% 50%, rgba(254, 243, 199, 0.95), rgba(243, 222, 177, 0.9));
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(180, 83, 9, 0.2);
     }
 
     /* Custom scrollbar */
@@ -110,11 +117,11 @@
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(0, 0, 0, 0.3);
       border-radius: 4px;
     }
     ::-webkit-scrollbar-thumb {
-      background: #854d0e;
+      background: #ea580c;
       border-radius: 4px;
     }
   </style>
@@ -122,21 +129,29 @@
 <body class="bg-stone-950 text-stone-100 font-fredoka overflow-hidden select-none m-0 p-0">
 
   <!-- ============================================================ -->
+  <!-- 0. PROCEDURAL VFX CANVAS (OVERLAY)                          -->
+  <!-- ============================================================ -->
+  <canvas id="vfxCanvas" class="fixed inset-0 pointer-events-none z-40 w-full h-full"></canvas>
+
+  <!-- ============================================================ -->
   <!-- 1. SCREEN: MAIN MENU                                         -->
   <!-- ============================================================ -->
-  <div id="screen-menu" class="w-full h-screen bg-[#651010] flex flex-col items-center justify-center p-4 relative overflow-hidden">
-    <!-- Radial comic vignette background -->
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_#991b1b_0%,_#450a0a_100%)] opacity-95"></div>
+  <div id="screen-menu" class="w-full h-screen bg-[#3a0d05] flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <!-- Radial furnace core vignette background -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_#7c1a06_0%,_#1f0602_100%)] opacity-95"></div>
 
-    <!-- Decorative background kitten silhouettes -->
-    <div class="absolute -top-12 -left-12 opacity-10 text-white pointer-events-none">
+    <!-- Decorative background hazard grid & warning stripes -->
+    <div class="absolute inset-0 opacity-5 pointer-events-none bg-[repeating-linear-gradient(45deg,#ea580c,#ea580c_20px,#000_20px,#000_40px)]"></div>
+
+    <!-- Background Silhouette Cats -->
+    <div class="absolute -top-12 -left-12 opacity-15 text-orange-500 pointer-events-none">
       <svg class="w-80 h-80 fill-current" viewBox="0 0 100 100">
         <path d="M20,70 Q15,40 25,25 Q35,35 45,30 Q55,30 65,25 Q75,40 70,70 Q45,85 20,70 Z" />
         <polygon points="25,32 15,10 40,25" />
         <polygon points="65,25 90,10 80,32" />
       </svg>
     </div>
-    <div class="absolute -bottom-16 -right-16 opacity-10 text-white pointer-events-none">
+    <div class="absolute -bottom-16 -right-16 opacity-15 text-orange-600 pointer-events-none">
       <svg class="w-96 h-96 fill-current" viewBox="0 0 100 100">
         <path d="M20,70 Q15,40 25,25 Q35,35 45,30 Q55,30 65,25 Q75,40 70,70 Q45,85 20,70 Z" />
         <polygon points="25,32 15,10 40,25" />
@@ -147,54 +162,81 @@
     <!-- Menu Content Container -->
     <div class="relative z-10 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 max-w-5xl w-full">
       
-      <!-- Left: Logo & Glowing Kitten -->
+      <!-- Left: Logo & Glowing Volcanic Feline -->
       <div class="flex flex-col items-center text-center">
         <div class="flex flex-col items-center leading-none">
-          <span class="font-bangers text-5xl sm:text-7xl lg:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-red-500 tracking-wider drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
-            EXPLODING
+          <div class="inline-flex items-center gap-2 bg-orange-950/80 border border-orange-500/60 px-3 py-1 rounded-full text-orange-300 font-bangers text-xs tracking-widest uppercase mb-1 drop-shadow">
+            ⚠️ VOLATILE LABORATORY SIMULATION
+          </div>
+          <span class="font-bangers text-5xl sm:text-7xl lg:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-500 to-red-600 tracking-wider drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)]">
+            COMBUSTION
           </span>
-          <span class="font-bangers text-6xl sm:text-8xl lg:text-9xl text-white tracking-widest leading-none drop-shadow-[0_6px_10px_rgba(0,0,0,0.9)] -mt-2 sm:-mt-4">
-            KITTENS
+          <span class="font-bangers text-6xl sm:text-8xl lg:text-9xl text-white tracking-widest leading-none drop-shadow-[0_6px_12px_rgba(234,88,12,0.8)] -mt-2 sm:-mt-4">
+            CATS
+          </span>
+          <span class="font-fredoka text-xs sm:text-sm text-orange-200/90 tracking-wide mt-1 max-w-xs">
+            Spontaneous feline detonation imminent! Douse the core with Coolant Foam or face vaporisation.
           </span>
         </div>
 
-        <!-- Glowing Silhouette Kitten -->
-        <div class="mt-4 sm:mt-6 text-amber-500 drop-shadow-[0_0_30px_rgba(245,158,11,0.6)] cursor-pointer hover:scale-105 transition-transform duration-300">
-          <svg class="w-36 h-36 sm:w-52 sm:h-52 fill-current" viewBox="0 0 120 120">
-            <!-- Tail -->
-            <path d="M25,85 Q10,75 12,50 Q14,35 24,32 Q28,45 22,60 Q18,72 32,80 Z" fill="#d97706" />
+        <!-- Glowing Volcanic Mascot Feline -->
+        <div class="mt-3 sm:mt-5 text-orange-500 drop-shadow-[0_0_35px_rgba(249,115,22,0.8)] cursor-pointer hover:scale-105 transition-transform duration-300">
+          <svg class="w-40 h-40 sm:w-52 sm:h-52" viewBox="0 0 140 140">
+            <!-- Aura Flames -->
+            <path d="M30,70 Q20,30 45,15 Q60,35 70,10 Q85,35 100,18 Q120,40 110,75 Q125,95 105,120 Q70,135 35,120 Z" fill="url(#coreFlame)" opacity="0.35" />
+            <defs>
+              <radialGradient id="coreFlame" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffedd5" />
+                <stop offset="40%" stop-color="#f97316" />
+                <stop offset="100%" stop-color="#7c1a06" stop-opacity="0" />
+              </radialGradient>
+              <linearGradient id="furGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ea580c" />
+                <stop offset="50%" stop-color="#c2410c" />
+                <stop offset="100%" stop-color="#1c1917" />
+              </linearGradient>
+            </defs>
+            <!-- Tail with flaming tip -->
+            <path d="M22,95 Q5,80 10,50 Q16,30 30,35 Q30,52 24,70 Q20,84 34,92 Z" fill="#ea580c" stroke="#1c1917" stroke-width="2" />
+            <polygon points="12,40 4,20 22,28" fill="#facc15" />
             <!-- Body -->
-            <path d="M30,85 Q25,48 40,35 Q60,30 80,35 Q95,48 90,85 Q60,102 30,85 Z" fill="#ea580c" />
-            <!-- Ears -->
-            <polygon points="38,40 28,15 54,32" fill="#dc2626" stroke="#450a0a" stroke-width="3" />
-            <polygon points="82,40 92,15 66,32" fill="#dc2626" stroke="#450a0a" stroke-width="3" />
-            <!-- Glowing Yellow Eyes -->
-            <ellipse cx="48" cy="50" rx="7" ry="9" fill="#facc15" stroke="#713f12" stroke-width="2" />
-            <ellipse cx="72" cy="50" rx="7" ry="9" fill="#facc15" stroke="#713f12" stroke-width="2" />
-            <ellipse cx="49" cy="50" rx="2" ry="7" fill="#000" />
-            <ellipse cx="71" cy="50" rx="2" ry="7" fill="#000" />
-            <!-- Nose & Whiskers -->
-            <polygon points="60,60 55,56 65,56" fill="#f43f5e" />
-            <line x1="30" y1="58" x2="10" y2="54" stroke="#fbbf24" stroke-width="2" />
-            <line x1="30" y1="62" x2="12" y2="65" stroke="#fbbf24" stroke-width="2" />
-            <line x1="90" y1="58" x2="110" y2="54" stroke="#fbbf24" stroke-width="2" />
-            <line x1="90" y1="62" x2="108" y2="65" stroke="#fbbf24" stroke-width="2" />
+            <path d="M35,95 Q25,52 45,35 Q70,28 95,35 Q115,52 105,95 Q70,115 35,95 Z" fill="url(#furGrad)" stroke="#1c1917" stroke-width="3" />
+            <!-- Ears with fire tips -->
+            <polygon points="42,42 30,12 60,32" fill="#ef4444" stroke="#1c1917" stroke-width="3" />
+            <polygon points="32,20 24,4 42,16" fill="#facc15" />
+            <polygon points="98,42 110,12 80,32" fill="#ef4444" stroke="#1c1917" stroke-width="3" />
+            <polygon points="108,20 116,4 98,16" fill="#facc15" />
+            <!-- Glowing Yellow/Red Nuclear Eyes -->
+            <ellipse cx="54" cy="54" rx="8" ry="11" fill="#fef08a" stroke="#7c2d12" stroke-width="2.5" />
+            <ellipse cx="86" cy="54" rx="8" ry="11" fill="#fef08a" stroke="#7c2d12" stroke-width="2.5" />
+            <ellipse cx="55" cy="54" rx="2.5" ry="8" fill="#991b1b" />
+            <ellipse cx="85" cy="54" rx="2.5" ry="8" fill="#991b1b" />
+            <!-- Nose & Whiskers crackling with sparks -->
+            <polygon points="70,67 63,62 77,62" fill="#ffedd5" />
+            <line x1="32" y1="64" x2="10" y2="58" stroke="#facc15" stroke-width="2.5" stroke-linecap="round" />
+            <line x1="32" y1="70" x2="8" y2="74" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" />
+            <line x1="108" y1="64" x2="130" y2="58" stroke="#facc15" stroke-width="2.5" stroke-linecap="round" />
+            <line x1="108" y1="70" x2="132" y2="74" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" />
+            <!-- Glowing Reactor Core Collar -->
+            <rect x="44" y="90" width="52" height="8" rx="4" fill="#0369a1" stroke="#000" stroke-width="1.5" />
+            <circle cx="70" cy="94" r="7" fill="#38bdf8" stroke="#0f172a" stroke-width="2" />
+            <circle cx="70" cy="94" r="3" fill="#f0f9ff" />
           </svg>
         </div>
 
         <!-- Name & Avatar Customizer Input -->
-        <div class="mt-4 flex flex-col items-center gap-2 bg-stone-900/60 p-3 rounded-2xl border-2 border-stone-800">
-          <label class="font-bangers text-xs sm:text-sm text-amber-200 tracking-wider">YOUR PLAYER NAME & AVATAR</label>
+        <div class="mt-3 flex flex-col items-center gap-2 bg-stone-900/80 p-3 rounded-2xl border-2 border-stone-800 backdrop-blur-sm">
+          <label class="font-bangers text-xs sm:text-sm text-amber-200 tracking-wider">OPERATOR CODENAME & AVATAR</label>
           <div class="flex items-center gap-2">
             <select id="user-avatar" class="bg-stone-800 text-white font-bangers text-sm px-2 py-1.5 rounded-xl border border-stone-700 outline-none cursor-pointer">
-              <option value="player">😎 You (Captain)</option>
+              <option value="player">😎 Operator (Chief)</option>
               <option value="sharky">🦈 Sharky</option>
               <option value="bacon_cat">🥓 Bacon Cat</option>
               <option value="schmoopy">💖 Schmoopy</option>
               <option value="otho">🎩 Otho</option>
               <option value="lydia">🎀 Lydia</option>
             </select>
-            <input id="user-name" type="text" maxlength="15" value="Player 1" placeholder="Enter nickname..." class="bg-stone-800 text-amber-100 font-bangers text-base px-3 py-1.5 rounded-xl border border-stone-700 outline-none w-36 text-center focus:border-amber-400" />
+            <input id="user-name" type="text" maxlength="15" value="Operator 1" placeholder="Enter nickname..." class="bg-stone-800 text-amber-100 font-bangers text-base px-3 py-1.5 rounded-xl border border-stone-700 outline-none w-36 text-center focus:border-amber-400" />
           </div>
         </div>
       </div>
@@ -203,8 +245,8 @@
       <div class="flex flex-col gap-3.5 w-full max-w-sm sm:max-w-md">
         
         <!-- 1. Play with Friends (Host Private Party) -->
-        <button id="btn-host-party" class="comic-btn group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-[#992d19] to-[#7f1d1d] cursor-pointer">
-          <div class="w-12 h-12 rounded-xl bg-[#591616] border-2 border-stone-900 flex items-center justify-center text-2xl shadow-inner">
+        <button id="btn-host-party" class="comic-btn group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-[#9a2810] to-[#731908] cursor-pointer">
+          <div class="w-12 h-12 rounded-xl bg-[#4d1105] border-2 border-stone-900 flex items-center justify-center text-2xl shadow-inner">
             🏰
           </div>
           <div class="flex-1 px-4 text-left">
@@ -212,7 +254,7 @@
               HOST PRIVATE PARTY
             </div>
             <div class="font-bangers text-xs text-amber-200">
-              CREATE ROOM CODE & INVITE FRIENDS
+              CREATE CHAMBER CODE & INVITE FRIENDS
             </div>
           </div>
           <div class="w-10 h-10 rounded-xl bg-lime-500 border-2 border-stone-900 flex items-center justify-center text-stone-900 font-bold group-hover:bg-lime-400">
@@ -222,15 +264,15 @@
 
         <!-- 2. Join Party via Code -->
         <div class="bg-stone-900/80 p-3 rounded-2xl border-2 border-stone-800 flex items-center gap-2">
-          <input id="input-join-code" type="text" maxlength="8" placeholder="ENTER 6-CHAR CODE (e.g. KTN-789)" class="flex-1 bg-stone-800 text-yellow-300 font-bangers tracking-widest text-center py-2.5 px-3 rounded-xl border border-stone-700 outline-none uppercase text-base focus:border-yellow-400" />
+          <input id="input-join-code" type="text" maxlength="8" placeholder="ENTER 7-CHAR CODE (e.g. CBC-789)" class="flex-1 bg-stone-800 text-yellow-300 font-bangers tracking-widest text-center py-2.5 px-3 rounded-xl border border-stone-700 outline-none uppercase text-base focus:border-yellow-400" />
           <button id="btn-join-party" class="comic-btn px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 font-bangers text-white text-base tracking-wider cursor-pointer hover:from-amber-500">
             JOIN
           </button>
         </div>
 
         <!-- 3. Play with Strangers (Public Matchmaking) -->
-        <button id="btn-quick-match" class="comic-btn group flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-[#852516] to-[#6b1818] cursor-pointer">
-          <div class="w-12 h-12 rounded-xl bg-[#4a1212] border-2 border-stone-900 flex items-center justify-center text-2xl shadow-inner">
+        <button id="btn-quick-match" class="comic-btn group flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-[#7a1e0b] to-[#591407] cursor-pointer">
+          <div class="w-12 h-12 rounded-xl bg-[#3b0b04] border-2 border-stone-900 flex items-center justify-center text-2xl shadow-inner">
             🌐
           </div>
           <div class="flex-1 px-4 text-left">
@@ -247,16 +289,16 @@
         </button>
 
         <!-- 4. Practice / Single-Player with Bots -->
-        <button id="btn-practice-bots" class="comic-btn group flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-[#5a1a1a] to-[#451010] cursor-pointer">
-          <div class="w-12 h-12 rounded-xl bg-[#360d0d] border-2 border-stone-900 flex items-center justify-center text-2xl shadow-inner">
+        <button id="btn-practice-bots" class="comic-btn group flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-[#4d1307] to-[#360c04] cursor-pointer">
+          <div class="w-12 h-12 rounded-xl bg-[#240602] border-2 border-stone-900 flex items-center justify-center text-2xl shadow-inner">
             🤖
           </div>
           <div class="flex-1 px-4 text-left">
             <div class="font-bangers text-2xl text-white tracking-wide leading-tight group-hover:text-yellow-300 transition-colors">
-              PRACTICE (VS 3 BOTS)
+              LAB DRILL (VS 3 BOTS)
             </div>
             <div class="font-bangers text-xs text-amber-200">
-              INSTANT MATCH AGAINST AI
+              INSTANT MATCH AGAINST LAB AI
             </div>
           </div>
           <div class="w-10 h-10 rounded-xl bg-lime-500 border-2 border-stone-900 flex items-center justify-center text-stone-900 font-bold group-hover:bg-lime-400">
@@ -531,22 +573,22 @@
   <!-- MODALS OVERLAYS                                              -->
   <!-- ============================================================ -->
 
-  <!-- 1. DEFUSE PLACEMENT MODAL -->
+  <!-- 1. DEFUSE / COOLANT FOAM PLACEMENT MODAL -->
   <div id="modal-defuse" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
-    <div class="bg-[#24130b] border-4 border-green-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-pop">
-      <div class="w-16 h-16 mx-auto mb-2 text-green-400">
+    <div class="bg-[#1f130b] border-4 border-emerald-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-pop">
+      <div class="w-16 h-16 mx-auto mb-2 text-emerald-400">
         <svg viewBox="0 0 24 24" fill="currentColor" class="w-full h-full">
           <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10h2v4h-2zm0 6h2v2h-2z"/>
         </svg>
       </div>
-      <h2 class="font-bangers text-3xl text-green-400 mb-1">YOU DEFUSED THE KITTEN!</h2>
+      <h2 class="font-bangers text-3xl text-emerald-400 mb-1">CORE MELTDOWN CONTAINED!</h2>
       <p class="font-fredoka text-sm text-stone-300 mb-5">
-        Secretly choose where to tuck the Exploding Kitten back into the Draw Deck:
+        Coolant Foam deployed! Secretly choose where to tuck the volatile Combustion Cat back into the Reactor Core:
       </p>
 
       <div class="grid grid-cols-3 gap-3 mb-4">
         <button class="btn-place-kitten comic-btn py-3 rounded-xl bg-red-800 hover:bg-red-700 font-bangers text-white text-sm" data-pos="top">
-          TOP OF DECK<br><span class="text-[10px] text-yellow-300">TRAP NEXT!</span>
+          TOP OF CORE<br><span class="text-[10px] text-yellow-300">TRAP NEXT!</span>
         </button>
         <button class="btn-place-kitten comic-btn py-3 rounded-xl bg-amber-800 hover:bg-amber-700 font-bangers text-white text-sm" data-pos="random">
           RANDOM<br><span class="text-[10px] text-yellow-300">SHUFFLED IN</span>
@@ -558,38 +600,38 @@
 
       <!-- Slider for exact depth -->
       <div class="bg-black/40 p-3 rounded-xl border border-stone-800 flex flex-col gap-2">
-        <label class="font-bangers text-xs text-amber-200">OR CHOOSE EXACT DEPTH:</label>
+        <label class="font-bangers text-xs text-amber-200">OR CHOOSE EXACT REACTOR DEPTH:</label>
         <div class="flex items-center gap-3">
           <span class="font-bangers text-xs text-stone-400">#1</span>
-          <input id="slider-kitten-depth" type="range" min="0" max="30" value="0" class="flex-1 accent-amber-500 cursor-pointer" />
+          <input id="slider-kitten-depth" type="range" min="0" max="30" value="0" class="flex-1 accent-orange-500 cursor-pointer" />
           <span id="slider-depth-val" class="font-bangers text-xs text-yellow-400">#1 (TOP)</span>
         </div>
-        <button id="btn-place-slider" class="comic-btn py-1.5 rounded-lg bg-green-600 hover:bg-green-500 font-bangers text-white text-xs mt-1">
+        <button id="btn-place-slider" class="comic-btn py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 font-bangers text-white text-xs mt-1">
           INSERT AT POSITION
         </button>
       </div>
     </div>
   </div>
 
-  <!-- 2. SEE THE FUTURE MODAL -->
+  <!-- 2. INFRARED SCAN MODAL -->
   <div id="modal-see-future" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
-    <div class="bg-[#24130b] border-4 border-purple-500 rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl animate-pop">
-      <h2 class="font-bangers text-3xl text-purple-400 mb-1">SEE THE FUTURE (3X)</h2>
-      <p class="font-fredoka text-sm text-stone-300 mb-4">Here are the top 3 cards from the Draw Pile (top card on left):</p>
+    <div class="bg-[#1f130b] border-4 border-purple-500 rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl animate-pop">
+      <h2 class="font-bangers text-3xl text-purple-400 mb-1">INFRARED CORE SCAN (3X)</h2>
+      <p class="font-fredoka text-sm text-stone-300 mb-4">Here are the top 3 cards from the Reactor Core (top card on left):</p>
       <div id="see-future-cards-grid" class="flex items-center justify-center gap-3 mb-6">
         <!-- Dynamic Cards -->
       </div>
       <button id="btn-close-see-future" class="comic-btn px-8 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 font-bangers text-white text-base">
-        GOT IT!
+        SCAN ACKNOWLEDGED
       </button>
     </div>
   </div>
 
-  <!-- 3. ALTER THE FUTURE MODAL -->
+  <!-- 3. TIMELINE SCRAMBLE MODAL -->
   <div id="modal-alter-future" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
-    <div class="bg-[#24130b] border-4 border-fuchsia-500 rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl animate-pop">
-      <h2 class="font-bangers text-3xl text-fuchsia-400 mb-1">ALTER THE FUTURE</h2>
-      <p class="font-fredoka text-sm text-stone-300 mb-4">Click Swap arrows to rearrange the top cards before returning them to the deck:</p>
+    <div class="bg-[#1f130b] border-4 border-fuchsia-500 rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl animate-pop">
+      <h2 class="font-bangers text-3xl text-fuchsia-400 mb-1">TIMELINE SCRAMBLE</h2>
+      <p class="font-fredoka text-sm text-stone-300 mb-4">Click Swap arrows to rearrange the top cards before returning them to containment:</p>
       <div id="alter-future-cards-grid" class="flex items-center justify-center gap-3 mb-6">
         <!-- Reorderable cards -->
       </div>
@@ -599,11 +641,11 @@
     </div>
   </div>
 
-  <!-- 4. TARGET SELECT MODAL (Favor / Cat Pairs) -->
+  <!-- 4. TARGET SELECT MODAL (Blackmail / Cat Pairs) -->
   <div id="modal-target-select" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
-    <div class="bg-[#24130b] border-4 border-cyan-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-pop">
-      <h2 id="target-modal-title" class="font-bangers text-3xl text-cyan-400 mb-1">SELECT A VICTIM</h2>
-      <p id="target-modal-desc" class="font-fredoka text-sm text-stone-300 mb-5">Choose a player to steal from:</p>
+    <div class="bg-[#1f130b] border-4 border-cyan-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-pop">
+      <h2 id="target-modal-title" class="font-bangers text-3xl text-cyan-400 mb-1">SELECT A TARGET</h2>
+      <p id="target-modal-desc" class="font-fredoka text-sm text-stone-300 mb-5">Choose an opponent technician:</p>
       <div id="target-players-grid" class="grid grid-cols-2 gap-3 mb-4">
         <!-- Dynamic targets -->
       </div>
@@ -613,11 +655,11 @@
     </div>
   </div>
 
-  <!-- 5. FAVOR SURRENDER MODAL (When Opponent demands Favor from You) -->
+  <!-- 5. FELINE BLACKMAIL SURRENDER MODAL -->
   <div id="modal-favor-give" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
-    <div class="bg-[#24130b] border-4 border-amber-500 rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl animate-pop">
-      <h2 class="font-bangers text-3xl text-amber-400 mb-1">FAVOR DEMANDED!</h2>
-      <p id="favor-give-desc" class="font-fredoka text-sm text-stone-300 mb-4">An opponent played a Favor card. Choose 1 card from your hand to surrender:</p>
+    <div class="bg-[#1f130b] border-4 border-amber-500 rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl animate-pop">
+      <h2 class="font-bangers text-3xl text-amber-400 mb-1">FELINE BLACKMAIL!</h2>
+      <p id="favor-give-desc" class="font-fredoka text-sm text-stone-300 mb-4">A rival technician played Feline Blackmail. Choose 1 card from your hand to surrender:</p>
       <div id="favor-give-hand-grid" class="flex flex-wrap items-center justify-center gap-2 mb-4 max-h-60 overflow-y-auto p-2">
         <!-- Hand cards -->
       </div>
@@ -626,12 +668,12 @@
 
   <!-- 5b. 3-OF-A-KIND TARGETED DEMAND MODAL -->
   <div id="modal-demand-card" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 hidden">
-    <div class="bg-[#24130b] border-4 border-fuchsia-500 rounded-3xl max-w-xl w-full p-6 text-center shadow-2xl animate-pop">
+    <div class="bg-[#1f130b] border-4 border-fuchsia-500 rounded-3xl max-w-xl w-full p-6 text-center shadow-2xl animate-pop">
       <div class="text-4xl mb-1">🎯</div>
       <h2 class="font-bangers text-3xl text-fuchsia-400 mb-1">3-OF-A-KIND: DEMAND A CARD</h2>
       <p class="font-fredoka text-xs sm:text-sm text-stone-300 mb-4">
-        Demanding from: <span id="demand-target-player-name" class="text-yellow-300 font-bold underline">Opponent</span>.<br/>
-        If they possess this card type, they must surrender it to you!
+        Demanding from technician: <span id="demand-target-player-name" class="text-yellow-300 font-bold underline">Opponent</span>.<br/>
+        If they possess this card type in their lab gear, they must surrender it to you!
       </p>
 
       <div id="demand-card-options-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-5 max-h-72 overflow-y-auto p-1 text-left">
@@ -646,11 +688,11 @@
 
   <!-- 5c. 5-CARD COMBO DISCARD PILE RECOVERY MODAL -->
   <div id="modal-discard-browser" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 hidden">
-    <div class="bg-[#24130b] border-4 border-emerald-500 rounded-3xl max-w-2xl w-full p-6 text-center shadow-2xl animate-pop">
+    <div class="bg-[#1f130b] border-4 border-emerald-500 rounded-3xl max-w-2xl w-full p-6 text-center shadow-2xl animate-pop">
       <div class="text-4xl mb-1">✨</div>
       <h2 class="font-bangers text-3xl text-emerald-400 mb-1">5-CARD COMBO: DISCARD RECOVERY</h2>
       <p class="font-fredoka text-xs sm:text-sm text-stone-300 mb-4">
-        You played 5 unique cards! Click any card from the Discard Pile to take it into your hand:
+        You played 5 unique cards! Click any card from the Discard Pile to salvage it into your hand:
       </p>
 
       <div id="discard-browser-grid" class="flex flex-wrap items-center justify-center gap-3 mb-5 max-h-72 overflow-y-auto p-3 bg-black/40 rounded-2xl border border-stone-800">
@@ -665,26 +707,26 @@
 
   <!-- 5d. COMBO NOTIFICATION BANNER -->
   <div id="combo-alert-toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 -translate-y-4 max-w-md w-[92%]">
-    <div id="combo-alert-box" class="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white border-3 border-yellow-300 rounded-2xl p-3 shadow-2xl flex items-center gap-3">
+    <div id="combo-alert-box" class="bg-gradient-to-r from-orange-600 via-amber-600 to-red-700 text-white border-3 border-yellow-300 rounded-2xl p-3 shadow-2xl flex items-center gap-3">
       <div id="combo-alert-icon" class="text-2xl">✨</div>
       <div class="flex-1">
-        <div id="combo-alert-title" class="font-bangers text-base text-yellow-200 tracking-wider">COMBO EXECUTED!</div>
-        <div id="combo-alert-desc" class="font-fredoka text-xs text-stone-100">Player stole a card</div>
+        <div id="combo-alert-title" class="font-bangers text-base text-yellow-200 tracking-wider">LAB REACTION EXECUTED!</div>
+        <div id="combo-alert-desc" class="font-fredoka text-xs text-stone-100">Card reaction completed</div>
       </div>
     </div>
   </div>
 
   <!-- 6. GAME OVER MODAL -->
   <div id="modal-game-over" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden">
-    <div class="bg-[#2b170c] border-4 border-yellow-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-pop">
+    <div class="bg-[#24130b] border-4 border-yellow-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-pop">
       <div id="game-over-icon" class="text-6xl mb-2">👑</div>
       <h2 id="game-over-title" class="font-bangers text-4xl text-yellow-400 mb-1">VICTORY!</h2>
-      <p id="game-over-subtitle" class="font-fredoka text-sm text-stone-300 mb-4">You survived the feline apocalypse!</p>
+      <p id="game-over-subtitle" class="font-fredoka text-sm text-stone-300 mb-4">You survived the feline meltdown! Sole surviving technician!</p>
 
       <div class="bg-black/50 p-4 rounded-2xl border border-stone-800 mb-5 font-fredoka text-xs text-left space-y-1.5">
         <div class="flex justify-between text-amber-200"><span>Turns Taken:</span><b id="stat-turns">12</b></div>
-        <div class="flex justify-between text-amber-200"><span>Kittens Defused:</span><b id="stat-defused">2</b></div>
-        <div class="flex justify-between text-amber-200"><span>Attacks Deployed:</span><b id="stat-attacks">4</b></div>
+        <div class="flex justify-between text-amber-200"><span>Cats Cooled:</span><b id="stat-defused">2</b></div>
+        <div class="flex justify-between text-amber-200"><span>Thermal Blasts:</span><b id="stat-attacks">4</b></div>
         <div class="flex justify-between text-amber-200"><span>Cards Stolen:</span><b id="stat-stolen">3</b></div>
       </div>
 
@@ -692,7 +734,7 @@
         <button id="btn-return-lobby" class="comic-btn flex-1 py-2.5 rounded-xl bg-stone-800 font-bangers text-amber-200 text-sm">
           RETURN TO LOBBY
         </button>
-        <button id="btn-game-over-menu" class="comic-btn flex-1 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 font-bangers text-white text-sm">
+        <button id="btn-game-over-menu" class="comic-btn flex-1 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 font-bangers text-white text-sm">
           MAIN MENU
         </button>
       </div>
@@ -701,23 +743,24 @@
 
   <!-- 7. TUTORIAL / RULES MODAL -->
   <div id="modal-tutorial" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
-    <div class="bg-[#2b170c] border-4 border-amber-600 rounded-3xl max-w-xl w-full p-6 shadow-2xl animate-pop max-h-[85vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-amber-800/40 pb-2 mb-3">
-        <h2 class="font-bangers text-3xl text-yellow-400">HOW TO PLAY (RULES)</h2>
+    <div class="bg-[#1f130b] border-4 border-orange-600 rounded-3xl max-w-xl w-full p-6 shadow-2xl animate-pop max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-orange-800/40 pb-2 mb-3">
+        <h2 class="font-bangers text-3xl text-yellow-400">COMBUSTION CATS PROTOCOLS</h2>
         <button id="btn-close-tutorial" class="text-stone-400 hover:text-white font-bangers text-2xl">✕</button>
       </div>
       <div class="flex-1 overflow-y-auto space-y-3 font-fredoka text-xs sm:text-sm text-stone-200 pr-2">
-        <p><b class="text-red-400 font-bangers text-base">EXPLODING KITTENS:</b> If you draw an Exploding Kitten, you must play a Defuse card immediately. If you have none, you explode and lose the game!</p>
-        <p><b class="text-green-400 font-bangers text-base">DEFUSE:</b> Cancels an explosion! You get to secretly insert the Exploding Kitten anywhere you want back into the Draw Deck.</p>
-        <p><b class="text-orange-400 font-bangers text-base">ATTACK / SLAP:</b> End your turn without drawing a card, and force the next victim to take 2 turns in a row.</p>
-        <p><b class="text-blue-400 font-bangers text-base">SKIP:</b> Immediately end your turn without drawing a card.</p>
-        <p><b class="text-purple-400 font-bangers text-base">SEE THE FUTURE (3X):</b> Privately peek at the top 3 cards of the Draw Pile.</p>
-        <p><b class="text-fuchsia-400 font-bangers text-base">ALTER THE FUTURE:</b> Peek at the top 3 cards and rearrange their order!</p>
-        <p><b class="text-cyan-400 font-bangers text-base">FAVOR:</b> Force any other player to give you 1 card of their choice.</p>
-        <p><b class="text-yellow-400 font-bangers text-base">2-OF-A-KIND (PAIRS):</b> Play two identical matching cards to steal 1 random card from any opponent!</p>
-        <p><b class="text-fuchsia-400 font-bangers text-base">3-OF-A-KIND (TRIO):</b> Play three identical matching cards to name an opponent and demand a specific card (e.g. Defuse)! If they have it, they must surrender it.</p>
-        <p><b class="text-emerald-400 font-bangers text-base">5-DIFFERENT CARDS:</b> Play five completely different cards to scavenge the Discard Pile and claim any card of your choice!</p>
-        <p><b class="text-amber-300 font-bangers text-base">AUTO-SORT:</b> Toggle automatic inventory sorting anytime using the Auto-Sort button on the bottom bar.</p>
+        <p><b class="text-orange-400 font-bangers text-base">COMBUSTION CAT:</b> If drawn from the Reactor Core, you must deploy a Coolant Foam card immediately. If you have none, you suffer catastrophic feline vaporisation and are eliminated!</p>
+        <p><b class="text-emerald-400 font-bangers text-base">COOLANT FOAM (DEFUSE):</b> Neutralizes spontaneous feline detonation! Secretly insert the Combustion Cat back into any depth of the Reactor Core.</p>
+        <p><b class="text-red-400 font-bangers text-base">THERMAL BLAST (ATTACK):</b> Overheats the containment chamber! Ends your turn without drawing, and forces the next technician to take 2 turns in sequence.</p>
+        <p><b class="text-cyan-400 font-bangers text-base">EMERGENCY EVAC (SKIP):</b> Eject safely from containment! Immediately ends your turn without drawing from the core.</p>
+        <p><b class="text-purple-400 font-bangers text-base">INFRARED SCAN (SEE FUTURE 3X):</b> Privately scan the top 3 cards of the Reactor Core.</p>
+        <p><b class="text-fuchsia-400 font-bangers text-base">TIMELINE SCRAMBLE (ALTER FUTURE):</b> Scan the top 3 cards and alter their physical sequence!</p>
+        <p><b class="text-slate-300 font-bangers text-base">THERMODYNAMIC VORTEX (SHUFFLE):</b> Spin the centrifuge and thoroughly randomize the Reactor Core deck.</p>
+        <p><b class="text-amber-300 font-bangers text-base">FELINE BLACKMAIL (FAVOR):</b> Extort 1 card of their choice from any other technician.</p>
+        <p><b class="text-yellow-400 font-bangers text-base">2-OF-A-KIND (PAIRS):</b> Play two identical feline cards to steal 1 random card from an opponent!</p>
+        <p><b class="text-fuchsia-400 font-bangers text-base">3-OF-A-KIND (TRIO):</b> Play three identical feline cards to demand a named card type (e.g. Coolant Foam). If they hold it, they must surrender it!</p>
+        <p><b class="text-emerald-400 font-bangers text-base">5-UNIQUE CARDS:</b> Play 5 distinct cards to scavenge the Discard Pile and claim any card of your choice!</p>
+        <p><b class="text-amber-200 font-bangers text-base">AUTO-SORT:</b> Hand sorting groups action cards by tactical priority and clusters feline combo sets automatically.</p>
       </div>
     </div>
   </div>
@@ -727,7 +770,7 @@
   <!-- CLIENT JAVASCRIPT & SOCKET LOGIC                             -->
   <!-- ============================================================ -->
   <script>
-    // --- SYNTHETIC WEB AUDIO ENGINE ---
+    // --- SYNTHETIC WEB AUDIO ENGINE FOR COMBUSTION CATS ---
     class SoundEngine {
       constructor() {
         this.ctx = null;
@@ -742,7 +785,7 @@
           this.ctx.resume();
         }
       }
-      playTone(freq, type, duration, gainVal = 0.15) {
+      playTone(freq, type, duration, gainVal = 0.15, dest = null) {
         if (!this.enabled) return;
         this.init();
         try {
@@ -753,31 +796,87 @@
           gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
           osc.connect(gain);
-          gain.connect(this.ctx.destination);
+          gain.connect(dest || this.ctx.destination);
           osc.start();
           osc.stop(this.ctx.currentTime + duration);
         } catch (e) {}
       }
       cardDraw() {
-        this.playTone(320, 'sine', 0.12, 0.15);
+        this.playTone(360, 'sine', 0.08, 0.12);
+        setTimeout(() => this.playTone(520, 'sine', 0.06, 0.08), 30);
       }
       cardPlay() {
-        this.playTone(450, 'triangle', 0.15, 0.2);
+        this.playTone(520, 'triangle', 0.12, 0.18);
       }
       defuse() {
-        this.playTone(523, 'sine', 0.1);
-        setTimeout(() => this.playTone(659, 'sine', 0.1), 100);
-        setTimeout(() => this.playTone(784, 'sine', 0.2), 200);
+        // Cryogenic foam hiss + neutralizing chime
+        this.init();
+        if (!this.enabled) return;
+        try {
+          const bufferSize = this.ctx.sampleRate * 0.45;
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.4;
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(2500, this.ctx.currentTime);
+          filter.frequency.exponentialRampToValueAtTime(450, this.ctx.currentTime + 0.45);
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.45);
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          noise.start();
+        } catch (e) {}
+        setTimeout(() => this.playTone(659, 'sine', 0.12, 0.15), 100);
+        setTimeout(() => this.playTone(880, 'sine', 0.18, 0.2), 220);
       }
-      slap() {
-        this.playTone(180, 'square', 0.2, 0.25);
+      thermalBlast() {
+        this.init();
+        if (!this.enabled) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(380, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.25);
+          gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.25);
+        } catch (e) {}
+      }
+      evac() {
+        this.playTone(220, 'triangle', 0.08, 0.15);
+        setTimeout(() => this.playTone(440, 'triangle', 0.08, 0.18), 70);
+        setTimeout(() => this.playTone(880, 'sine', 0.16, 0.2), 140);
+      }
+      scan() {
+        this.playTone(1050, 'sine', 0.06, 0.15);
+        setTimeout(() => this.playTone(1400, 'sine', 0.1, 0.2), 80);
+      }
+      vortex() {
+        this.playTone(150, 'sawtooth', 0.35, 0.2);
+        setTimeout(() => this.playTone(300, 'triangle', 0.2, 0.15), 100);
+      }
+      blackmail() {
+        this.playTone(280, 'square', 0.15, 0.15);
+        setTimeout(() => this.playTone(350, 'square', 0.18, 0.18), 120);
+      }
+      catSound() {
+        this.playTone(480, 'sine', 0.12, 0.15);
+        setTimeout(() => this.playTone(600, 'triangle', 0.15, 0.18), 80);
       }
       explosion() {
         if (!this.enabled) return;
         this.init();
         try {
-          // White noise blast for explosion
-          const bufferSize = this.ctx.sampleRate * 0.8;
+          const bufferSize = this.ctx.sampleRate * 1.1;
           const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
           const data = buffer.getChannelData(0);
           for (let i = 0; i < bufferSize; i++) {
@@ -787,24 +886,238 @@
           noise.buffer = buffer;
           const filter = this.ctx.createBiquadFilter();
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(800, this.ctx.currentTime);
-          filter.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.8);
+          filter.frequency.setValueAtTime(900, this.ctx.currentTime);
+          filter.frequency.exponentialRampToValueAtTime(45, this.ctx.currentTime + 1.1);
           const gain = this.ctx.createGain();
-          gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.8);
+          gain.gain.setValueAtTime(0.65, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 1.1);
           noise.connect(filter);
           filter.connect(gain);
           gain.connect(this.ctx.destination);
           noise.start();
+
+          // Sub-bass thump
+          const sub = this.ctx.createOscillator();
+          const subGain = this.ctx.createGain();
+          sub.type = 'sine';
+          sub.frequency.setValueAtTime(120, this.ctx.currentTime);
+          sub.frequency.exponentialRampToValueAtTime(25, this.ctx.currentTime + 0.9);
+          subGain.gain.setValueAtTime(0.8, this.ctx.currentTime);
+          subGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.9);
+          sub.connect(subGain);
+          subGain.connect(this.ctx.destination);
+          sub.start();
+          sub.stop(this.ctx.currentTime + 0.9);
         } catch (e) {}
       }
       victory() {
         [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
-          setTimeout(() => this.playTone(freq, 'triangle', 0.25, 0.2), i * 140);
+          setTimeout(() => this.playTone(freq, 'triangle', 0.25, 0.2), i * 130);
         });
       }
     }
     const sounds = new SoundEngine();
+
+    // --- PROCEDURAL VFX CANVAS ENGINE ---
+    class VFXEngine {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
+        this.particles = [];
+        this.shockwaves = [];
+        this.lasers = [];
+        if (this.canvas) {
+          this.resize();
+          window.addEventListener('resize', () => this.resize());
+          requestAnimationFrame(this.animate.bind(this));
+        }
+      }
+      resize() {
+        if (!this.canvas) return;
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+      explode(cx, cy) {
+        if (!this.ctx) return;
+        // Shockwave
+        this.shockwaves.push({ x: cx, y: cy, radius: 10, maxRadius: Math.max(this.canvas.width, this.canvas.height) * 0.6, alpha: 1, color: '#f97316' });
+        // Dense fire & shrapnel burst
+        for (let i = 0; i < 90; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 3 + Math.random() * 12;
+          this.particles.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: 4 + Math.random() * 8,
+            color: ['#ef4444', '#f97316', '#facc15', '#ffffff', '#450a0a'][Math.floor(Math.random() * 5)],
+            alpha: 1,
+            decay: 0.012 + Math.random() * 0.018,
+            gravity: 0.12,
+            type: 'fire'
+          });
+        }
+      }
+      coolantSpray(cx, cy) {
+        if (!this.ctx) return;
+        this.shockwaves.push({ x: cx, y: cy, radius: 5, maxRadius: 180, alpha: 0.9, color: '#10b981' });
+        for (let i = 0; i < 60; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 2 + Math.random() * 8;
+          this.particles.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: 3 + Math.random() * 7,
+            color: ['#10b981', '#6ee7b7', '#06b6d4', '#e0f2fe', '#ffffff'][Math.floor(Math.random() * 5)],
+            alpha: 0.95,
+            decay: 0.015 + Math.random() * 0.02,
+            gravity: -0.04,
+            type: 'coolant'
+          });
+        }
+      }
+      thermalBlast(x1, y1, x2, y2) {
+        if (!this.ctx) return;
+        this.lasers.push({ x1, y1, x2, y2, alpha: 1, color: '#ef4444', width: 6 });
+        this.sparkle(x2, y2, '#f97316', 30);
+      }
+      vortex(cx, cy) {
+        if (!this.ctx) return;
+        for (let i = 0; i < 45; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const r = 20 + Math.random() * 80;
+          this.particles.push({
+            x: cx + Math.cos(angle) * r,
+            y: cy + Math.sin(angle) * r,
+            cx, cy,
+            angle,
+            radius: r,
+            angularSpeed: 0.08 + Math.random() * 0.06,
+            size: 3 + Math.random() * 4,
+            color: ['#64748b', '#94a3b8', '#38bdf8', '#f1f5f9'][Math.floor(Math.random() * 4)],
+            alpha: 0.9,
+            decay: 0.015,
+            type: 'vortex'
+          });
+        }
+      }
+      sparkle(cx, cy, color = '#facc15', count = 20) {
+        if (!this.ctx) return;
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 1.5 + Math.random() * 5;
+          this.particles.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: 2 + Math.random() * 4,
+            color,
+            alpha: 1,
+            decay: 0.02 + Math.random() * 0.02,
+            gravity: 0.05,
+            type: 'spark'
+          });
+        }
+      }
+      addAmbientEmber() {
+        if (!this.canvas || this.particles.length > 80) return;
+        this.particles.push({
+          x: Math.random() * this.canvas.width,
+          y: this.canvas.height + 10,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: -(0.8 + Math.random() * 1.5),
+          size: 1.5 + Math.random() * 3,
+          color: Math.random() > 0.4 ? '#f97316' : '#eab308',
+          alpha: 0.7,
+          decay: 0.004 + Math.random() * 0.006,
+          gravity: -0.01,
+          type: 'ember'
+        });
+      }
+      animate() {
+        if (!this.ctx || !this.canvas) return;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Spawn ambient reactor sparks occasionally
+        if (Math.random() < 0.25) this.addAmbientEmber();
+
+        // Render Shockwaves
+        for (let i = this.shockwaves.length - 1; i >= 0; i--) {
+          const sw = this.shockwaves[i];
+          sw.radius += 12;
+          sw.alpha -= 0.025;
+          if (sw.alpha <= 0 || sw.radius >= sw.maxRadius) {
+            this.shockwaves.splice(i, 1);
+            continue;
+          }
+          this.ctx.save();
+          this.ctx.beginPath();
+          this.ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+          this.ctx.strokeStyle = sw.color;
+          this.ctx.lineWidth = 4 * sw.alpha;
+          this.ctx.globalAlpha = Math.max(0, sw.alpha);
+          this.ctx.stroke();
+          this.ctx.restore();
+        }
+
+        // Render Lasers
+        for (let i = this.lasers.length - 1; i >= 0; i--) {
+          const l = this.lasers[i];
+          l.alpha -= 0.05;
+          if (l.alpha <= 0) {
+            this.lasers.splice(i, 1);
+            continue;
+          }
+          this.ctx.save();
+          this.ctx.beginPath();
+          this.ctx.moveTo(l.x1, l.y1);
+          this.ctx.lineTo(l.x2, l.y2);
+          this.ctx.strokeStyle = l.color;
+          this.ctx.lineWidth = l.width * l.alpha;
+          this.ctx.shadowColor = l.color;
+          this.ctx.shadowBlur = 10;
+          this.ctx.globalAlpha = Math.max(0, l.alpha);
+          this.ctx.stroke();
+          this.ctx.restore();
+        }
+
+        // Render Particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          if (p.type === 'vortex') {
+            p.angle += p.angularSpeed;
+            p.radius -= 0.6;
+            p.x = p.cx + Math.cos(p.angle) * p.radius;
+            p.y = p.cy + Math.sin(p.angle) * p.radius;
+          } else {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.gravity) p.vy += p.gravity;
+          }
+          p.alpha -= p.decay;
+
+          if (p.alpha <= 0 || p.size <= 0.2 || (p.type === 'vortex' && p.radius <= 2)) {
+            this.particles.splice(i, 1);
+            continue;
+          }
+
+          this.ctx.save();
+          this.ctx.beginPath();
+          this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          this.ctx.fillStyle = p.color;
+          this.ctx.globalAlpha = Math.max(0, p.alpha);
+          this.ctx.fill();
+          this.ctx.restore();
+        }
+
+        requestAnimationFrame(this.animate.bind(this));
+      }
+    }
+    const vfx = new VFXEngine('vfxCanvas');
 
     // --- CLIENT STATE ---
     let socket = null;
@@ -820,36 +1133,50 @@
     let pendingDemandTargetId = null;
     let pendingDemandCards = [];
 
-    // All distinct card types for 3-of-a-kind demand menu
+    // All distinct card types for 3-of-a-kind demand menu & rules
     const ALL_CARD_TYPES = [
-      { type: 'DEFUSE', title: 'Defuse', icon: 'laser', color: '#16a34a', desc: 'Neutralize an Exploding Kitten' },
-      { type: 'ATTACK', title: 'Attack', icon: 'paw', color: '#ea580c', desc: 'End turn & force next player 2 turns' },
-      { type: 'SKIP', title: 'Skip', icon: 'run', color: '#2563eb', desc: 'End current turn without drawing' },
-      { type: 'FAVOR', title: 'Favor', icon: 'grab', color: '#0891b2', desc: 'Force opponent to give you 1 card' },
-      { type: 'SEE_THE_FUTURE', title: 'See the Future', icon: 'eye', color: '#9333ea', desc: 'Privately peek at top 3 cards' },
-      { type: 'ALTER_THE_FUTURE', title: 'Alter the Future', icon: 'vortex', color: '#c026d3', desc: 'View and rearrange top 3 cards' },
-      { type: 'SHUFFLE', title: 'Shuffle', icon: 'shuffle', color: '#57534e', desc: 'Randomize the draw deck' },
-      { type: 'CAT_HAIRY_POTATO', title: 'Hairy Potato Cat', icon: 'cat', color: '#ca8a04', desc: 'Feral cat for combos' },
-      { type: 'CAT_TACOCAT', title: 'Tacocat', icon: 'cat', color: '#d97706', desc: 'Palindromic feline combo card' },
-      { type: 'CAT_RAINBOW_RALPHING', title: 'Rainbow Cat', icon: 'cat', color: '#db2777', desc: 'Technicolor hairball combo card' },
-      { type: 'CAT_BEARD', title: 'Beard Cat', icon: 'cat', color: '#4f46e5', desc: 'Bristling facial fur combo card' },
-      { type: 'CAT_CATTERMELON', title: 'Cattermelon', icon: 'cat', color: '#059669', desc: 'Juicy summer feline combo card' },
+      { type: 'COOLANT_FOAM', title: 'Coolant Foam', icon: 'coolant_foam', color: '#10b981', desc: 'Neutralize core meltdown & tuck cat safely' },
+      { type: 'THERMAL_BLAST', title: 'Thermal Blast', icon: 'thermal_blast', color: '#ef4444', desc: 'Overheat reactor & force next operator 2 turns' },
+      { type: 'EMERGENCY_EVAC', title: 'Emergency Evac', icon: 'emergency_evac', color: '#06b6d4', desc: 'Escape turn safely without drawing from core' },
+      { type: 'INFRARED_SCAN', title: 'Infrared Scan', icon: 'infrared_scan', color: '#8b5cf6', desc: 'Privately scan top 3 cards in reactor core' },
+      { type: 'TIMELINE_SCRAMBLE', title: 'Timeline Scramble', icon: 'timeline_scramble', color: '#d946ef', desc: 'Scan and rearrange top 3 cards in containment' },
+      { type: 'THERMODYNAMIC_VORTEX', title: 'Thermodynamic Vortex', icon: 'thermodynamic_vortex', color: '#64748b', desc: 'Agitate centrifuge to randomize reactor deck' },
+      { type: 'FELINE_BLACKMAIL', title: 'Feline Blackmail', icon: 'feline_blackmail', color: '#eab308', desc: 'Extort 1 card from any technician of your choice' },
+      { type: 'CAT_STATIC_SPARK', title: 'Static Spark Cat', icon: 'cat_static', color: '#f59e0b', desc: 'Tesla coil feline for card combo steals' },
+      { type: 'CAT_NUCLEAR_NACHO', title: 'Nuclear Nacho Cat', icon: 'cat_nuclear', color: '#84cc16', desc: 'Radioactive snack feline for combos' },
+      { type: 'CAT_PLASMA_PURR', title: 'Plasma Purr Cat', icon: 'cat_plasma', color: '#ec4899', desc: 'Superheated ion feline for combos' },
+      { type: 'CAT_VOLCANO_WHISKER', title: 'Volcano Whisker Cat', icon: 'cat_volcano', color: '#ea580c', desc: 'Molten magma feline for combos' },
+      { type: 'CAT_TICKING_TABBY', title: 'Ticking Tabby', icon: 'cat_tabby', color: '#10b981', desc: 'Chrono-clockwork feline for combos' },
     ];
 
     // Priority sorting order for hand auto-sort
     const SORT_PRIORITY = {
+      'COOLANT_FOAM': 1,
       'DEFUSE': 1,
+      'THERMAL_BLAST': 2,
       'ATTACK': 2,
+      'EMERGENCY_EVAC': 3,
       'SKIP': 3,
-      'FAVOR': 4,
-      'SEE_THE_FUTURE': 5,
-      'ALTER_THE_FUTURE': 6,
-      'SHUFFLE': 7,
+      'INFRARED_SCAN': 4,
+      'SEE_THE_FUTURE': 4,
+      'TIMELINE_SCRAMBLE': 5,
+      'ALTER_THE_FUTURE': 5,
+      'THERMODYNAMIC_VORTEX': 6,
+      'SHUFFLE': 6,
+      'FELINE_BLACKMAIL': 7,
+      'FAVOR': 7,
+      'CAT_STATIC_SPARK': 8,
       'CAT_HAIRY_POTATO': 8,
+      'CAT_NUCLEAR_NACHO': 9,
       'CAT_TACOCAT': 9,
+      'CAT_PLASMA_PURR': 10,
       'CAT_RAINBOW_RALPHING': 10,
+      'CAT_VOLCANO_WHISKER': 11,
       'CAT_BEARD': 11,
+      'CAT_TICKING_TABBY': 12,
       'CAT_CATTERMELON': 12,
+      'COMBUSTION_CAT': 99,
+      'EXPLODING_KITTEN': 99
     };
 
     function sortHand(cards) {
@@ -876,31 +1203,331 @@
         case 'lydia':
           return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#8b5cf6"/><polygon points="50,20 40,35 60,35" fill="#f472b6"/><circle cx="38" cy="52" r="5" fill="#000"/><circle cx="62" cy="52" r="5" fill="#000"/><ellipse cx="50" cy="65" rx="5" ry="3" fill="#f43f5e"/></svg>`;
         default:
-          return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#2563eb"/><circle cx="38" cy="46" r="5" fill="#fff"/><circle cx="62" cy="46" r="5" fill="#fff"/><circle cx="39" cy="46" r="2.5" fill="#000"/><circle cx="61" cy="46" r="2.5" fill="#000"/><path d="M40,65 Q50,75 60,65" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>`;
+          return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#ea580c"/><circle cx="38" cy="46" r="5" fill="#fff"/><circle cx="62" cy="46" r="5" fill="#fff"/><circle cx="39" cy="46" r="2.5" fill="#000"/><circle cx="61" cy="46" r="2.5" fill="#000"/><path d="M40,65 Q50,75 60,65" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>`;
       }
+    }
+
+    // --- COMIC CARD ART SVG GENERATOR ---
+    function getCardArtSVG(card) {
+      const type = (card.type || '').toUpperCase();
+      const icon = card.iconName || '';
+
+      if (type === 'COMBUSTION_CAT' || type === 'EXPLODING_KITTEN' || icon === 'combustion_cat' || icon === 'bomb') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <defs>
+              <radialGradient id="grad-boom" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#fef08a"/>
+                <stop offset="45%" stop-color="#f97316"/>
+                <stop offset="85%" stop-color="#dc2626"/>
+                <stop offset="100%" stop-color="#450a0a"/>
+              </radialGradient>
+            </defs>
+            <!-- Explosion Burst backdrop -->
+            <polygon points="60,5 72,35 105,20 85,50 118,65 85,80 105,110 72,95 60,118 48,95 15,110 35,80 2,65 35,50 15,20 48,35" fill="url(#grad-boom)" stroke="#000" stroke-width="2.5"/>
+            <!-- Blazing Feline silhouette with glowing eyes -->
+            <path d="M40,85 Q30,55 45,45 Q50,52 60,52 Q70,52 75,45 Q90,55 80,85 Q60,95 40,85 Z" fill="#1c1917" stroke="#000" stroke-width="2"/>
+            <polygon points="43,50 35,28 52,43" fill="#ea580c" stroke="#000" stroke-width="1.5"/>
+            <polygon points="77,50 85,28 68,43" fill="#ea580c" stroke="#000" stroke-width="1.5"/>
+            <!-- Nuclear warning pendant -->
+            <circle cx="60" cy="85" r="7" fill="#facc15" stroke="#000" stroke-width="1.5"/>
+            <circle cx="60" cy="85" r="2.5" fill="#000"/>
+            <!-- Glowing red eyes -->
+            <ellipse cx="52" cy="62" rx="4" ry="5" fill="#facc15"/>
+            <ellipse cx="68" cy="62" rx="4" ry="5" fill="#facc15"/>
+            <ellipse cx="52" cy="62" rx="1.5" ry="4" fill="#ef4444"/>
+            <ellipse cx="68" cy="62" rx="1.5" ry="4" fill="#ef4444"/>
+            <!-- Spontaneous sparks -->
+            <circle cx="28" cy="30" r="2.5" fill="#fef08a"/>
+            <circle cx="92" cy="38" r="3" fill="#fef08a"/>
+            <circle cx="88" cy="98" r="2.5" fill="#f97316"/>
+          </svg>
+        `;
+      }
+
+      if (type === 'COOLANT_FOAM' || type === 'DEFUSE' || icon === 'coolant_foam' || icon === 'laser') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <defs>
+              <linearGradient id="grad-coolant" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#064e3b"/>
+              </linearGradient>
+            </defs>
+            <!-- Frost background halo -->
+            <circle cx="60" cy="60" r="48" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5"/>
+            <!-- Cryogenic Extinguisher Tank -->
+            <rect x="44" y="42" width="32" height="52" rx="10" fill="url(#grad-coolant)" stroke="#064e3b" stroke-width="2.5"/>
+            <rect x="52" y="32" width="16" height="10" rx="3" fill="#047857" stroke="#000" stroke-width="1.5"/>
+            <!-- Pressure Gauge -->
+            <circle cx="60" cy="62" r="9" fill="#fff" stroke="#000" stroke-width="1.5"/>
+            <line x1="60" y1="62" x2="64" y2="58" stroke="#ef4444" stroke-width="2"/>
+            <!-- Frost spray blast -->
+            <path d="M60,32 C45,15 20,20 15,35 C12,45 28,45 35,40 Z" fill="#67e8f9" opacity="0.9"/>
+            <circle cx="22" cy="24" r="5" fill="#a7f3d0" stroke="#065f46" stroke-width="1"/>
+            <circle cx="16" cy="36" r="4" fill="#e0f2fe" stroke="#0891b2" stroke-width="1"/>
+            <circle cx="32" cy="18" r="3" fill="#ecfdf5"/>
+            <!-- Snowflake crystals -->
+            <path d="M88,30 L96,30 M92,26 L92,34 M89,27 L95,33 M89,33 L95,27" stroke="#06b6d4" stroke-width="1.5"/>
+            <path d="M82,75 L90,75 M86,71 L86,79 M83,72 L89,78 M83,78 L89,72" stroke="#10b981" stroke-width="1.5"/>
+          </svg>
+        `;
+      }
+
+      if (type === 'THERMAL_BLAST' || type === 'ATTACK' || icon === 'thermal_blast' || icon === 'paw') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <!-- Red alert comic burst -->
+            <circle cx="60" cy="60" r="46" fill="#450a0a" stroke="#ef4444" stroke-width="2.5"/>
+            <!-- Twin plasma rocket / heavy laser cannons -->
+            <rect x="30" y="55" width="20" height="42" rx="4" fill="#b91c1c" stroke="#000" stroke-width="2"/>
+            <rect x="70" y="55" width="20" height="42" rx="4" fill="#b91c1c" stroke="#000" stroke-width="2"/>
+            <!-- Plasma laser streaks shooting up -->
+            <polygon points="40,55 35,10 45,10" fill="#facc15" stroke="#ef4444" stroke-width="1.5"/>
+            <polygon points="80,55 75,10 85,10" fill="#facc15" stroke="#ef4444" stroke-width="1.5"/>
+            <circle cx="40" cy="12" r="8" fill="#fff" opacity="0.85"/>
+            <circle cx="80" cy="12" r="8" fill="#fff" opacity="0.85"/>
+            <!-- 2X Multiplier Badge -->
+            <rect x="42" y="80" width="36" height="20" rx="6" fill="#facc15" stroke="#000" stroke-width="2"/>
+            <text x="60" y="95" font-family="'Bangers', cursive, sans-serif" font-size="16" fill="#000" text-anchor="middle">2X</text>
+          </svg>
+        `;
+      }
+
+      if (type === 'EMERGENCY_EVAC' || type === 'SKIP' || icon === 'emergency_evac' || icon === 'run') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <!-- Blue escape hatch -->
+            <circle cx="60" cy="60" r="46" fill="#083344" stroke="#06b6d4" stroke-width="2.5"/>
+            <!-- Rocket Ejection Capsule -->
+            <path d="M60,20 Q75,45 72,78 L48,78 Q45,45 60,20 Z" fill="#e0f2fe" stroke="#000" stroke-width="2"/>
+            <circle cx="60" cy="46" r="8" fill="#0284c7" stroke="#000" stroke-width="1.5"/>
+            <!-- Scared Feline face in porthole -->
+            <circle cx="58" cy="45" r="1.5" fill="#fff"/>
+            <circle cx="62" cy="45" r="1.5" fill="#fff"/>
+            <!-- Jet thruster flame -->
+            <polygon points="50,78 60,105 70,78" fill="#f97316" stroke="#ea580c" stroke-width="1.5"/>
+            <polygon points="54,78 60,95 66,78" fill="#fef08a"/>
+            <!-- Smoke plumes -->
+            <circle cx="42" cy="85" r="6" fill="#94a3b8" opacity="0.7"/>
+            <circle cx="78" cy="85" r="6" fill="#94a3b8" opacity="0.7"/>
+          </svg>
+        `;
+      }
+
+      if (type === 'INFRARED_SCAN' || type === 'SEE_THE_FUTURE' || icon === 'infrared_scan' || icon === 'eye') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <circle cx="60" cy="60" r="46" fill="#2e1065" stroke="#8b5cf6" stroke-width="2.5"/>
+            <!-- Cybernetic HUD eye reticle -->
+            <circle cx="60" cy="60" r="28" fill="none" stroke="#a855f7" stroke-width="2" stroke-dasharray="6,4"/>
+            <circle cx="60" cy="60" r="16" fill="#581c87" stroke="#c084fc" stroke-width="2"/>
+            <circle cx="60" cy="60" r="6" fill="#f43f5e"/>
+            <!-- Three mini scanned cards -->
+            <rect x="25" y="24" width="16" height="24" rx="3" fill="#a855f7" stroke="#fff" stroke-width="1.5" transform="rotate(-15 33 36)"/>
+            <rect x="52" y="20" width="16" height="24" rx="3" fill="#c084fc" stroke="#fff" stroke-width="1.5"/>
+            <rect x="79" y="24" width="16" height="24" rx="3" fill="#a855f7" stroke="#fff" stroke-width="1.5" transform="rotate(15 87 36)"/>
+            <!-- HUD crosshairs -->
+            <line x1="20" y1="60" x2="35" y2="60" stroke="#c084fc" stroke-width="2"/>
+            <line x1="85" y1="60" x2="100" y2="60" stroke="#c084fc" stroke-width="2"/>
+            <line x1="60" y1="20" x2="60" y2="35" stroke="#c084fc" stroke-width="2"/>
+            <line x1="60" y1="85" x2="60" y2="100" stroke="#c084fc" stroke-width="2"/>
+          </svg>
+        `;
+      }
+
+      if (type === 'TIMELINE_SCRAMBLE' || type === 'ALTER_THE_FUTURE' || icon === 'timeline_scramble' || icon === 'vortex') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <circle cx="60" cy="60" r="46" fill="#4a044e" stroke="#d946ef" stroke-width="2.5"/>
+            <!-- Chrono Clock Spiral -->
+            <circle cx="60" cy="60" r="30" fill="none" stroke="#f0abfc" stroke-width="2"/>
+            <line x1="60" y1="60" x2="60" y2="38" stroke="#fdf4ff" stroke-width="3" stroke-linecap="round"/>
+            <line x1="60" y1="60" x2="76" y2="66" stroke="#f472b6" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Quantum Reordering Swap Arrows -->
+            <path d="M35,35 Q60,15 85,35" fill="none" stroke="#f43f5e" stroke-width="3" stroke-linecap="round"/>
+            <polygon points="85,35 77,32 82,42" fill="#f43f5e"/>
+            <path d="M85,85 Q60,105 35,85" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+            <polygon points="35,85 43,88 38,78" fill="#38bdf8"/>
+            <circle cx="60" cy="60" r="4" fill="#fff"/>
+          </svg>
+        `;
+      }
+
+      if (type === 'THERMODYNAMIC_VORTEX' || type === 'SHUFFLE' || icon === 'thermodynamic_vortex' || icon === 'shuffle') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <circle cx="60" cy="60" r="46" fill="#0f172a" stroke="#64748b" stroke-width="2.5"/>
+            <!-- Centrifuge Fan Blades / Cyclone -->
+            <path d="M60,60 Q75,30 95,45 Q75,65 60,60 Z" fill="#94a3b8" stroke="#000" stroke-width="1.5"/>
+            <path d="M60,60 Q45,90 25,75 Q45,55 60,60 Z" fill="#94a3b8" stroke="#000" stroke-width="1.5"/>
+            <path d="M60,60 Q30,45 45,25 Q65,45 60,60 Z" fill="#64748b" stroke="#000" stroke-width="1.5"/>
+            <path d="M60,60 Q90,75 75,95 Q55,75 60,60 Z" fill="#64748b" stroke="#000" stroke-width="1.5"/>
+            <circle cx="60" cy="60" r="8" fill="#f8fafc" stroke="#000" stroke-width="2"/>
+            <!-- Swirling cards in cyclone -->
+            <rect x="25" y="28" width="12" height="18" rx="2" fill="#e2e8f0" stroke="#000" stroke-width="1" transform="rotate(-30 31 37)"/>
+            <rect x="80" y="65" width="12" height="18" rx="2" fill="#e2e8f0" stroke="#000" stroke-width="1" transform="rotate(45 86 74)"/>
+          </svg>
+        `;
+      }
+
+      if (type === 'FELINE_BLACKMAIL' || type === 'FAVOR' || icon === 'feline_blackmail' || icon === 'grab') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <circle cx="60" cy="60" r="46" fill="#422006" stroke="#eab308" stroke-width="2.5"/>
+            <!-- Shady Cat in lab coat with shades -->
+            <path d="M42,90 Q40,60 50,50 Q60,55 70,50 Q80,60 78,90 Z" fill="#1c1917" stroke="#000" stroke-width="2"/>
+            <polygon points="45,52 38,32 54,46" fill="#d97706" stroke="#000" stroke-width="1.5"/>
+            <polygon points="75,52 82,32 66,46" fill="#d97706" stroke="#000" stroke-width="1.5"/>
+            <!-- Cool shades -->
+            <rect x="44" y="58" width="14" height="8" rx="2" fill="#000"/>
+            <rect x="62" y="58" width="14" height="8" rx="2" fill="#000"/>
+            <line x1="58" y1="62" x2="62" y2="62" stroke="#000" stroke-width="2"/>
+            <!-- Extortion Radioactive Vial -->
+            <rect x="80" y="65" width="12" height="24" rx="4" fill="#a3e635" stroke="#000" stroke-width="1.5"/>
+            <circle cx="86" cy="74" r="2" fill="#fff"/>
+          </svg>
+        `;
+      }
+
+      // 5 Feline Combo Cards
+      if (type === 'CAT_STATIC_SPARK' || type === 'CAT_HAIRY_POTATO' || icon === 'cat_static') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <circle cx="60" cy="60" r="46" fill="#451a03" stroke="#f59e0b" stroke-width="2.5"/>
+            <!-- Tesla lightning jagged edges -->
+            <polygon points="25,30 35,45 28,48 42,65 34,65 48,85 38,70 45,68 32,50 40,48" fill="#facc15" stroke="#000" stroke-width="1"/>
+            <polygon points="95,30 85,45 92,48 78,65 86,65 72,85 82,70 75,68 88,50 80,48" fill="#facc15" stroke="#000" stroke-width="1"/>
+            <!-- Electric Cat Face -->
+            <circle cx="60" cy="62" r="24" fill="#d97706" stroke="#000" stroke-width="2"/>
+            <polygon points="42,48 35,26 52,42" fill="#b45309" stroke="#000" stroke-width="1.5"/>
+            <polygon points="78,48 85,26 68,42" fill="#b45309" stroke="#000" stroke-width="1.5"/>
+            <circle cx="52" cy="58" r="3.5" fill="#fff"/>
+            <circle cx="68" cy="58" r="3.5" fill="#fff"/>
+            <circle cx="52" cy="58" r="1.5" fill="#000"/>
+            <circle cx="68" cy="58" r="1.5" fill="#000"/>
+            <!-- Lightning bolt nose -->
+            <polygon points="60,65 57,72 63,72 59,78" fill="#facc15"/>
+          </svg>
+        `;
+      }
+
+      if (type === 'CAT_NUCLEAR_NACHO' || type === 'CAT_TACOCAT' || icon === 'cat_nuclear') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <circle cx="60" cy="60" r="46" fill="#1a2e05" stroke="#84cc16" stroke-width="2.5"/>
+            <!-- Glowing Nuclear Nacho Chip -->
+            <polygon points="60,18 30,70 90,70" fill="#facc15" stroke="#84cc16" stroke-width="2.5"/>
+            <!-- Radioactive Trefoil on Nacho -->
+            <circle cx="60" cy="52" r="6" fill="#65a30d" stroke="#000" stroke-width="1"/>
+            <circle cx="60" cy="52" r="2" fill="#000"/>
+            <!-- Irradiated Cat Cheeks -->
+            <path d="M42,88 Q60,78 78,88 Q60,105 42,88 Z" fill="#4d7c0f" stroke="#000" stroke-width="2"/>
+            <circle cx="50" cy="86" r="3" fill="#fff"/>
+            <circle cx="70" cy="86" r="3" fill="#fff"/>
+            <circle cx="50" cy="86" r="1.5" fill="#000"/>
+            <circle cx="70" cy="86" r="1.5" fill="#000"/>
+          </svg>
+        `;
+      }
+
+      if (type === 'CAT_PLASMA_PURR' || type === 'CAT_RAINBOW_RALPHING' || icon === 'cat_plasma') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <circle cx="60" cy="60" r="46" fill="#500724" stroke="#ec4899" stroke-width="2.5"/>
+            <!-- Orbiting Ion Rings -->
+            <ellipse cx="60" cy="60" rx="38" ry="14" fill="none" stroke="#f472b6" stroke-width="2" transform="rotate(-25 60 60)"/>
+            <ellipse cx="60" cy="60" rx="38" ry="14" fill="none" stroke="#c084fc" stroke-width="2" transform="rotate(25 60 60)"/>
+            <!-- Violet Plasma Cat -->
+            <circle cx="60" cy="60" r="22" fill="#db2777" stroke="#000" stroke-width="2"/>
+            <polygon points="44,46 36,25 54,40" fill="#9d174d" stroke="#000" stroke-width="1.5"/>
+            <polygon points="76,46 84,25 66,40" fill="#9d174d" stroke="#000" stroke-width="1.5"/>
+            <!-- Glowing eyes -->
+            <circle cx="53" cy="58" r="4" fill="#a5f3fc"/>
+            <circle cx="67" cy="58" r="4" fill="#a5f3fc"/>
+          </svg>
+        `;
+      }
+
+      if (type === 'CAT_VOLCANO_WHISKER' || type === 'CAT_BEARD' || icon === 'cat_volcano') {
+        return `
+          <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+            <circle cx="60" cy="60" r="46" fill="#431407" stroke="#ea580c" stroke-width="2.5"/>
+            <!-- Magma Cat Head (Basalt with glowing red cracks) -->
+            <circle cx="60" cy="62" r="24" fill="#1c1917" stroke="#000" stroke-width="2"/>
+            <polygon points="42,48 35,26 52,42" fill="#ea580c" stroke="#000" stroke-width="1.5"/>
+            <polygon points="78,48 85,26 68,42" fill="#ea580c" stroke="#000" stroke-width="1.5"/>
+            <!-- Molten whiskers / lava veins -->
+            <path d="M30,62 L48,64 M28,72 L46,70 M90,62 L72,64 M92,72 L74,70" stroke="#f97316" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Molten eyes -->
+            <circle cx="52" cy="58" r="3.5" fill="#facc15"/>
+            <circle cx="68" cy="58" r="3.5" fill="#facc15"/>
+            <!-- Steam puffs from nostrils -->
+            <circle cx="50" cy="74" r="3" fill="#cbd5e1" opacity="0.6"/>
+            <circle cx="70" cy="74" r="3" fill="#cbd5e1" opacity="0.6"/>
+          </svg>
+        `;
+      }
+
+      // Default: CAT_TICKING_TABBY or Generic
+      return `
+        <svg viewBox="0 0 120 120" class="w-full h-full overflow-visible">
+          <circle cx="60" cy="60" r="46" fill="#022c22" stroke="#10b981" stroke-width="2.5"/>
+          <!-- Brass Cogwheel -->
+          <circle cx="60" cy="60" r="26" fill="#047857" stroke="#000" stroke-width="2"/>
+          <!-- Clockwork Tabby Ears -->
+          <polygon points="44,44 38,24 54,38" fill="#065f46" stroke="#000" stroke-width="1.5"/>
+          <polygon points="76,44 82,24 66,38" fill="#065f46" stroke="#000" stroke-width="1.5"/>
+          <!-- Clock hands -->
+          <line x1="60" y1="60" x2="60" y2="44" stroke="#facc15" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="60" y1="60" x2="72" y2="60" stroke="#facc15" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="60" cy="60" r="3" fill="#fff"/>
+          <!-- Timer digital readout badge -->
+          <rect x="46" y="74" width="28" height="12" rx="3" fill="#000"/>
+          <text x="60" y="83" font-family="monospace" font-size="9" fill="#34d399" text-anchor="middle">00:03</text>
+        </svg>
+      `;
     }
 
     // --- CARD SVG ICON GENERATOR ---
     function getCardIcon(iconName) {
       switch (iconName) {
+        case 'combustion_cat':
         case 'bomb':
-          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-red-600"><path d="M12 2a1 1 0 0 1 1 1v1.07A8.001 8.001 0 0 1 20 12a8 8 0 1 1-16 0c0-3.96 2.87-7.25 6.67-7.91L11 3a1 1 0 0 1 1-1zm0 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm7-3l1.5-1.5M18 1l1.5 1.5"/></svg>`;
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-orange-500"><path d="M12 2a1 1 0 0 1 1 1v1.07A8.001 8.001 0 0 1 20 12a8 8 0 1 1-16 0c0-3.96 2.87-7.25 6.67-7.91L11 3a1 1 0 0 1 1-1zm0 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm7-3l1.5-1.5M18 1l1.5 1.5"/></svg>`;
+        case 'coolant_foam':
         case 'laser':
-          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-green-600"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>`;
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-emerald-400"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>`;
+        case 'thermal_blast':
         case 'paw':
-          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-orange-600"><ellipse cx="12" cy="15" rx="5" ry="4"/><circle cx="7" cy="8" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="8" r="2"/></svg>`;
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-red-500"><ellipse cx="12" cy="15" rx="5" ry="4"/><circle cx="7" cy="8" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="8" r="2"/></svg>`;
+        case 'emergency_evac':
         case 'run':
-          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-blue-600"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/></svg>`;
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-cyan-400"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/></svg>`;
+        case 'infrared_scan':
         case 'eye':
-          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-purple-600"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`;
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-purple-400"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`;
+        case 'timeline_scramble':
         case 'vortex':
-          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-fuchsia-600"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
-        case 'grab':
-          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-cyan-600"><path d="M18 10V5a3 3 0 0 0-6 0v5H9V7a3 3 0 0 0-6 0v8a7 7 0 0 0 14 0v-5z"/></svg>`;
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-fuchsia-400"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
+        case 'thermodynamic_vortex':
         case 'shuffle':
-          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-stone-600"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`;
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-slate-300"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`;
+        case 'feline_blackmail':
+        case 'grab':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-amber-400"><path d="M18 10V5a3 3 0 0 0-6 0v5H9V7a3 3 0 0 0-6 0v8a7 7 0 0 0 14 0v-5z"/></svg>`;
+        case 'cat_static':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-amber-400"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>`;
+        case 'cat_nuclear':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-lime-400"><polygon points="12,2 2,22 22,22"/></svg>`;
+        case 'cat_plasma':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-pink-400"><circle cx="12" cy="12" r="8"/><path d="M12 2v20M2 12h20"/></svg>`;
+        case 'cat_volcano':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-orange-500"><path d="M2 22h20L15 4h-6L2 22zm10-14l3.5 12h-7L12 8z"/></svg>`;
+        case 'cat_tabby':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-emerald-400"><circle cx="12" cy="12" r="9"/><polyline points="12,6 12,12 16,14"/></svg>`;
         default:
-          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-lime-600"><circle cx="12" cy="12" r="9"/></svg>`;
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-lime-400"><circle cx="12" cy="12" r="9"/></svg>`;
       }
     }
 
@@ -959,12 +1586,14 @@
 
       // Special card prompts
       socket.on('see_future_result', (data) => {
-        sounds.cardPlay();
+        sounds.scan();
+        vfx.sparkle(window.innerWidth / 2, window.innerHeight / 2, '#a855f7', 25);
         showSeeFutureModal(data.cards);
       });
 
       socket.on('alter_future_prompt', (data) => {
-        sounds.cardPlay();
+        sounds.scan();
+        vfx.sparkle(window.innerWidth / 2, window.innerHeight / 2, '#ec4899', 30);
         showAlterFutureModal(data.cards);
       });
 
@@ -973,15 +1602,45 @@
       });
 
       socket.on('card_played', (data) => {
-        sounds.cardPlay();
+        const type = (data.card?.type || '').toUpperCase();
+        if (type === 'COOLANT_FOAM' || type === 'DEFUSE') {
+          sounds.defuse();
+          vfx.coolantSpray(window.innerWidth / 2, window.innerHeight / 2);
+        } else if (type === 'THERMAL_BLAST' || type === 'ATTACK') {
+          sounds.thermalBlast();
+          vfx.thermalBlast(window.innerWidth / 2 - 80, window.innerHeight / 2 + 40, window.innerWidth / 2 + 80, window.innerHeight / 2 - 40);
+        } else if (type === 'EMERGENCY_EVAC' || type === 'SKIP') {
+          sounds.evac();
+          vfx.sparkle(window.innerWidth / 2, window.innerHeight / 2, '#06b6d4', 20);
+        } else if (type === 'INFRARED_SCAN' || type === 'SEE_THE_FUTURE') {
+          sounds.scan();
+          vfx.sparkle(window.innerWidth / 2, window.innerHeight / 2, '#a855f7', 20);
+        } else if (type === 'TIMELINE_SCRAMBLE' || type === 'ALTER_THE_FUTURE') {
+          sounds.scan();
+          vfx.sparkle(window.innerWidth / 2, window.innerHeight / 2, '#ec4899', 25);
+        } else if (type === 'THERMODYNAMIC_VORTEX' || type === 'SHUFFLE') {
+          sounds.vortex();
+          vfx.vortex(window.innerWidth / 2, window.innerHeight / 2);
+        } else if (type === 'FELINE_BLACKMAIL' || type === 'FAVOR') {
+          sounds.blackmail();
+          vfx.sparkle(window.innerWidth / 2, window.innerHeight / 2, '#f59e0b', 20);
+        } else if (type.startsWith('CAT_')) {
+          sounds.catSound();
+          vfx.sparkle(window.innerWidth / 2, window.innerHeight / 2, '#fbbf24', 15);
+        } else {
+          sounds.cardPlay();
+        }
       });
 
       socket.on('kitten_defused', (data) => {
         sounds.defuse();
+        vfx.coolantSpray(window.innerWidth / 2, window.innerHeight / 2);
+        showComboNotification('❄️ CORE COOLED!', `${data.playerName || 'Technician'} deployed Coolant Foam! Cat secured into reactor core.`, '❄️');
       });
 
       socket.on('player_exploded', (data) => {
         triggerExplosionVisual();
+        showComboNotification('💥 DETONATION!', `${data.playerName || 'Technician'} drew a Combustion Cat and suffered vaporisation!`, '💥');
       });
 
       socket.on('game_over', (data) => {
@@ -1138,10 +1797,13 @@
             </span>
             ${getCardIcon(state.topDiscard.iconName)}
           </div>
-          <div class="font-bangers text-center text-stone-900 text-xs sm:text-sm leading-tight">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto flex items-center justify-center pointer-events-none">
+            ${getCardArtSVG(state.topDiscard)}
+          </div>
+          <div class="font-bangers text-center text-stone-900 text-xs sm:text-sm leading-tight truncate">
             ${state.topDiscard.title}
           </div>
-          <div class="font-fredoka text-[9px] text-stone-600 text-center italic">
+          <div class="font-fredoka text-[9px] text-stone-600 text-center italic line-clamp-2">
             ${state.topDiscard.subTitle}
           </div>
         `;
@@ -1213,7 +1875,7 @@
       (state.myHand || []).forEach((card) => {
         const isSelected = selectedCards.some((c) => c.id === card.id);
         const cardElem = document.createElement('div');
-        cardElem.className = `card-item relative w-24 h-36 sm:w-32 sm:h-48 rounded-2xl bg-white border-3 border-stone-950 flex flex-col justify-between p-2 shadow-lg cursor-pointer ${
+        cardElem.className = `card-item relative w-24 h-38 sm:w-32 sm:h-50 rounded-2xl bg-white border-3 border-stone-950 flex flex-col justify-between p-2 shadow-lg cursor-pointer select-none ${
           isSelected ? 'selected' : ''
         }`;
         cardElem.style.borderColor = card.badgeColor || '#000';
@@ -1225,10 +1887,13 @@
             </span>
             ${getCardIcon(card.iconName)}
           </div>
-          <div class="font-bangers text-center text-stone-950 text-xs sm:text-sm leading-tight px-1">
+          <div class="w-12 h-12 sm:w-16 sm:h-16 mx-auto flex items-center justify-center pointer-events-none">
+            ${getCardArtSVG(card)}
+          </div>
+          <div class="font-bangers text-center text-stone-950 text-xs sm:text-sm leading-tight px-1 truncate">
             ${card.title}
           </div>
-          <div class="font-fredoka text-[9px] text-stone-700 text-center italic leading-tight">
+          <div class="font-fredoka text-[8px] sm:text-[9px] text-stone-700 text-center italic leading-tight line-clamp-2">
             ${card.subTitle}
           </div>
         `;
@@ -1560,15 +2225,18 @@
       grid.innerHTML = '';
       cards.forEach((c) => {
         const el = document.createElement('div');
-        el.className = 'w-24 h-36 sm:w-28 sm:h-40 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg';
+        el.className = 'w-24 h-38 sm:w-28 sm:h-44 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg';
         el.style.borderColor = c.badgeColor || '#000';
         el.innerHTML = `
           <div class="flex justify-between items-center">
             <span class="font-bangers text-[10px] text-white px-1 rounded" style="background:${c.badgeColor}">${c.title.split(' ')[0]}</span>
             ${getCardIcon(c.iconName)}
           </div>
-          <div class="font-bangers text-stone-900 text-xs text-center leading-tight">${c.title}</div>
-          <div class="text-[9px] text-stone-500 italic text-center">${c.subTitle}</div>
+          <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto flex items-center justify-center">
+            ${getCardArtSVG(c)}
+          </div>
+          <div class="font-bangers text-stone-900 text-xs text-center leading-tight truncate">${c.title}</div>
+          <div class="text-[9px] text-stone-500 italic text-center line-clamp-1">${c.subTitle}</div>
         `;
         grid.appendChild(el);
       });
@@ -1592,10 +2260,13 @@
         const el = document.createElement('div');
         el.className = 'flex flex-col items-center gap-1';
         el.innerHTML = `
-          <div class="w-24 h-36 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg" style="border-color:${c.badgeColor}">
+          <div class="w-24 h-38 sm:w-28 sm:h-44 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg" style="border-color:${c.badgeColor}">
             <div class="font-bangers text-[10px] text-stone-400">#${idx + 1} ${idx === 0 ? '(TOP)' : ''}</div>
-            <div class="font-bangers text-stone-900 text-xs text-center">${c.title}</div>
-            <div class="text-[9px] text-stone-500 italic text-center">${c.subTitle}</div>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto flex items-center justify-center">
+              ${getCardArtSVG(c)}
+            </div>
+            <div class="font-bangers text-stone-900 text-xs text-center truncate">${c.title}</div>
+            <div class="text-[9px] text-stone-500 italic text-center line-clamp-1">${c.subTitle}</div>
           </div>
           <div class="flex gap-1 mt-1">
             ${idx > 0 ? `<button class="px-2 py-0.5 bg-stone-800 rounded text-xs hover:bg-stone-700" onclick="swapAlter(${idx}, ${idx - 1})">◀</button>` : ''}
@@ -1663,12 +2334,15 @@
 
       hand.forEach((card) => {
         const btn = document.createElement('button');
-        btn.className = 'comic-btn w-20 h-28 rounded-xl bg-white border-2 p-1.5 flex flex-col justify-between text-left hover:scale-105';
+        btn.className = 'comic-btn w-22 h-34 sm:w-26 sm:h-40 rounded-xl bg-white border-2 p-1.5 flex flex-col justify-between text-left hover:scale-105';
         btn.style.borderColor = card.badgeColor || '#000';
         btn.innerHTML = `
           <div class="font-bangers text-[9px] text-white px-1 rounded truncate" style="background:${card.badgeColor}">${card.title.split(' ')[0]}</div>
-          <div class="font-bangers text-stone-900 text-[11px] text-center leading-tight">${card.title}</div>
-          <div class="text-[8px] text-stone-500 italic text-center">${card.subTitle}</div>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto flex items-center justify-center pointer-events-none">
+            ${getCardArtSVG(card)}
+          </div>
+          <div class="font-bangers text-stone-900 text-[11px] text-center leading-tight truncate">${card.title}</div>
+          <div class="text-[8px] text-stone-500 italic text-center line-clamp-1">${card.subTitle}</div>
         `;
         btn.addEventListener('click', () => {
           socket.emit('favor_give', { roomId: currentRoomId, cardId: card.id });
@@ -1737,14 +2411,14 @@
       const emptyMsg = document.getElementById('discard-empty-msg');
       grid.innerHTML = '';
 
-      const eligible = (discardPile || []).filter((c) => c.type !== 'EXPLODING_KITTEN');
+      const eligible = (discardPile || []).filter((c) => c.type !== 'EXPLODING_KITTEN' && c.type !== 'COMBUSTION_CAT');
       if (eligible.length === 0) {
         emptyMsg.classList.remove('hidden');
       } else {
         emptyMsg.classList.add('hidden');
         eligible.forEach((card) => {
           const cardElem = document.createElement('div');
-          cardElem.className = 'w-24 h-36 sm:w-28 sm:h-42 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg cursor-pointer hover:scale-105 hover:shadow-xl transition-all';
+          cardElem.className = 'w-24 h-38 sm:w-28 sm:h-44 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg cursor-pointer hover:scale-105 hover:shadow-xl transition-all';
           cardElem.style.borderColor = card.badgeColor || '#000';
           cardElem.innerHTML = `
             <div class="flex justify-between items-center">
@@ -1753,8 +2427,11 @@
               </span>
               ${getCardIcon(card.iconName)}
             </div>
-            <div class="font-bangers text-stone-900 text-xs text-center leading-tight">${card.title}</div>
-            <div class="font-fredoka text-[9px] text-stone-600 italic text-center leading-tight">${card.subTitle}</div>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto flex items-center justify-center pointer-events-none">
+              ${getCardArtSVG(card)}
+            </div>
+            <div class="font-bangers text-stone-900 text-xs text-center leading-tight truncate">${card.title}</div>
+            <div class="font-fredoka text-[9px] text-stone-600 italic text-center leading-tight line-clamp-1">${card.subTitle}</div>
           `;
           cardElem.addEventListener('click', () => {
             socket.emit('select_discard_card', {
@@ -1819,6 +2496,7 @@
     // Visual Explosion Flash & Shake
     function triggerExplosionVisual() {
       sounds.explosion();
+      vfx.explode(window.innerWidth / 2, window.innerHeight / 2);
       const flash = document.getElementById('explosion-flash');
       flash.classList.remove('hidden');
       document.getElementById('screen-game').classList.add('animate-shake');

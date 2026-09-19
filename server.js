@@ -30,158 +30,177 @@ app.get('*', (req, res) => {
 // CARD DEFINITIONS & DECK MANAGEMENT
 // ==========================================
 const CARD_TEMPLATES = {
-  EXPLODING_KITTEN: {
-    type: 'EXPLODING_KITTEN',
-    title: 'EXPLODING KITTEN',
-    subTitle: 'RUN FOR YOUR LIFE',
-    actionText: 'EXPLODE IMMEDIATELY',
-    flavorText: 'Unless you have a Defuse card, you explode and lose the game!',
+  // Danger Card
+  COMBUSTION_CAT: {
+    type: 'COMBUSTION_CAT',
+    title: 'COMBUSTION CAT',
+    subTitle: 'CRITICAL DETONATION',
+    actionText: 'VAPORIZE IMMEDIATELY',
+    flavorText: 'Spontaneous feline detonation imminent! Defuse immediately or face catastrophic vaporisation.',
     category: 'danger',
-    badgeColor: '#ef4444',
-    bgTone: '#fee2e2',
-    iconName: 'bomb',
+    badgeColor: '#f97316',
+    bgTone: '#1c1917',
+    iconName: 'combustion_cat',
   },
-  DEFUSE: {
-    type: 'DEFUSE',
-    title: 'DEFUSE (LASER POINTER)',
-    subTitle: 'OF GREAT CAT JUSTICE',
-    actionText: 'DEFUSE EXPLOSION',
-    flavorText: 'Distract the kitten and place it anywhere secretly in the deck.',
+  // Coolant Card
+  COOLANT_FOAM: {
+    type: 'COOLANT_FOAM',
+    title: 'COOLANT FOAM',
+    subTitle: 'CRYOGENIC EXTINGUISHER',
+    actionText: 'NEUTRALIZE MELTDOWN',
+    flavorText: 'Douses the fiery feline with liquid nitrogen or catnip spray, allowing you to secretly replace the Combustion Cat anywhere in the deck.',
     category: 'defuse',
-    badgeColor: '#22c55e',
-    bgTone: '#dcfce7',
-    iconName: 'laser',
+    badgeColor: '#10b981',
+    bgTone: '#064e3b',
+    iconName: 'coolant_foam',
   },
-  ATTACK: {
-    type: 'ATTACK',
-    title: 'SINGLE SLAP (ATTACK)',
-    subTitle: 'TIGER PAW STRIKE',
-    actionText: 'END TURN & STACK 2 TURNS',
-    flavorText: 'End your turn without drawing and force the next victim to take 2 turns!',
+  // Action Cards
+  THERMAL_BLAST: {
+    type: 'THERMAL_BLAST',
+    title: 'THERMAL BLAST',
+    subTitle: 'REACTOR OVERHEAT',
+    actionText: 'FORCE 2 TURNS',
+    flavorText: 'Unload thermal energy onto the next operator, forcing them to take 2 consecutive turns immediately.',
     category: 'action',
-    badgeColor: '#ea580c',
-    bgTone: '#ffedd5',
-    iconName: 'paw',
+    badgeColor: '#ef4444',
+    bgTone: '#450a0a',
+    iconName: 'thermal_blast',
   },
-  SKIP: {
-    type: 'SKIP',
-    title: 'SPRINT AWAY (SKIP)',
-    subTitle: 'FROM THE PREMISES',
-    actionText: 'END TURN WITHOUT DRAWING',
-    flavorText: 'Immediately end your turn without drawing a card. Safe for now!',
-    category: 'action',
-    badgeColor: '#3b82f6',
-    bgTone: '#dbeafe',
-    iconName: 'run',
-  },
-  SEE_THE_FUTURE: {
-    type: 'SEE_THE_FUTURE',
-    title: 'SEE THE FUTURE (3X)',
-    subTitle: 'CRYSTAL BALL OF OMEN',
-    actionText: 'PEEK TOP 3 CARDS',
-    flavorText: 'Privately peek at the top 3 cards from the Draw Pile without altering.',
-    category: 'action',
-    badgeColor: '#9333ea',
-    bgTone: '#f3e8ff',
-    iconName: 'eye',
-  },
-  ALTER_THE_FUTURE: {
-    type: 'ALTER_THE_FUTURE',
-    title: 'ALTER THE FUTURE',
-    subTitle: 'TEMPORAL VORTEX',
-    actionText: 'REORDER TOP 3 CARDS',
-    flavorText: 'Peek at top 3 cards and rearrange them in any sequence you desire!',
-    category: 'action',
-    badgeColor: '#c026d3',
-    bgTone: '#fae8ff',
-    iconName: 'vortex',
-  },
-  FAVOR: {
-    type: 'FAVOR',
-    title: 'FAVOR (I\'LL TAKE THAT)',
-    subTitle: 'SEND IN A VAMPUG',
-    actionText: 'FORCE 1 CARD GIFT',
-    flavorText: 'Select an opponent. They must give you 1 card of their choice.',
+  EMERGENCY_EVAC: {
+    type: 'EMERGENCY_EVAC',
+    title: 'EMERGENCY EVAC',
+    subTitle: 'CRYO SHIELD VENT',
+    actionText: 'ESCAPE TURN SAFELY',
+    flavorText: 'Trigger instant emergency cooling and escape your turn without drawing a card.',
     category: 'action',
     badgeColor: '#06b6d4',
-    bgTone: '#cffafe',
-    iconName: 'grab',
+    bgTone: '#083344',
+    iconName: 'emergency_evac',
   },
-  SHUFFLE: {
-    type: 'SHUFFLE',
-    title: 'SHUFFLE',
-    subTitle: 'PANIC TORNADO',
-    actionText: 'SHUFFLE DRAW PILE',
-    flavorText: 'Thoroughly randomize the Draw Pile until someone gets dizzy.',
+  INFRARED_SCAN: {
+    type: 'INFRARED_SCAN',
+    title: 'INFRARED SCAN',
+    subTitle: 'THERMAL SURVEILLANCE',
+    actionText: 'SCAN TOP 3 CORE CARDS',
+    flavorText: 'Scan the top 3 cards of the reactor draw core with thermal cameras.',
     category: 'action',
-    badgeColor: '#78716c',
-    bgTone: '#f5f5f4',
-    iconName: 'shuffle',
+    badgeColor: '#8b5cf6',
+    bgTone: '#2e1065',
+    iconName: 'infrared_scan',
   },
-  CAT_HAIRY_POTATO: {
-    type: 'CAT_HAIRY_POTATO',
-    title: 'HAIRY POTATO CAT',
-    subTitle: 'STEAL A CARD (PAIR)',
-    actionText: 'PLAY 2 TO STEAL',
-    flavorText: 'Play a matching pair to steal a random card from any player.',
+  TIMELINE_SCRAMBLE: {
+    type: 'TIMELINE_SCRAMBLE',
+    title: 'TIMELINE SCRAMBLE',
+    subTitle: 'REACTOR OVERHAUL',
+    actionText: 'REORDER TOP 3 CARDS',
+    flavorText: 'Peer into the top 3 cards and manipulate their containment sequence.',
+    category: 'action',
+    badgeColor: '#d946ef',
+    bgTone: '#4a044e',
+    iconName: 'timeline_scramble',
+  },
+  THERMODYNAMIC_VORTEX: {
+    type: 'THERMODYNAMIC_VORTEX',
+    title: 'THERMODYNAMIC VORTEX',
+    subTitle: 'CENTRIFUGE AGITATION',
+    actionText: 'RANDOMIZE DRAW CORE',
+    flavorText: 'Activate the magnetic centrifuge to completely randomize the draw pile.',
+    category: 'action',
+    badgeColor: '#64748b',
+    bgTone: '#0f172a',
+    iconName: 'thermodynamic_vortex',
+  },
+  FELINE_BLACKMAIL: {
+    type: 'FELINE_BLACKMAIL',
+    title: 'FELINE BLACKMAIL',
+    subTitle: 'HAZARD EXTORTION',
+    actionText: 'FORCE 1 CARD BRIBE',
+    flavorText: 'Threaten another lab technician with a meltdown to extort 1 card from their hand.',
+    category: 'action',
+    badgeColor: '#eab308',
+    bgTone: '#422006',
+    iconName: 'feline_blackmail',
+  },
+  // 5 Feral Feline Combo Cards
+  CAT_STATIC_SPARK: {
+    type: 'CAT_STATIC_SPARK',
+    title: 'STATIC SPARK CAT',
+    subTitle: 'TESLA COIL FUR',
+    actionText: 'PAIR TO STEAL',
+    flavorText: 'High-voltage friction crackling from its paws. Pair 2 to steal a random card.',
+    category: 'cat',
+    badgeColor: '#f59e0b',
+    bgTone: '#451a03',
+    iconName: 'cat_static',
+  },
+  CAT_NUCLEAR_NACHO: {
+    type: 'CAT_NUCLEAR_NACHO',
+    title: 'NUCLEAR NACHO CAT',
+    subTitle: 'RADIOACTIVE SNACK',
+    actionText: 'PAIR TO STEAL',
+    flavorText: 'Irradiated cheese dust radiating lethal gamma warmth. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#84cc16',
-    bgTone: '#ecfccb',
-    iconName: 'potato',
+    bgTone: '#1a2e05',
+    iconName: 'cat_nuclear',
   },
-  CAT_TACOCAT: {
-    type: 'CAT_TACOCAT',
-    title: 'TACOCAT',
-    subTitle: 'I AM A PALINDROME',
-    actionText: 'PLAY 2 TO STEAL',
-    flavorText: 'Spelled backwards or forwards, Tacocat steals a random card when paired.',
-    category: 'cat',
-    badgeColor: '#eab308',
-    bgTone: '#fef9c3',
-    iconName: 'taco',
-  },
-  CAT_RAINBOW_RALPHING: {
-    type: 'CAT_RAINBOW_RALPHING',
-    title: 'RAINBOW RALPHING CAT',
-    subTitle: 'SPEWS GORGEOUS PRISMS',
-    actionText: 'PLAY 2 TO STEAL',
-    flavorText: 'Pair up two Ralphers to loot a card from the victim of your choice.',
+  CAT_PLASMA_PURR: {
+    type: 'CAT_PLASMA_PURR',
+    title: 'PLASMA PURR CAT',
+    subTitle: 'SUPERHEATED ION BEAM',
+    actionText: 'PAIR TO STEAL',
+    flavorText: 'Vibrates at 40,000 kelvin with luminous violet discharge. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#ec4899',
-    bgTone: '#fce7f3',
-    iconName: 'rainbow',
+    bgTone: '#500724',
+    iconName: 'cat_plasma',
   },
-  CAT_BEARD: {
-    type: 'CAT_BEARD',
-    title: 'BEARD CAT',
-    subTitle: 'LUMBERJACK WHISKERS',
-    actionText: 'PLAY 2 TO STEAL',
-    flavorText: 'Fierce facial plumage. Combine 2 Beard Cats to rob an opponent.',
+  CAT_VOLCANO_WHISKER: {
+    type: 'CAT_VOLCANO_WHISKER',
+    title: 'VOLCANO WHISKER CAT',
+    subTitle: 'MAGMA PLUME SNOUT',
+    actionText: 'PAIR TO STEAL',
+    flavorText: 'Bristles with molten obsidian and bubbling basalt. Pair 2 to steal a random card.',
     category: 'cat',
-    badgeColor: '#b45309',
-    bgTone: '#fef3c7',
-    iconName: 'beard',
+    badgeColor: '#ea580c',
+    bgTone: '#431407',
+    iconName: 'cat_volcano',
   },
-  CAT_CATTERMELON: {
-    type: 'CAT_CATTERMELON',
-    title: 'CATTERMELON',
-    subTitle: 'SEEDY & FEROCIOUS',
-    actionText: 'PLAY 2 TO STEAL',
-    flavorText: 'Refreshing yet deadly fruit beast. Play a pair to steal 1 random card.',
+  CAT_TICKING_TABBY: {
+    type: 'CAT_TICKING_TABBY',
+    title: 'TICKING TABBY',
+    subTitle: 'CHRONO CLOCKWORK',
+    actionText: 'PAIR TO STEAL',
+    flavorText: 'Gears grinding and counting down to spontaneous ignition. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#10b981',
-    bgTone: '#d1fae5',
-    iconName: 'melon',
+    bgTone: '#022c22',
+    iconName: 'cat_tabby',
   },
 };
+
+// Aliases for backwards compatibility with any legacy client checks
+CARD_TEMPLATES.EXPLODING_KITTEN = CARD_TEMPLATES.COMBUSTION_CAT;
+CARD_TEMPLATES.DEFUSE = CARD_TEMPLATES.COOLANT_FOAM;
+CARD_TEMPLATES.ATTACK = CARD_TEMPLATES.THERMAL_BLAST;
+CARD_TEMPLATES.SKIP = CARD_TEMPLATES.EMERGENCY_EVAC;
+CARD_TEMPLATES.SEE_THE_FUTURE = CARD_TEMPLATES.INFRARED_SCAN;
+CARD_TEMPLATES.ALTER_THE_FUTURE = CARD_TEMPLATES.TIMELINE_SCRAMBLE;
+CARD_TEMPLATES.SHUFFLE = CARD_TEMPLATES.THERMODYNAMIC_VORTEX;
+CARD_TEMPLATES.FAVOR = CARD_TEMPLATES.FELINE_BLACKMAIL;
+CARD_TEMPLATES.CAT_TACOCAT = CARD_TEMPLATES.CAT_STATIC_SPARK;
+CARD_TEMPLATES.CAT_HAIRY_POTATO = CARD_TEMPLATES.CAT_NUCLEAR_NACHO;
+CARD_TEMPLATES.CAT_RAINBOW_RALPHING = CARD_TEMPLATES.CAT_PLASMA_PURR;
+CARD_TEMPLATES.CAT_BEARD = CARD_TEMPLATES.CAT_VOLCANO_WHISKER;
+CARD_TEMPLATES.CAT_CATTERMELON = CARD_TEMPLATES.CAT_TICKING_TABBY;
 
 let globalCardSeq = 0;
 function createCard(type) {
   globalCardSeq++;
-  const def = CARD_TEMPLATES[type];
+  const def = CARD_TEMPLATES[type] || CARD_TEMPLATES.COMBUSTION_CAT;
   return {
     ...def,
-    id: `c_${type}_${globalCardSeq}_${Math.random().toString(36).substr(2, 6)}`,
+    id: `c_${def.type}_${globalCardSeq}_${Math.random().toString(36).substr(2, 6)}`,
   };
 }
 
@@ -195,16 +214,18 @@ function shuffle(arr) {
 }
 
 const BOT_NAMES = [
+  { name: 'Dr. Singe', avatarId: 'dr_singe' },
+  { name: 'Sizzles', avatarId: 'sizzles' },
+  { name: 'Pyro-Paw', avatarId: 'pyro_paw' },
+  { name: 'Meltdown Max', avatarId: 'meltdown_max' },
+  { name: 'Ash-Tail', avatarId: 'ash_tail' },
   { name: 'Sharky', avatarId: 'sharky' },
   { name: 'Bacon Cat', avatarId: 'bacon_cat' },
-  { name: 'Schmoopy', avatarId: 'schmoopy' },
-  { name: 'Otho', avatarId: 'otho' },
-  { name: 'Lydia', avatarId: 'lydia' },
 ];
 
 function generateRoomCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = 'KTN-';
+  let code = 'CAT-';
   for (let i = 0; i < 3; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -299,7 +320,7 @@ class GameRoom {
   // Authoritative State Redaction & Data Masking:
   // Each client receives only their own hand, opponent card counts, and deck size!
   broadcastGameState() {
-    const kittensInDeck = this.drawPile.filter((c) => c.type === 'EXPLODING_KITTEN').length;
+    const kittensInDeck = this.drawPile.filter((c) => c.type === 'COMBUSTION_CAT' || c.type === 'EXPLODING_KITTEN').length;
     const chanceOfKitten =
       this.drawPile.length > 0 ? (kittensInDeck / this.drawPile.length) * 100 : 0;
 
@@ -359,17 +380,17 @@ class GameRoom {
     // 1. Build standard pool
     const pool = [];
     const counts = [
-      { type: 'ATTACK', count: 4 },
-      { type: 'SKIP', count: 4 },
-      { type: 'SEE_THE_FUTURE', count: 5 },
-      { type: 'ALTER_THE_FUTURE', count: 3 },
-      { type: 'FAVOR', count: 4 },
-      { type: 'SHUFFLE', count: 4 },
-      { type: 'CAT_HAIRY_POTATO', count: 4 },
-      { type: 'CAT_TACOCAT', count: 4 },
-      { type: 'CAT_RAINBOW_RALPHING', count: 4 },
-      { type: 'CAT_BEARD', count: 4 },
-      { type: 'CAT_CATTERMELON', count: 4 },
+      { type: 'THERMAL_BLAST', count: 4 },
+      { type: 'EMERGENCY_EVAC', count: 4 },
+      { type: 'INFRARED_SCAN', count: 5 },
+      { type: 'TIMELINE_SCRAMBLE', count: 3 },
+      { type: 'FELINE_BLACKMAIL', count: 4 },
+      { type: 'THERMODYNAMIC_VORTEX', count: 4 },
+      { type: 'CAT_STATIC_SPARK', count: 4 },
+      { type: 'CAT_NUCLEAR_NACHO', count: 4 },
+      { type: 'CAT_PLASMA_PURR', count: 4 },
+      { type: 'CAT_VOLCANO_WHISKER', count: 4 },
+      { type: 'CAT_TICKING_TABBY', count: 4 },
     ];
 
     counts.forEach((item) => {
@@ -380,19 +401,19 @@ class GameRoom {
 
     const shuffledPool = shuffle(pool);
 
-    // 2. Deal 1 Defuse and 4 random cards to each player
+    // 2. Deal 1 Coolant Foam and 4 random cards to each player
     const playerCount = this.players.length;
     const defuses = [];
-    // 6 defuses total in standard deck
+    // 6 coolant foams total in standard deck
     for (let i = 0; i < 6; i++) {
-      defuses.push(createCard('DEFUSE'));
+      defuses.push(createCard('COOLANT_FOAM'));
     }
 
     let poolIdx = 0;
     this.players.forEach((player, idx) => {
       player.isDead = false;
       player.hand = [];
-      // 1 Defuse
+      // 1 Coolant Foam
       player.hand.push(defuses[idx]);
       // 4 random cards
       for (let c = 0; c < 4; c++) {
@@ -401,19 +422,19 @@ class GameRoom {
     });
 
     // 3. Assemble Draw Deck:
-    // (Player Count - 1) Exploding Kittens + remaining Defuses + remaining pool
-    const explodingKittensCount = Math.max(1, playerCount - 1);
-    const explodingKittens = [];
-    for (let k = 0; k < explodingKittensCount; k++) {
-      explodingKittens.push(createCard('EXPLODING_KITTEN'));
+    // (Player Count - 1) Combustion Cats + remaining Coolants + remaining pool
+    const combustionCatsCount = Math.max(1, playerCount - 1);
+    const combustionCats = [];
+    for (let k = 0; k < combustionCatsCount; k++) {
+      combustionCats.push(createCard('COMBUSTION_CAT'));
     }
 
     const leftoverDefuses = defuses.slice(playerCount);
     const leftoverPool = shuffledPool.slice(poolIdx);
 
-    this.drawPile = shuffle([...leftoverPool, ...leftoverDefuses, ...explodingKittens]);
+    this.drawPile = shuffle([...leftoverPool, ...leftoverDefuses, ...combustionCats]);
 
-    this.log('GAME', 'player', 'Match started! Hands dealt. Beware of Exploding Kittens!');
+    this.log('GAME', 'player', 'Reactor ignited! Hands dealt. Beware of Combustion Cats!');
     this.broadcastLobby();
     this.broadcastGameState();
 
@@ -491,17 +512,17 @@ class GameRoom {
   executeBotMove(bot) {
     if (this.turnState !== 'NORMAL') return;
 
-    const kittensInDeck = this.drawPile.filter((c) => c.type === 'EXPLODING_KITTEN').length;
+    const kittensInDeck = this.drawPile.filter((c) => c.type === 'COMBUSTION_CAT' || c.type === 'EXPLODING_KITTEN').length;
     const chance = (kittensInDeck / this.drawPile.length) * 100;
     const knownTop = this.botKnownTopCards[bot.id];
-    const topIsKitten = knownTop && knownTop[0]?.type === 'EXPLODING_KITTEN';
+    const topIsKitten = knownTop && (knownTop[0]?.type === 'COMBUSTION_CAT' || knownTop[0]?.type === 'EXPLODING_KITTEN');
 
-    const alterFuture = bot.hand.find((c) => c.type === 'ALTER_THE_FUTURE');
-    const attack = bot.hand.find((c) => c.type === 'ATTACK');
-    const skip = bot.hand.find((c) => c.type === 'SKIP');
-    const seeFuture = bot.hand.find((c) => c.type === 'SEE_THE_FUTURE');
-    const shuffleCard = bot.hand.find((c) => c.type === 'SHUFFLE');
-    const favor = bot.hand.find((c) => c.type === 'FAVOR');
+    const alterFuture = bot.hand.find((c) => c.type === 'TIMELINE_SCRAMBLE' || c.type === 'ALTER_THE_FUTURE');
+    const attack = bot.hand.find((c) => c.type === 'THERMAL_BLAST' || c.type === 'ATTACK');
+    const skip = bot.hand.find((c) => c.type === 'EMERGENCY_EVAC' || c.type === 'SKIP');
+    const seeFuture = bot.hand.find((c) => c.type === 'INFRARED_SCAN' || c.type === 'SEE_THE_FUTURE');
+    const shuffleCard = bot.hand.find((c) => c.type === 'THERMODYNAMIC_VORTEX' || c.type === 'SHUFFLE');
+    const favor = bot.hand.find((c) => c.type === 'FELINE_BLACKMAIL' || c.type === 'FAVOR');
 
     // Card type counts in bot hand
     const typeCounts = {};
@@ -513,7 +534,7 @@ class GameRoom {
     const trioType = Object.keys(typeCounts).find((k) => typeCounts[k].length >= 3);
     const pairType = Object.keys(typeCounts).find((k) => typeCounts[k].length >= 2);
 
-    // Evasion if kitten is next or chance is high
+    // Evasion if cat is next or chance is high
     if (topIsKitten || chance > 25) {
       if (alterFuture) {
         this.playCard(bot.id, alterFuture.id);
@@ -545,16 +566,16 @@ class GameRoom {
       );
       if (targets.length > 0) {
         targets.sort((a, b) => b.hand.length - a.hand.length);
-        this.playThreeOfAKind(bot.id, trio.map((c) => c.id), targets[0].id, 'DEFUSE');
+        this.playThreeOfAKind(bot.id, trio.map((c) => c.id), targets[0].id, 'COOLANT_FOAM');
         return;
       }
     }
 
-    // 5-different cards discard retrieval (if discard has valuable Defuse or Attack)
+    // 5-different cards discard retrieval (if discard has valuable Coolant or Thermal Blast)
     const distinctTypes = Object.keys(typeCounts);
     if (distinctTypes.length >= 5 && Math.random() < 0.65) {
       const hasValuableInDiscard = this.discardPile.some(
-        (c) => c.type === 'DEFUSE' || c.type === 'ATTACK'
+        (c) => c.type === 'COOLANT_FOAM' || c.type === 'DEFUSE' || c.type === 'THERMAL_BLAST' || c.type === 'ATTACK'
       );
       if (hasValuableInDiscard) {
         const fiveCards = distinctTypes.slice(0, 5).map((t) => typeCounts[t][0]);
@@ -606,11 +627,11 @@ class GameRoom {
 
     const drawnCard = this.drawPile.shift();
 
-    if (drawnCard.type === 'EXPLODING_KITTEN') {
-      const defuseIdx = currentP.hand.findIndex((c) => c.type === 'DEFUSE');
+    if (drawnCard.type === 'COMBUSTION_CAT' || drawnCard.type === 'EXPLODING_KITTEN') {
+      const defuseIdx = currentP.hand.findIndex((c) => c.type === 'COOLANT_FOAM' || c.type === 'DEFUSE');
 
       if (defuseIdx !== -1) {
-        // Player has Defuse!
+        // Player has Coolant Foam / Defuse!
         const defuseCard = currentP.hand.splice(defuseIdx, 1)[0];
         this.discardPile.push(defuseCard);
         this.matchStats.kittensDefused++;
@@ -618,7 +639,7 @@ class GameRoom {
         this.log(
           currentP.name,
           currentP.avatarId,
-          `DREW AN EXPLODING KITTEN but neutralized it with ${defuseCard.title}!`
+          `DREW A COMBUSTION CAT but doused the core with ${defuseCard.title}!`
         );
 
         io.to(this.id).emit('kitten_defused', {
@@ -627,7 +648,7 @@ class GameRoom {
         });
 
         if (currentP.isBot) {
-          // Bot places kitten secretly (35% top, 50% random, 15% bottom)
+          // Bot places cat secretly (35% top, 50% random, 15% bottom)
           const roll = Math.random();
           if (roll < 0.35) {
             this.drawPile.unshift(drawnCard);
@@ -646,7 +667,7 @@ class GameRoom {
             this.advanceTurn(1);
           }
         } else {
-          // Human player must choose where to put the kitten
+          // Human player must choose where to put the cat
           this.turnState = 'AWAITING_DEFUSE';
           this.turnStateData = {
             kittenCard: drawnCard,
@@ -655,11 +676,11 @@ class GameRoom {
           this.broadcastGameState();
         }
       } else {
-        // NO DEFUSE -> EXPLODE!
+        // NO COOLANT -> MELTDOWN!
         this.log(
           currentP.name,
           currentP.avatarId,
-          `💥 BOOM! ${currentP.name} drew an Exploding Kitten with NO DEFUSE and exploded!`
+          `💥 MELTDOWN! ${currentP.name} drew a Combustion Cat with NO COOLANT and vaporised!`
         );
 
         currentP.isDead = true;
@@ -686,7 +707,7 @@ class GameRoom {
     // Safe card drawn
     currentP.hand.push(drawnCard);
     this.matchStats.turnsPlayed++;
-    this.log(currentP.name, currentP.avatarId, `drew a card from the deck.`);
+    this.log(currentP.name, currentP.avatarId, `drew a card from the reactor core.`);
 
     io.to(this.id).emit('card_drawn', {
       playerId: currentP.id,
@@ -708,22 +729,22 @@ class GameRoom {
     const currentP = this.players[this.activePlayerIndex];
     if (!currentP || currentP.id !== playerId) return;
 
-    const kittenCard = this.turnStateData?.kittenCard || createCard('EXPLODING_KITTEN');
+    const kittenCard = this.turnStateData?.kittenCard || createCard('COMBUSTION_CAT');
 
     if (position === 'top' || position === 0) {
       this.drawPile.unshift(kittenCard);
-      this.log(currentP.name, currentP.avatarId, 'secretly planted the kitten on top of the deck! 😈');
+      this.log(currentP.name, currentP.avatarId, 'secretly armed the Combustion Cat back on TOP of the deck!');
     } else if (position === 'bottom') {
       this.drawPile.push(kittenCard);
-      this.log(currentP.name, currentP.avatarId, 'secretly tucked the kitten to the bottom of the deck.');
+      this.log(currentP.name, currentP.avatarId, 'secretly slid the Combustion Cat to the BOTTOM of the deck.');
     } else if (position === 'random') {
       const pos = Math.floor(Math.random() * (this.drawPile.length + 1));
       this.drawPile.splice(pos, 0, kittenCard);
-      this.log(currentP.name, currentP.avatarId, 'secretly shuffled the kitten into a random spot.');
+      this.log(currentP.name, currentP.avatarId, 'secretly shuffled the Combustion Cat into a random core chamber.');
     } else if (typeof position === 'number') {
       const clamped = Math.max(0, Math.min(this.drawPile.length, position));
       this.drawPile.splice(clamped, 0, kittenCard);
-      this.log(currentP.name, currentP.avatarId, `secretly placed the kitten at position #${clamped + 1}.`);
+      this.log(currentP.name, currentP.avatarId, `secretly placed the Combustion Cat at chamber #${clamped + 1}.`);
     }
 
     this.turnState = 'NORMAL';
@@ -756,24 +777,26 @@ class GameRoom {
     });
 
     switch (card.type) {
+      case 'THERMAL_BLAST':
       case 'ATTACK': {
         this.matchStats.attacksPlayed++;
         const nextTurns = (this.turnsRemaining > 1 ? this.turnsRemaining : 0) + 2;
         this.log(
           currentP.name,
           currentP.avatarId,
-          `played ${card.title}! Next player must take ${nextTurns} turns!`,
+          `unleashed ${card.title}! Next operator must endure ${nextTurns} consecutive turns!`,
           card.type
         );
         this.advanceTurn(nextTurns);
         break;
       }
 
+      case 'EMERGENCY_EVAC':
       case 'SKIP': {
         this.log(
           currentP.name,
           currentP.avatarId,
-          `played ${card.title} and ended their turn safely!`,
+          `triggered ${card.title} and escaped safely!`,
           card.type
         );
         if (this.turnsRemaining > 1) {
@@ -786,12 +809,13 @@ class GameRoom {
         break;
       }
 
+      case 'INFRARED_SCAN':
       case 'SEE_THE_FUTURE': {
         const top3 = this.drawPile.slice(0, 3);
         this.log(
           currentP.name,
           currentP.avatarId,
-          `played ${card.title} to peek at the top 3 cards!`,
+          `activated ${card.title} to scan the top 3 cards!`,
           card.type
         );
 
@@ -806,17 +830,18 @@ class GameRoom {
         break;
       }
 
+      case 'TIMELINE_SCRAMBLE':
       case 'ALTER_THE_FUTURE': {
         const top3 = this.drawPile.slice(0, 3);
         this.log(
           currentP.name,
           currentP.avatarId,
-          `played ${card.title} and is manipulating timeline!`,
+          `activated ${card.title} and is manipulating the sequence!`,
           card.type
         );
 
         if (currentP.isBot) {
-          if (top3.length > 1 && top3[0].type === 'EXPLODING_KITTEN') {
+          if (top3.length > 1 && (top3[0].type === 'COMBUSTION_CAT' || top3[0].type === 'EXPLODING_KITTEN')) {
             const reordered = [top3[1], top3[0], ...top3.slice(2)];
             this.drawPile.splice(0, top3.length, ...reordered);
             this.botKnownTopCards[currentP.id] = reordered;
@@ -832,13 +857,14 @@ class GameRoom {
         break;
       }
 
+      case 'THERMODYNAMIC_VORTEX':
       case 'SHUFFLE': {
         this.drawPile = shuffle(this.drawPile);
         this.botKnownTopCards = {};
         this.log(
           currentP.name,
           currentP.avatarId,
-          `played ${card.title} and thoroughly shuffled the deck!`,
+          `activated ${card.title} and thoroughly agitated the core deck!`,
           card.type
         );
         this.broadcastGameState();
@@ -1063,9 +1089,9 @@ class GameRoom {
     );
 
     if (currentP.isBot) {
-      const eligible = this.discardPile.filter((c) => c.type !== 'EXPLODING_KITTEN');
+      const eligible = this.discardPile.filter((c) => c.type !== 'COMBUSTION_CAT' && c.type !== 'EXPLODING_KITTEN');
       if (eligible.length > 0) {
-        const priorityOrder = ['DEFUSE', 'ATTACK', 'ALTER_THE_FUTURE', 'SEE_THE_FUTURE', 'SKIP', 'FAVOR'];
+        const priorityOrder = ['COOLANT_FOAM', 'DEFUSE', 'THERMAL_BLAST', 'ATTACK', 'TIMELINE_SCRAMBLE', 'ALTER_THE_FUTURE', 'INFRARED_SCAN', 'SEE_THE_FUTURE', 'EMERGENCY_EVAC', 'SKIP', 'FELINE_BLACKMAIL', 'FAVOR'];
         let chosen = null;
         for (const pType of priorityOrder) {
           chosen = eligible.find((c) => c.type === pType);
@@ -1089,7 +1115,7 @@ class GameRoom {
         requesterSocketId: currentP.socketId,
       };
       io.to(currentP.socketId).emit('open_discard_browser', {
-        discardPile: this.discardPile.filter((c) => c.type !== 'EXPLODING_KITTEN'),
+        discardPile: this.discardPile.filter((c) => c.type !== 'COMBUSTION_CAT' && c.type !== 'EXPLODING_KITTEN'),
       });
       this.broadcastGameState();
     }
@@ -1101,7 +1127,7 @@ class GameRoom {
     const currentP = this.players[this.activePlayerIndex];
     if (!currentP || currentP.id !== playerId) return;
 
-    const idx = this.discardPile.findIndex((c) => c.id === cardId && c.type !== 'EXPLODING_KITTEN');
+    const idx = this.discardPile.findIndex((c) => c.id === cardId && c.type !== 'COMBUSTION_CAT' && c.type !== 'EXPLODING_KITTEN');
     if (idx === -1) return;
 
     const card = this.discardPile.splice(idx, 1)[0];
