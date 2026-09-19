@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Fredoka', cursive, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+.font-bangers {
+  font-family: 'Bangers', cursive, sans-serif;
+  letter-spacing: 0.04em;
+}
+
+.font-comic {
+  font-family: 'Fredoka', cursive, sans-serif;
+}
+
+/* Comic tabletop wood and textures */
+.wood-tabletop {
+  background-color: #63361d;
+  background-image: 
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.6) 100%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.06),
+      rgba(0, 0, 0, 0.06) 1px,
+      transparent 1px,
+      transparent 38px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(40, 20, 10, 0.15) 0px,
+      rgba(70, 35, 15, 0.15) 120px,
+      rgba(30, 15, 5, 0.3) 124px
+    );
+}
+
+/* Screen shake effect */
+@keyframes screen-shake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  15% { transform: translate(-14px, 10px) rotate(-2deg); }
+  30% { transform: translate(12px, -8px) rotate(1.5deg); }
+  45% { transform: translate(-10px, 6px) rotate(-1deg); }
+  60% { transform: translate(8px, -4px) rotate(0.8deg); }
+  75% { transform: translate(-4px, 2px) rotate(-0.5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.animate-shake {
+  animation: screen-shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Comic speech bubble tail */
+.bubble-tail::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0;
+  border-style: solid;
+  border-color: #ffffff transparent;
+  display: block;
+  width: 0;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+}
+

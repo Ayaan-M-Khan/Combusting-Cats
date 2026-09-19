@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exploding Kittens - Multiplayer Online</title>
+  <meta name="description" content="Online real-time multiplayer Exploding Kittens game with party lobbies, quick matchmaking, and AI bots." />
+  <meta property="og:title" content="Exploding Kittens - Multiplayer Online" />
+  <meta property="og:description" content="Online real-time multiplayer Exploding Kittens game with party lobbies, quick matchmaking, and AI bots." />
+  
+  <!-- Google Fonts: Bangers & Fredoka -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            bangers: ['Bangers', 'cursive'],
+            fredoka: ['Fredoka', 'sans-serif'],
+            montserrat: ['Montserrat', 'sans-serif'],
+          },
+          keyframes: {
+            shake: {
+              '0%, 100%': { transform: 'translate(0, 0) rotate(0deg)' },
+              '10%, 30%, 50%, 70%, 90%': { transform: 'translate(-5px, 3px) rotate(-1deg)' },
+              '20%, 40%, 60%, 80%': { transform: 'translate(5px, -3px) rotate(1deg)' },
+            },
+            pop: {
+              '0%': { transform: 'scale(0.8)', opacity: '0' },
+              '70%': { transform: 'scale(1.05)' },
+              '100%': { transform: 'scale(1)', opacity: '1' },
+            }
+          },
+          animation: {
+            shake: 'shake 0.6s cubic-bezier(.36,.07,.19,.97) both',
+            pop: 'pop 0.3s ease-out forwards',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Socket.io client automatically served by backend -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    /* Comic wood tabletop aesthetic matching digital game screenshots */
+    .wood-tabletop {
+      background-color: #2b170c;
+      background-image: 
+        radial-gradient(ellipse at center, rgba(146, 64, 14, 0.45) 0%, rgba(20, 10, 5, 0.95) 85%),
+        repeating-linear-gradient(
+          0deg,
+          rgba(0, 0, 0, 0.25) 0px,
+          rgba(0, 0, 0, 0.25) 2px,
+          transparent 2px,
+          transparent 32px
+        );
+      box-shadow: inset 0 0 160px rgba(0, 0, 0, 0.9);
+    }
+
+    .comic-btn {
+      position: relative;
+      border: 3px solid #1c0f08;
+      box-shadow: 0 6px 0 #1c0f08;
+      transition: all 0.15s ease-in-out;
+    }
+    .comic-btn:hover {
+      box-shadow: 0 3px 0 #1c0f08;
+      transform: translateY(3px);
+    }
+    .comic-btn:active {
+      box-shadow: 0 0 0 #1c0f08;
+      transform: translateY(6px);
+    }
+
+    /* Comic card styles */
+    .card-item {
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease;
+      transform-origin: bottom center;
+      user-select: none;
+    }
+    .card-item:hover {
+      transform: translateY(-24px) scale(1.05) !important;
+      z-index: 40 !important;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.6);
+    }
+    .card-item.selected {
+      transform: translateY(-34px) scale(1.08) !important;
+      z-index: 50 !important;
+      border-color: #fbbf24 !important;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 16px 30px rgba(0,0,0,0.7) !important;
+    }
+
+    /* Custom parchment scroll texture */
+    .parchment {
+      background: #fbf5e5;
+      background-image: radial-gradient(circle at 50% 50%, rgba(254, 243, 199, 0.9), rgba(243, 222, 177, 0.9));
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(180, 83, 9, 0.15);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #854d0e;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-stone-950 text-stone-100 font-fredoka overflow-hidden select-none m-0 p-0">
+
+  <!-- ============================================================ -->
+  <!-- 1. SCREEN: MAIN MENU                                         -->
+  <!-- ============================================================ -->
+  <div id="screen-menu" class="w-full h-screen bg-[#651010] flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <!-- Radial comic vignette background -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_#991b1b_0%,_#450a0a_100%)] opacity-95"></div>
+
+    <!-- Decorative background kitten silhouettes -->
+    <div class="absolute -top-12 -left-12 opacity-10 text-white pointer-events-none">
+      <svg class="w-80 h-80 fill-current" viewBox="0 0 100 100">
+        <path d="M20,70 Q15,40 25,25 Q35,35 45,30 Q55,30 65,25 Q75,40 70,70 Q45,85 20,70 Z" />
+        <polygon points="25,32 15,10 40,25" />
+        <polygon points="65,25 90,10 80,32" />
+      </svg>
+    </div>
+    <div class="absolute -bottom-16 -right-16 opacity-10 text-white pointer-events-none">
+      <svg class="w-96 h-96 fill-current" viewBox="0 0 100 100">
+        <path d="M20,70 Q15,40 25,25 Q35,35 45,30 Q55,30 65,25 Q75,40 70,70 Q45,85 20,70 Z" />
+        <polygon points="25,32 15,10 40,25" />
+        <polygon points="65,25 90,10 80,32" />
+      </svg>
+    </div>
+
+    <!-- Menu Content Container -->
+    <div class="relative z-10 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 max-w-5xl w-full">
+      
+      <!-- Left: Logo & Glowing Kitten -->
+      <div class="flex flex-col items-center text-center">
+        <div class="flex flex-col items-center leading-none">
+          <span class="font-bangers text-5xl sm:text-7xl lg:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-red-500 tracking-wider drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+            EXPLODING
+          </span>
+          <span class="font-bangers text-6xl sm:text-8xl lg:text-9xl text-white tracking-widest leading-none drop-shadow-[0_6px_10px_rgba(0,0,0,0.9)] -mt-2 sm:-mt-4">
+            KITTENS
+          </span>
+        </div>
+
+        <!-- Glowing Silhouette Kitten -->
+        <div class="mt-4 sm:mt-6 text-amber-500 drop-shadow-[0_0_30px_rgba(245,158,11,0.6)] cursor-pointer hover:scale-105 transition-transform duration-300">
+          <svg class="w-36 h-36 sm:w-52 sm:h-52 fill-current" viewBox="0 0 120 120">
+            <!-- Tail -->
+            <path d="M25,85 Q10,75 12,50 Q14,35 24,32 Q28,45 22,60 Q18,72 32,80 Z" fill="#d97706" />
+            <!-- Body -->
+            <path d="M30,85 Q25,48 40,35 Q60,30 80,35 Q95,48 90,85 Q60,102 30,85 Z" fill="#ea580c" />
+            <!-- Ears -->
+            <polygon points="38,40 28,15 54,32" fill="#dc2626" stroke="#450a0a" stroke-width="3" />
+            <polygon points="82,40 92,15 66,32" fill="#dc2626" stroke="#450a0a" stroke-width="3" />
+            <!-- Glowing Yellow Eyes -->
+            <ellipse cx="48" cy="50" rx="7" ry="9" fill="#facc15" stroke="#713f12" stroke-width="2" />
+            <ellipse cx="72" cy="50" rx="7" ry="9" fill="#facc15" stroke="#713f12" stroke-width="2" />
+            <ellipse cx="49" cy="50" rx="2" ry="7" fill="#000" />
+            <ellipse cx="71" cy="50" rx="2" ry="7" fill="#000" />
+            <!-- Nose & Whiskers -->
+            <polygon points="60,60 55,56 65,56" fill="#f43f5e" />
+            <line x1="30" y1="58" x2="10" y2="54" stroke="#fbbf24" stroke-width="2" />
+            <line x1="30" y1="62" x2="12" y2="65" stroke="#fbbf24" stroke-width="2" />
+            <line x1="90" y1="58" x2="110" y2="54" stroke="#fbbf24" stroke-width="2" />
+            <line x1="90" y1="62" x2="108" y2="65" stroke="#fbbf24" stroke-width="2" />
+          </svg>
+        </div>
+
+        <!-- Name & Avatar Customizer Input -->
+        <div class="mt-4 flex flex-col items-center gap-2 bg-stone-900/60 p-3 rounded-2xl border-2 border-stone-800">
+          <label class="font-bangers text-xs sm:text-sm text-amber-200 tracking-wider">YOUR PLAYER NAME & AVATAR</label>
+          <div class="flex items-center gap-2">
+            <select id="user-avatar" class="bg-stone-800 text-white font-bangers text-sm px-2 py-1.5 rounded-xl border border-stone-700 outline-none cursor-pointer">
+              <option value="player">😎 You (Captain)</option>
+              <option value="sharky">🦈 Sharky</option>
+              <option value="bacon_cat">🥓 Bacon Cat</option>
+              <option value="schmoopy">💖 Schmoopy</option>
+              <option value="otho">🎩 Otho</option>
+              <option value="lydia">🎀 Lydia</option>
+            </select>
+            <input id="user-name" type="text" maxlength="15" value="Player 1" placeholder="Enter nickname..." class="bg-stone-800 text-amber-100 font-bangers text-base px-3 py-1.5 rounded-xl border border-stone-700 outline-none w-36 text-center focus:border-amber-400" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Main Menu Comic Action Buttons -->
+      <div class="flex flex-col gap-3.5 w-full max-w-sm sm:max-w-md">
+        
+        <!-- 1. Play with Friends (Host Private Party) -->
+        <button id="btn-host-party" class="comic-btn group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-[#992d19] to-[#7f1d1d] cursor-pointer">
+          <div class="w-12 h-12 rounded-xl bg-[#591616] border-2 border-stone-900 flex items-center justify-center text-2xl shadow-inner">
+            🏰
+          </div>
+          <div class="flex-1 px-4 text-left">
+            <div class="font-bangers text-2xl text-white tracking-wide leading-tight group-hover:text-yellow-300 transition-colors">
+              HOST PRIVATE PARTY
+            </div>
+            <div class="font-bangers text-xs text-amber-200">
+              CREATE ROOM CODE & INVITE FRIENDS
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-lime-500 border-2 border-stone-900 flex items-center justify-center text-stone-900 font-bold group-hover:bg-lime-400">
+            ➔
+          </div>
+        </button>
+
+        <!-- 2. Join Party via Code -->
+        <div class="bg-stone-900/80 p-3 rounded-2xl border-2 border-stone-800 flex items-center gap-2">
+          <input id="input-join-code" type="text" maxlength="8" placeholder="ENTER 6-CHAR CODE (e.g. KTN-789)" class="flex-1 bg-stone-800 text-yellow-300 font-bangers tracking-widest text-center py-2.5 px-3 rounded-xl border border-stone-700 outline-none uppercase text-base focus:border-yellow-400" />
+          <button id="btn-join-party" class="comic-btn px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 font-bangers text-white text-base tracking-wider cursor-pointer hover:from-amber-500">
+            JOIN
+          </button>
+        </div>
+
+        <!-- 3. Play with Strangers (Public Matchmaking) -->
+        <button id="btn-quick-match" class="comic-btn group flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-[#852516] to-[#6b1818] cursor-pointer">
+          <div class="w-12 h-12 rounded-xl bg-[#4a1212] border-2 border-stone-900 flex items-center justify-center text-2xl shadow-inner">
+            🌐
+          </div>
+          <div class="flex-1 px-4 text-left">
+            <div class="font-bangers text-2xl text-white tracking-wide leading-tight group-hover:text-yellow-300 transition-colors">
+              PUBLIC MATCHMAKING
+            </div>
+            <div class="font-bangers text-xs text-amber-200">
+              QUICK MATCH WITH STRANGERS
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-lime-500 border-2 border-stone-900 flex items-center justify-center text-stone-900 font-bold group-hover:bg-lime-400">
+            ➔
+          </div>
+        </button>
+
+        <!-- 4. Practice / Single-Player with Bots -->
+        <button id="btn-practice-bots" class="comic-btn group flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-[#5a1a1a] to-[#451010] cursor-pointer">
+          <div class="w-12 h-12 rounded-xl bg-[#360d0d] border-2 border-stone-900 flex items-center justify-center text-2xl shadow-inner">
+            🤖
+          </div>
+          <div class="flex-1 px-4 text-left">
+            <div class="font-bangers text-2xl text-white tracking-wide leading-tight group-hover:text-yellow-300 transition-colors">
+              PRACTICE (VS 3 BOTS)
+            </div>
+            <div class="font-bangers text-xs text-amber-200">
+              INSTANT MATCH AGAINST AI
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-lime-500 border-2 border-stone-900 flex items-center justify-center text-stone-900 font-bold group-hover:bg-lime-400">
+            ➔
+          </div>
+        </button>
+
+        <!-- Auxiliary: Rules & Sound -->
+        <div class="flex items-center gap-3 pt-1">
+          <button id="btn-menu-rules" class="flex-1 py-2 px-3 rounded-xl bg-stone-900/60 border border-stone-800 text-amber-200 font-bangers text-xs tracking-wider hover:bg-stone-900/90 cursor-pointer">
+            📖 HOW TO PLAY / RULES
+          </button>
+          <button id="btn-menu-sound" class="py-2 px-3 rounded-xl bg-stone-900/60 border border-stone-800 text-amber-200 font-bangers text-xs tracking-wider hover:bg-stone-900/90 cursor-pointer">
+            🔊 SOUND: ON
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- 2. SCREEN: PARTY LOBBY                                       -->
+  <!-- ============================================================ -->
+  <div id="screen-lobby" class="w-full h-screen wood-tabletop flex flex-col justify-between p-4 sm:p-6 hidden relative">
+    
+    <!-- Lobby Top Header -->
+    <header class="w-full max-w-4xl mx-auto bg-stone-900/90 border-4 border-amber-600 rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex flex-col sm:flex-row items-center gap-3">
+        <div class="flex items-center gap-2">
+          <span class="font-bangers text-sm text-stone-400">ROOM CODE:</span>
+          <span id="lobby-code-badge" class="font-bangers text-2xl sm:text-3xl text-yellow-400 bg-black/60 px-3 py-1 rounded-xl border-2 border-amber-500 tracking-widest">
+            KTN-789
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-copy-code" class="px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-200 font-bangers text-xs border border-stone-700 cursor-pointer">
+            📋 COPY CODE
+          </button>
+          <button id="btn-copy-link" class="px-2.5 py-1 rounded-lg bg-amber-700 hover:bg-amber-600 text-white font-bangers text-xs border border-stone-900 cursor-pointer">
+            🔗 COPY INVITE LINK
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span id="lobby-privacy-tag" class="px-3 py-1 rounded-full font-bangers text-xs tracking-wider bg-red-950 text-red-300 border border-red-800">
+          🔒 PRIVATE PARTY
+        </span>
+        <span id="lobby-slots-count" class="px-3 py-1 rounded-full font-bangers text-xs tracking-wider bg-stone-800 text-amber-200 border border-stone-700">
+          PLAYERS: 1 / 5
+        </span>
+      </div>
+    </header>
+
+    <!-- Center: Party Members Pedestals Grid -->
+    <main class="w-full max-w-4xl mx-auto flex-1 flex flex-col items-center justify-center my-4">
+      <div class="text-center mb-3">
+        <h2 class="font-bangers text-2xl sm:text-3xl text-yellow-400 tracking-wide drop-shadow">PARTY SQUAD</h2>
+        <p class="font-bangers text-xs sm:text-sm text-amber-200/80">Need at least 2 players to start. Host can backfill with AI bots!</p>
+      </div>
+
+      <div id="lobby-members-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 w-full">
+        <!-- Dynamic Player Cards rendered via JS -->
+      </div>
+    </main>
+
+    <!-- Bottom: Lobby Controls -->
+    <footer class="w-full max-w-4xl mx-auto bg-stone-900/90 border-3 border-stone-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <button id="btn-leave-lobby" class="comic-btn w-full sm:w-auto px-5 py-2.5 rounded-xl bg-stone-800 font-bangers text-stone-300 text-sm hover:text-white cursor-pointer">
+        ✕ LEAVE PARTY
+      </button>
+
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <button id="btn-toggle-ready" class="comic-btn flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-bangers text-white text-base tracking-wider cursor-pointer">
+          READY UP
+        </button>
+
+        <button id="btn-start-game" class="comic-btn flex-1 sm:flex-initial px-8 py-2.5 rounded-xl bg-lime-500 hover:bg-lime-400 font-bangers text-stone-950 text-lg tracking-wider cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+          START MATCH! ➔
+        </button>
+      </div>
+    </footer>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- 3. SCREEN: GAME TABLE                                        -->
+  <!-- ============================================================ -->
+  <div id="screen-game" class="w-full h-screen wood-tabletop flex flex-col justify-between overflow-hidden hidden relative">
+    
+    <!-- Flash effect for explosion -->
+    <div id="explosion-flash" class="fixed inset-0 z-50 bg-red-600/80 flex items-center justify-center pointer-events-none hidden">
+      <span class="font-bangers text-8xl sm:text-9xl text-yellow-300 drop-shadow-[0_8px_0_#000] rotate-[-8deg] animate-ping">
+        BOOM!
+      </span>
+    </div>
+
+    <!-- Top Bar: Game status, Opponents, and Menu -->
+    <header class="w-full px-3 py-1.5 bg-black/50 backdrop-blur-xs border-b border-black/40 z-30 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button id="btn-game-menu" class="px-3 py-1 rounded-xl bg-[#4a2414] hover:bg-[#61301b] border-2 border-stone-900 font-bangers text-amber-200 text-xs tracking-wider cursor-pointer">
+          MENU / RULES
+        </button>
+        <span id="game-room-tag" class="hidden sm:inline-block font-bangers text-xs text-stone-400">
+          ROOM: KTN-789
+        </span>
+      </div>
+
+      <!-- Live Opponents Row across top -->
+      <div id="game-opponents-row" class="flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto px-2">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Right Sound Toggle -->
+      <button id="btn-game-sound" class="w-8 h-8 rounded-full bg-[#4a2414] hover:bg-[#61301b] border-2 border-stone-900 text-amber-200 text-xs flex items-center justify-center cursor-pointer">
+        🔊
+      </button>
+    </header>
+
+    <!-- Center Play Area: Speedometer Gauge, Deck, Discard, Parchment Log -->
+    <main class="flex-1 w-full max-w-7xl mx-auto px-3 py-2 flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
+      
+      <!-- Left: Speedometer Chance-of-Kitten Gauge -->
+      <div class="flex flex-col items-center">
+        <div class="relative w-36 h-24 sm:w-44 sm:h-28 bg-[#201008] border-4 border-amber-600 rounded-t-full p-2 flex flex-col items-center justify-end shadow-2xl">
+          <!-- Dial Arch -->
+          <svg class="w-full h-full" viewBox="0 0 100 60">
+            <!-- Green zone (0 - 15%) -->
+            <path d="M 12 50 A 38 38 0 0 1 30 20" fill="none" stroke="#22c55e" stroke-width="8" stroke-linecap="round" />
+            <!-- Orange zone (16 - 35%) -->
+            <path d="M 33 18 A 38 38 0 0 1 67 18" fill="none" stroke="#f97316" stroke-width="8" />
+            <!-- Red zone (36 - 100%) -->
+            <path d="M 70 20 A 38 38 0 0 1 88 50" fill="none" stroke="#ef4444" stroke-width="8" stroke-linecap="round" />
+            
+            <!-- Gauge Needle -->
+            <g id="gauge-needle" class="transition-transform duration-500 origin-bottom" style="transform: rotate(-45deg); transform-origin: 50px 50px;">
+              <polygon points="50,14 47,50 53,50" fill="#ef4444" stroke="#000" stroke-width="1" />
+              <circle cx="50" cy="50" r="4" fill="#fbbf24" stroke="#000" stroke-width="1.5" />
+            </g>
+          </svg>
+
+          <!-- Digital readout pill -->
+          <div class="absolute -bottom-2 bg-stone-900 border-2 border-stone-950 px-2 py-0.5 rounded-full font-bangers text-xs sm:text-sm text-yellow-300 shadow">
+            <span id="gauge-percentage-text">0%</span> DANGER
+          </div>
+        </div>
+        <span class="font-bangers text-[10px] text-amber-200/80 tracking-wider mt-3">CHANCE OF KITTEN</span>
+      </div>
+
+      <!-- Middle: Draw Deck & Discard Pile -->
+      <div class="flex items-center gap-6 sm:gap-10">
+        <!-- Draw Pile (Clickable to Draw Card on your turn) -->
+        <div id="deck-container" class="flex flex-col items-center cursor-pointer group">
+          <div id="deck-card" class="relative w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-gradient-to-br from-[#801818] to-[#450a0a] border-4 border-stone-950 shadow-[0_10px_0_#1c0f08] flex flex-col items-center justify-center p-3 text-center transition-all group-hover:scale-103 group-hover:-translate-y-1">
+            <!-- Decorative Deck Stack lines -->
+            <div class="absolute -top-1.5 -left-1.5 w-full h-full rounded-2xl border-2 border-stone-900/60 pointer-events-none -z-10 bg-[#591212]"></div>
+            <div class="absolute -top-3 -left-3 w-full h-full rounded-2xl border-2 border-stone-900/40 pointer-events-none -z-20 bg-[#3d0c0c]"></div>
+
+            <!-- Kitten silhouette badge -->
+            <div class="w-16 h-16 sm:w-20 sm:h-20 text-yellow-400 fill-current drop-shadow">
+              <svg viewBox="0 0 100 100" class="w-full h-full">
+                <path d="M20,70 Q15,40 25,25 Q35,35 45,30 Q55,30 65,25 Q75,40 70,70 Q45,85 20,70 Z" />
+                <polygon points="25,32 15,10 40,25" />
+                <polygon points="65,25 90,10 80,32" />
+                <circle cx="38" cy="48" r="4" fill="#000" />
+                <circle cx="62" cy="48" r="4" fill="#000" />
+              </svg>
+            </div>
+
+            <div class="font-bangers text-white text-base sm:text-xl tracking-wider mt-2">
+              DRAW DECK
+            </div>
+            <div id="deck-count-badge" class="font-bangers text-yellow-300 text-xs sm:text-sm">
+              34 CARDS LEFT
+            </div>
+
+            <!-- Pulse Draw Badge when it's your turn -->
+            <div id="draw-pulse-badge" class="absolute -bottom-3 bg-lime-500 border-2 border-stone-950 text-stone-950 font-bangers text-xs px-2.5 py-0.5 rounded-full shadow-lg animate-bounce hidden">
+              CLICK TO DRAW!
+            </div>
+          </div>
+        </div>
+
+        <!-- Discard Pile -->
+        <div class="flex flex-col items-center">
+          <div id="discard-card-slot" class="w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-black/40 border-3 border-dashed border-stone-700 flex flex-col items-center justify-center p-2 text-center relative rotate-2">
+            <span class="font-bangers text-stone-500 text-sm">DISCARD PILE (EMPTY)</span>
+          </div>
+          <span class="font-bangers text-[10px] text-amber-200/80 tracking-wider mt-2">LAST PLAYED</span>
+        </div>
+      </div>
+
+      <!-- Right: Parchment Action Scroll & Quick Emotes -->
+      <div class="flex flex-col items-end gap-2 w-full md:w-64">
+        <!-- Parchment Log -->
+        <div class="w-full parchment rounded-xl border-3 border-amber-900 p-2.5 shadow-lg flex flex-col h-40 overflow-hidden">
+          <div class="flex items-center justify-between border-b border-amber-900/30 pb-1 mb-1.5">
+            <span class="font-bangers text-xs text-amber-950 tracking-wider">📜 TABLE CHRONICLES</span>
+            <span id="turns-stacked-tag" class="font-bangers text-[11px] text-red-700 bg-red-200/60 px-1.5 rounded">1 TURN</span>
+          </div>
+          <div id="action-log-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1 font-fredoka text-xs text-amber-950">
+            <div>Match started. Good luck!</div>
+          </div>
+        </div>
+
+        <!-- In-Game Emote Reactions -->
+        <div class="flex items-center gap-1.5 bg-black/40 p-1.5 rounded-xl border border-stone-800">
+          <button class="btn-emote text-base hover:scale-125 transition-transform" data-emote="😼 Meow!">😼</button>
+          <button class="btn-emote text-base hover:scale-125 transition-transform" data-emote="💣 Help!">💣</button>
+          <button class="btn-emote text-base hover:scale-125 transition-transform" data-emote="🛡️ Defused!">🛡️</button>
+          <button class="btn-emote text-base hover:scale-125 transition-transform" data-emote="🔥 GG!">🔥</button>
+          <button class="btn-emote text-base hover:scale-125 transition-transform" data-emote="😈 Hehe">😈</button>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Bottom Player Area: Hand, Avatar, Controls -->
+    <footer class="w-full bg-gradient-to-t from-black via-black/80 to-transparent pt-3 pb-2 px-4 z-30 select-none">
+      <div class="max-w-7xl mx-auto flex flex-col gap-2">
+        
+        <!-- Controls row: Play Button, Turn Status -->
+        <div class="flex items-center justify-between px-2">
+          <div class="flex items-center gap-2">
+            <div id="player-status-badge" class="font-bangers text-base sm:text-lg text-yellow-300 flex items-center gap-2 bg-stone-900/80 px-3 py-1 rounded-xl border border-stone-800">
+              <span>WAITING FOR OPPONENT...</span>
+            </div>
+          </div>
+
+          <!-- Play Selected Card Button -->
+          <div class="flex items-center gap-2">
+            <button id="btn-play-card" class="comic-btn px-6 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 font-bangers text-stone-950 text-base tracking-wider cursor-pointer shadow-lg disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+              PLAY CARD
+            </button>
+          </div>
+        </div>
+
+        <!-- Horizontal Fanned Cards Tray -->
+        <div id="player-hand-container" class="w-full flex items-end justify-center overflow-x-auto pb-2 pt-8 min-h-[160px] gap-[-20px]">
+          <!-- Rendered dynamically -->
+        </div>
+
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- MODALS OVERLAYS                                              -->
+  <!-- ============================================================ -->
+
+  <!-- 1. DEFUSE PLACEMENT MODAL -->
+  <div id="modal-defuse" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
+    <div class="bg-[#24130b] border-4 border-green-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-pop">
+      <div class="w-16 h-16 mx-auto mb-2 text-green-400">
+        <svg viewBox="0 0 24 24" fill="currentColor" class="w-full h-full">
+          <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10h2v4h-2zm0 6h2v2h-2z"/>
+        </svg>
+      </div>
+      <h2 class="font-bangers text-3xl text-green-400 mb-1">YOU DEFUSED THE KITTEN!</h2>
+      <p class="font-fredoka text-sm text-stone-300 mb-5">
+        Secretly choose where to tuck the Exploding Kitten back into the Draw Deck:
+      </p>
+
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <button class="btn-place-kitten comic-btn py-3 rounded-xl bg-red-800 hover:bg-red-700 font-bangers text-white text-sm" data-pos="top">
+          TOP OF DECK<br><span class="text-[10px] text-yellow-300">TRAP NEXT!</span>
+        </button>
+        <button class="btn-place-kitten comic-btn py-3 rounded-xl bg-amber-800 hover:bg-amber-700 font-bangers text-white text-sm" data-pos="random">
+          RANDOM<br><span class="text-[10px] text-yellow-300">SHUFFLED IN</span>
+        </button>
+        <button class="btn-place-kitten comic-btn py-3 rounded-xl bg-stone-800 hover:bg-stone-700 font-bangers text-white text-sm" data-pos="bottom">
+          BOTTOM<br><span class="text-[10px] text-yellow-300">SAFE FOR NOW</span>
+        </button>
+      </div>
+
+      <!-- Slider for exact depth -->
+      <div class="bg-black/40 p-3 rounded-xl border border-stone-800 flex flex-col gap-2">
+        <label class="font-bangers text-xs text-amber-200">OR CHOOSE EXACT DEPTH:</label>
+        <div class="flex items-center gap-3">
+          <span class="font-bangers text-xs text-stone-400">#1</span>
+          <input id="slider-kitten-depth" type="range" min="0" max="30" value="0" class="flex-1 accent-amber-500 cursor-pointer" />
+          <span id="slider-depth-val" class="font-bangers text-xs text-yellow-400">#1 (TOP)</span>
+        </div>
+        <button id="btn-place-slider" class="comic-btn py-1.5 rounded-lg bg-green-600 hover:bg-green-500 font-bangers text-white text-xs mt-1">
+          INSERT AT POSITION
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. SEE THE FUTURE MODAL -->
+  <div id="modal-see-future" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
+    <div class="bg-[#24130b] border-4 border-purple-500 rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl animate-pop">
+      <h2 class="font-bangers text-3xl text-purple-400 mb-1">SEE THE FUTURE (3X)</h2>
+      <p class="font-fredoka text-sm text-stone-300 mb-4">Here are the top 3 cards from the Draw Pile (top card on left):</p>
+      <div id="see-future-cards-grid" class="flex items-center justify-center gap-3 mb-6">
+        <!-- Dynamic Cards -->
+      </div>
+      <button id="btn-close-see-future" class="comic-btn px-8 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 font-bangers text-white text-base">
+        GOT IT!
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. ALTER THE FUTURE MODAL -->
+  <div id="modal-alter-future" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
+    <div class="bg-[#24130b] border-4 border-fuchsia-500 rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl animate-pop">
+      <h2 class="font-bangers text-3xl text-fuchsia-400 mb-1">ALTER THE FUTURE</h2>
+      <p class="font-fredoka text-sm text-stone-300 mb-4">Click Swap arrows to rearrange the top cards before returning them to the deck:</p>
+      <div id="alter-future-cards-grid" class="flex items-center justify-center gap-3 mb-6">
+        <!-- Reorderable cards -->
+      </div>
+      <button id="btn-confirm-alter-future" class="comic-btn px-8 py-2 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 font-bangers text-white text-base">
+        SAVE TIMELINE ORDER
+      </button>
+    </div>
+  </div>
+
+  <!-- 4. TARGET SELECT MODAL (Favor / Cat Pairs) -->
+  <div id="modal-target-select" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
+    <div class="bg-[#24130b] border-4 border-cyan-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-pop">
+      <h2 id="target-modal-title" class="font-bangers text-3xl text-cyan-400 mb-1">SELECT A VICTIM</h2>
+      <p id="target-modal-desc" class="font-fredoka text-sm text-stone-300 mb-5">Choose a player to steal from:</p>
+      <div id="target-players-grid" class="grid grid-cols-2 gap-3 mb-4">
+        <!-- Dynamic targets -->
+      </div>
+      <button id="btn-cancel-target" class="comic-btn px-6 py-1.5 rounded-xl bg-stone-800 font-bangers text-stone-300 text-sm">
+        CANCEL
+      </button>
+    </div>
+  </div>
+
+  <!-- 5. FAVOR SURRENDER MODAL (When Opponent demands Favor from You) -->
+  <div id="modal-favor-give" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
+    <div class="bg-[#24130b] border-4 border-amber-500 rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl animate-pop">
+      <h2 class="font-bangers text-3xl text-amber-400 mb-1">FAVOR DEMANDED!</h2>
+      <p id="favor-give-desc" class="font-fredoka text-sm text-stone-300 mb-4">An opponent played a Favor card. Choose 1 card from your hand to surrender:</p>
+      <div id="favor-give-hand-grid" class="flex flex-wrap items-center justify-center gap-2 mb-4 max-h-60 overflow-y-auto p-2">
+        <!-- Hand cards -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. GAME OVER MODAL -->
+  <div id="modal-game-over" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden">
+    <div class="bg-[#2b170c] border-4 border-yellow-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-pop">
+      <div id="game-over-icon" class="text-6xl mb-2">👑</div>
+      <h2 id="game-over-title" class="font-bangers text-4xl text-yellow-400 mb-1">VICTORY!</h2>
+      <p id="game-over-subtitle" class="font-fredoka text-sm text-stone-300 mb-4">You survived the feline apocalypse!</p>
+
+      <div class="bg-black/50 p-4 rounded-2xl border border-stone-800 mb-5 font-fredoka text-xs text-left space-y-1.5">
+        <div class="flex justify-between text-amber-200"><span>Turns Taken:</span><b id="stat-turns">12</b></div>
+        <div class="flex justify-between text-amber-200"><span>Kittens Defused:</span><b id="stat-defused">2</b></div>
+        <div class="flex justify-between text-amber-200"><span>Attacks Deployed:</span><b id="stat-attacks">4</b></div>
+        <div class="flex justify-between text-amber-200"><span>Cards Stolen:</span><b id="stat-stolen">3</b></div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="btn-return-lobby" class="comic-btn flex-1 py-2.5 rounded-xl bg-stone-800 font-bangers text-amber-200 text-sm">
+          RETURN TO LOBBY
+        </button>
+        <button id="btn-game-over-menu" class="comic-btn flex-1 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 font-bangers text-white text-sm">
+          MAIN MENU
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. TUTORIAL / RULES MODAL -->
+  <div id="modal-tutorial" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
+    <div class="bg-[#2b170c] border-4 border-amber-600 rounded-3xl max-w-xl w-full p-6 shadow-2xl animate-pop max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-amber-800/40 pb-2 mb-3">
+        <h2 class="font-bangers text-3xl text-yellow-400">HOW TO PLAY (RULES)</h2>
+        <button id="btn-close-tutorial" class="text-stone-400 hover:text-white font-bangers text-2xl">✕</button>
+      </div>
+      <div class="flex-1 overflow-y-auto space-y-3 font-fredoka text-xs sm:text-sm text-stone-200 pr-2">
+        <p><b class="text-red-400 font-bangers text-base">EXPLODING KITTENS:</b> If you draw an Exploding Kitten, you must play a Defuse card immediately. If you have none, you explode and lose the game!</p>
+        <p><b class="text-green-400 font-bangers text-base">DEFUSE:</b> Cancels an explosion! You get to secretly insert the Exploding Kitten anywhere you want back into the Draw Deck.</p>
+        <p><b class="text-orange-400 font-bangers text-base">ATTACK / SLAP:</b> End your turn without drawing a card, and force the next victim to take 2 turns in a row.</p>
+        <p><b class="text-blue-400 font-bangers text-base">SKIP:</b> Immediately end your turn without drawing a card.</p>
+        <p><b class="text-purple-400 font-bangers text-base">SEE THE FUTURE (3X):</b> Privately peek at the top 3 cards of the Draw Pile.</p>
+        <p><b class="text-fuchsia-400 font-bangers text-base">ALTER THE FUTURE:</b> Peek at the top 3 cards and rearrange their order!</p>
+        <p><b class="text-cyan-400 font-bangers text-base">FAVOR:</b> Force any other player to give you 1 card of their choice.</p>
+        <p><b class="text-yellow-400 font-bangers text-base">CAT CARD PAIRS:</b> Play two matching Cat cards to steal 1 random card from any opponent!</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- CLIENT JAVASCRIPT & SOCKET LOGIC                             -->
+  <!-- ============================================================ -->
+  <script>
+    // --- SYNTHETIC WEB AUDIO ENGINE ---
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playTone(freq, type, duration, gainVal = 0.15) {
+        if (!this.enabled) return;
+        this.init();
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+      cardDraw() {
+        this.playTone(320, 'sine', 0.12, 0.15);
+      }
+      cardPlay() {
+        this.playTone(450, 'triangle', 0.15, 0.2);
+      }
+      defuse() {
+        this.playTone(523, 'sine', 0.1);
+        setTimeout(() => this.playTone(659, 'sine', 0.1), 100);
+        setTimeout(() => this.playTone(784, 'sine', 0.2), 200);
+      }
+      slap() {
+        this.playTone(180, 'square', 0.2, 0.25);
+      }
+      explosion() {
+        if (!this.enabled) return;
+        this.init();
+        try {
+          const bufferSize = this.ctx.sampleRate * 0.8;
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(800, this.ctx.currentTime);
+          filter.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.8);
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.8);
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          noise.start();
+        } catch (e) {}
+      }
+      victory() {
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+          setTimeout(() => this.playTone(freq, 'triangle', 0.25, 0.2), i * 140);
+        });
+      }
+    }
+    const sounds = new SoundEngine();
+
+    // --- CLIENT STATE ---
+    let socket = null;
+    let currentRoomId = null;
+    let currentRoomCode = null;
+    let isRoomHost = false;
+    let myPlayerId = null;
+    let localGameState = null;
+    let selectedCards = [];
+    let pendingAlterCards = [];
+
+    // --- AVATAR SVG GENERATOR ---
+    function getAvatarSVG(avatarId) {
+      switch (avatarId) {
+        case 'sharky':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#0284c7"/><path d="M25,65 Q50,20 75,65 Z" fill="#e0f2fe"/><circle cx="42" cy="45" r="5" fill="#000"/><circle cx="58" cy="45" r="5" fill="#000"/><polygon points="35,62 40,56 45,62 50,56 55,62 60,56 65,62" fill="#fff"/></svg>`;
+        case 'bacon_cat':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#d97706"/><rect x="25" y="30" width="50" height="12" rx="4" fill="#ef4444"/><rect x="25" y="46" width="50" height="10" rx="4" fill="#fef08a"/><circle cx="40" cy="65" r="4" fill="#000"/><circle cx="60" cy="65" r="4" fill="#000"/></svg>`;
+        case 'schmoopy':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#ec4899"/><polygon points="30,30 20,10 42,24" fill="#f43f5e"/><polygon points="70,30 80,10 58,24" fill="#f43f5e"/><circle cx="40" cy="50" r="6" fill="#fff"/><circle cx="60" cy="50" r="6" fill="#fff"/><circle cx="40" cy="50" r="3" fill="#000"/><circle cx="60" cy="50" r="3" fill="#000"/><ellipse cx="50" cy="62" rx="6" ry="4" fill="#fb7185"/></svg>`;
+        case 'otho':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#6d28d9"/><rect x="35" y="15" width="30" height="25" rx="3" fill="#18181b"/><rect x="25" y="36" width="50" height="6" rx="2" fill="#18181b"/><circle cx="42" cy="55" r="4" fill="#fff"/><circle cx="58" cy="55" r="4" fill="#fff"/><line x1="38" y1="70" x2="62" y2="70" stroke="#000" stroke-width="3"/></svg>`;
+        case 'lydia':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#8b5cf6"/><polygon points="50,20 40,35 60,35" fill="#f472b6"/><circle cx="38" cy="52" r="5" fill="#000"/><circle cx="62" cy="52" r="5" fill="#000"/><ellipse cx="50" cy="65" rx="5" ry="3" fill="#f43f5e"/></svg>`;
+        default:
+          return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#2563eb"/><circle cx="38" cy="46" r="5" fill="#fff"/><circle cx="62" cy="46" r="5" fill="#fff"/><circle cx="39" cy="46" r="2.5" fill="#000"/><circle cx="61" cy="46" r="2.5" fill="#000"/><path d="M40,65 Q50,75 60,65" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>`;
+      }
+    }
+
+    // --- CARD SVG ICON GENERATOR ---
+    function getCardIcon(iconName) {
+      switch (iconName) {
+        case 'bomb':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-red-600"><path d="M12 2a1 1 0 0 1 1 1v1.07A8.001 8.001 0 0 1 20 12a8 8 0 1 1-16 0c0-3.96 2.87-7.25 6.67-7.91L11 3a1 1 0 0 1 1-1zm0 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm7-3l1.5-1.5M18 1l1.5 1.5"/></svg>`;
+        case 'laser':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-green-600"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>`;
+        case 'paw':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-orange-600"><ellipse cx="12" cy="15" rx="5" ry="4"/><circle cx="7" cy="8" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="8" r="2"/></svg>`;
+        case 'run':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-blue-600"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/></svg>`;
+        case 'eye':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-purple-600"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`;
+        case 'vortex':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-fuchsia-600"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
+        case 'grab':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-cyan-600"><path d="M18 10V5a3 3 0 0 0-6 0v5H9V7a3 3 0 0 0-6 0v8a7 7 0 0 0 14 0v-5z"/></svg>`;
+        case 'shuffle':
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-stone-600"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`;
+        default:
+          return `<svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-lime-600"><circle cx="12" cy="12" r="9"/></svg>`;
+      }
+    }
+
+    // --- INITIALIZE SOCKET ---
+    function initSocket() {
+      if (socket) return;
+      socket = io();
+
+      socket.on('connect', () => {
+        myPlayerId = socket.id;
+        console.log('[Client] Connected:', socket.id);
+      });
+
+      socket.on('room_updated', (data) => {
+        currentRoomId = data.roomId;
+        currentRoomCode = data.roomCode;
+        isRoomHost = data.hostId === socket.id;
+        renderLobby(data);
+
+        if (data.gameStarted) {
+          showScreen('game');
+        } else {
+          showScreen('lobby');
+        }
+      });
+
+      socket.on('game_state', (state) => {
+        localGameState = state;
+        renderGameTable(state);
+      });
+
+      socket.on('see_future_result', (data) => {
+        sounds.cardPlay();
+        showSeeFutureModal(data.cards);
+      });
+
+      socket.on('alter_future_prompt', (data) => {
+        sounds.cardPlay();
+        showAlterFutureModal(data.cards);
+      });
+
+      socket.on('card_drawn', (data) => {
+        sounds.cardDraw();
+      });
+
+      socket.on('card_played', (data) => {
+        sounds.cardPlay();
+      });
+
+      socket.on('kitten_defused', (data) => {
+        sounds.defuse();
+      });
+
+      socket.on('player_exploded', (data) => {
+        triggerExplosionVisual();
+      });
+
+      socket.on('game_over', (data) => {
+        showGameOverModal(data);
+      });
+
+      socket.on('chat_message', (data) => {
+        showFloatingChat(data.senderId, data.message);
+      });
+
+      socket.on('kicked', () => {
+        alert('You have been kicked by the host.');
+        showScreen('menu');
+      });
+    }
+
+    // --- SCREEN NAVIGATION ---
+    function showScreen(screenId) {
+      document.getElementById('screen-menu').classList.add('hidden');
+      document.getElementById('screen-lobby').classList.add('hidden');
+      document.getElementById('screen-game').classList.add('hidden');
+
+      if (screenId === 'menu') {
+        document.getElementById('screen-menu').classList.remove('hidden');
+      } else if (screenId === 'lobby') {
+        document.getElementById('screen-lobby').classList.remove('hidden');
+      } else if (screenId === 'game') {
+        document.getElementById('screen-game').classList.remove('hidden');
+      }
+    }
+
+    // --- LOBBY RENDERER ---
+    function renderLobby(data) {
+      document.getElementById('lobby-code-badge').innerText = data.roomCode;
+      document.getElementById('lobby-privacy-tag').innerText = data.isPrivate ? '🔒 PRIVATE PARTY' : '🌐 PUBLIC LOBBY';
+      document.getElementById('lobby-slots-count').innerText = `PLAYERS: ${data.players.length} / 5`;
+
+      const grid = document.getElementById('lobby-members-grid');
+      grid.innerHTML = '';
+
+      data.players.forEach((p) => {
+        const isMe = p.id === socket.id;
+        const card = document.createElement('div');
+        card.className = `flex flex-col items-center justify-between p-4 rounded-2xl bg-stone-900/90 border-3 ${
+          p.isReady ? 'border-lime-500 shadow-[0_0_15px_rgba(132,204,22,0.3)]' : 'border-stone-800'
+        } relative`;
+
+        card.innerHTML = `
+          ${p.isHost ? '<span class="absolute -top-3 bg-amber-500 text-stone-950 font-bangers text-[10px] px-2 py-0.5 rounded-full border border-stone-950 shadow">👑 HOST</span>' : ''}
+          <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-stone-700 bg-stone-800 mb-2">
+            ${getAvatarSVG(p.avatarId)}
+          </div>
+          <div class="font-bangers text-base text-yellow-300 text-center leading-tight">
+            ${p.name} ${isMe ? '<span class="text-xs text-stone-400">(YOU)</span>' : ''}
+          </div>
+          <div class="font-bangers text-xs mt-1 ${p.isReady ? 'text-lime-400' : 'text-stone-400'}">
+            ${p.isBot ? '🤖 BOT' : p.isReady ? 'READY!' : 'WAITING...'}
+          </div>
+          ${
+            isRoomHost && !p.isHost
+              ? `<button class="mt-2 text-[10px] font-bangers text-red-400 hover:text-red-300 cursor-pointer" onclick="kickPlayer('${p.id}')">✕ KICK</button>`
+              : ''
+          }
+        `;
+        grid.appendChild(card);
+      });
+
+      const remainingSlots = 5 - data.players.length;
+      for (let i = 0; i < remainingSlots; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-stone-700 bg-stone-900/40 text-stone-500 min-h-[140px]';
+
+        if (isRoomHost) {
+          slot.innerHTML = `
+            <button onclick="addBot()" class="comic-btn px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-200 font-bangers text-xs cursor-pointer">
+              + ADD BOT
+            </button>
+          `;
+        } else {
+          slot.innerHTML = `<span class="font-bangers text-xs">WAITING FOR PLAYER...</span>`;
+        }
+        grid.appendChild(slot);
+      }
+
+      const btnStart = document.getElementById('btn-start-game');
+      if (isRoomHost) {
+        btnStart.classList.remove('hidden');
+        const allReady = data.players.every((p) => p.isReady || p.isBot);
+        btnStart.disabled = !(data.players.length >= 2 && allReady);
+      } else {
+        btnStart.classList.add('hidden');
+      }
+
+      const me = data.players.find((p) => p.id === socket.id);
+      const btnReady = document.getElementById('btn-toggle-ready');
+      if (me && me.isReady) {
+        btnReady.innerText = 'UNREADY';
+        btnReady.classList.remove('bg-blue-600', 'hover:bg-blue-500');
+        btnReady.classList.add('bg-stone-700', 'hover:bg-stone-600');
+      } else {
+        btnReady.innerText = 'READY UP';
+        btnReady.classList.remove('bg-stone-700', 'hover:bg-stone-600');
+        btnReady.classList.add('bg-blue-600', 'hover:bg-blue-500');
+      }
+    }
+
+    window.addBot = function() {
+      if (!socket || !currentRoomId) return;
+      socket.emit('add_bot', { roomId: currentRoomId });
+    };
+
+    window.kickPlayer = function(targetId) {
+      if (!socket || !currentRoomId) return;
+      socket.emit('kick_player', { roomId: currentRoomId, targetId });
+    };
+
+    // --- GAME TABLE RENDERER ---
+    function renderGameTable(state) {
+      const needle = document.getElementById('gauge-needle');
+      const pText = document.getElementById('gauge-percentage-text');
+      const roundedChance = Math.round(state.chanceOfKitten || 0);
+      pText.innerText = `${roundedChance}%`;
+
+      const angle = -90 + (roundedChance / 100) * 180;
+      needle.style.transform = `rotate(${angle}deg)`;
+
+      document.getElementById('deck-count-badge').innerText = `${state.deckCount} CARDS LEFT`;
+
+      const drawBadge = document.getElementById('draw-pulse-badge');
+      if (state.isMyTurn && state.turnState === 'NORMAL') {
+        drawBadge.classList.remove('hidden');
+      } else {
+        drawBadge.classList.add('hidden');
+      }
+
+      const discardSlot = document.getElementById('discard-card-slot');
+      if (state.topDiscard) {
+        discardSlot.className = 'w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-white border-3 border-stone-950 flex flex-col justify-between p-2 shadow-xl rotate-2';
+        discardSlot.style.borderColor = state.topDiscard.badgeColor || '#000';
+        discardSlot.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="font-bangers text-[11px] px-1.5 py-0.5 rounded text-white" style="background-color:${state.topDiscard.badgeColor}">
+              ${state.topDiscard.title.split(' ')[0]}
+            </span>
+            ${getCardIcon(state.topDiscard.iconName)}
+          </div>
+          <div class="font-bangers text-center text-stone-900 text-xs sm:text-sm leading-tight">
+            ${state.topDiscard.title}
+          </div>
+          <div class="font-fredoka text-[9px] text-stone-600 text-center italic">
+            ${state.topDiscard.subTitle}
+          </div>
+        `;
+      } else {
+        discardSlot.className = 'w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-black/40 border-3 border-dashed border-stone-700 flex flex-col items-center justify-center p-2 text-center relative rotate-2';
+        discardSlot.innerHTML = `<span class="font-bangers text-stone-500 text-sm">DISCARD PILE</span>`;
+      }
+
+      const logContainer = document.getElementById('action-log-list');
+      logContainer.innerHTML = '';
+      (state.actionLog || []).forEach((item) => {
+        const row = document.createElement('div');
+        row.className = 'border-b border-amber-900/10 pb-1';
+        row.innerHTML = `<b class="font-bangers text-amber-900">${item.playerName}:</b> ${item.message}`;
+        logContainer.appendChild(row);
+      });
+
+      document.getElementById('turns-stacked-tag').innerText = `${state.turnsRemaining} TURN${state.turnsRemaining > 1 ? 'S' : ''}`;
+
+      const opponentsRow = document.getElementById('game-opponents-row');
+      opponentsRow.innerHTML = '';
+
+      state.players.forEach((p, idx) => {
+        if (p.id === state.myId) return;
+
+        const isActive = state.activePlayerIndex === idx;
+        const opp = document.createElement('div');
+        opp.id = `opp-box-${p.id}`;
+        opp.className = `flex flex-col items-center p-1.5 rounded-xl border-2 transition-all ${
+          p.isDead
+            ? 'opacity-40 border-stone-900 bg-stone-950/70'
+            : isActive
+            ? 'border-yellow-400 bg-amber-950/80 shadow-[0_0_15px_rgba(251,191,36,0.6)] scale-105'
+            : 'border-stone-800 bg-black/50'
+        } relative min-w-[70px] sm:min-w-[85px]`;
+
+        opp.innerHTML = `
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${
+            isActive ? 'border-yellow-400' : 'border-stone-700'
+          } bg-stone-900 mb-1 relative">
+            ${getAvatarSVG(p.avatarId)}
+            ${p.isDead ? '<span class="absolute inset-0 flex items-center justify-center text-xl bg-black/70">💀</span>' : ''}
+          </div>
+          <div class="font-bangers text-xs sm:text-sm text-amber-100 truncate max-w-[80px]">
+            ${p.name}
+          </div>
+          <div class="flex items-center gap-1 font-bangers text-[10px] text-amber-300">
+            <span>🃏 ${p.cardCount}</span>
+          </div>
+        `;
+        opponentsRow.appendChild(opp);
+      });
+
+      const activeP = state.players[state.activePlayerIndex];
+      const statusBadge = document.getElementById('player-status-badge');
+      if (state.isMyTurn) {
+        statusBadge.innerHTML = `<span class="text-lime-400 font-bold animate-pulse">YOUR TURN!</span> (${state.turnsRemaining} turn${state.turnsRemaining > 1 ? 's' : ''} left)`;
+      } else {
+        statusBadge.innerHTML = `<span>${activeP ? activeP.name : 'OPPONENT'}'S TURN</span> (${state.turnsRemaining} left)`;
+      }
+
+      const handContainer = document.getElementById('player-hand-container');
+      handContainer.innerHTML = '';
+
+      (state.myHand || []).forEach((card) => {
+        const isSelected = selectedCards.some((c) => c.id === card.id);
+        const cardElem = document.createElement('div');
+        cardElem.className = `card-item relative w-24 h-36 sm:w-32 sm:h-48 rounded-2xl bg-white border-3 border-stone-950 flex flex-col justify-between p-2 shadow-lg cursor-pointer ${
+          isSelected ? 'selected' : ''
+        }`;
+        cardElem.style.borderColor = card.badgeColor || '#000';
+
+        cardElem.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="font-bangers text-[10px] sm:text-xs px-1.5 py-0.5 rounded text-white" style="background-color:${card.badgeColor}">
+              ${card.title.split(' ')[0]}
+            </span>
+            ${getCardIcon(card.iconName)}
+          </div>
+          <div class="font-bangers text-center text-stone-950 text-xs sm:text-sm leading-tight px-1">
+            ${card.title}
+          </div>
+          <div class="font-fredoka text-[9px] text-stone-700 text-center italic leading-tight">
+            ${card.subTitle}
+          </div>
+        `;
+
+        cardElem.addEventListener('click', () => {
+          toggleSelectCard(card);
+        });
+
+        handContainer.appendChild(cardElem);
+      });
+
+      updatePlayButton();
+
+      if (state.turnState === 'AWAITING_DEFUSE' && state.turnStateData?.targetSocketId === socket.id) {
+        showDefuseModal();
+      } else {
+        document.getElementById('modal-defuse').classList.add('hidden');
+      }
+
+      if (state.turnState === 'AWAITING_FAVOR' && state.turnStateData?.targetSocketId === socket.id) {
+        showFavorGiveModal(state.turnStateData.requesterName, state.myHand);
+      } else {
+        document.getElementById('modal-favor-give').classList.add('hidden');
+      }
+    }
+
+    function toggleSelectCard(card) {
+      if (!localGameState || !localGameState.isMyTurn) return;
+
+      if (card.category === 'cat') {
+        const existingIdx = selectedCards.findIndex((c) => c.id === card.id);
+        if (existingIdx !== -1) {
+          selectedCards.splice(existingIdx, 1);
+        } else {
+          if (selectedCards.length === 1 && selectedCards[0].type === card.type) {
+            selectedCards.push(card);
+          } else {
+            selectedCards = [card];
+          }
+        }
+      } else {
+        if (selectedCards.length === 1 && selectedCards[0].id === card.id) {
+          selectedCards = [];
+        } else {
+          selectedCards = [card];
+        }
+      }
+
+      renderGameTable(localGameState);
+    }
+
+    function updatePlayButton() {
+      const btn = document.getElementById('btn-play-card');
+      if (!localGameState || !localGameState.isMyTurn || selectedCards.length === 0) {
+        btn.disabled = true;
+        btn.innerText = 'PLAY CARD';
+        return;
+      }
+
+      if (selectedCards.length === 2 && selectedCards[0].category === 'cat') {
+        btn.disabled = false;
+        btn.innerText = 'PLAY CAT PAIR (STEAL)';
+      } else if (selectedCards.length === 1 && selectedCards[0].category !== 'cat') {
+        btn.disabled = false;
+        btn.innerText = `PLAY ${selectedCards[0].title.split(' ')[0]}`;
+      } else {
+        btn.disabled = true;
+        btn.innerText = 'PLAY CARD';
+      }
+    }
+
+    document.getElementById('btn-play-card').addEventListener('click', () => {
+      if (!localGameState || !localGameState.isMyTurn || selectedCards.length === 0) return;
+
+      if (selectedCards.length === 2 && selectedCards[0].category === 'cat') {
+        showTargetModal(
+          'CAT PAIR: STEAL A CARD!',
+          'Select an opponent to steal 1 random card from:',
+          (targetId) => {
+            socket.emit('play_card', {
+              roomId: currentRoomId,
+              cardPairIds: selectedCards.map((c) => c.id),
+              targetPlayerId: targetId,
+            });
+            selectedCards = [];
+            renderGameTable(localGameState);
+          }
+        );
+        return;
+      }
+
+      const card = selectedCards[0];
+      if (card.type === 'FAVOR') {
+        showTargetModal(
+          'DEMAND A FAVOR',
+          'Choose an opponent who must give you 1 card:',
+          (targetId) => {
+            socket.emit('play_card', {
+              roomId: currentRoomId,
+              cardId: card.id,
+              targetPlayerId: targetId,
+            });
+            selectedCards = [];
+            renderGameTable(localGameState);
+          }
+        );
+        return;
+      }
+
+      socket.emit('play_card', {
+        roomId: currentRoomId,
+        cardId: card.id,
+      });
+      selectedCards = [];
+      renderGameTable(localGameState);
+    });
+
+    document.getElementById('deck-container').addEventListener('click', () => {
+      if (!localGameState || !localGameState.isMyTurn || localGameState.turnState !== 'NORMAL') return;
+      socket.emit('draw_card', { roomId: currentRoomId });
+    });
+
+    function showDefuseModal() {
+      document.getElementById('modal-defuse').classList.remove('hidden');
+    }
+
+    document.querySelectorAll('.btn-place-kitten').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const pos = btn.getAttribute('data-pos');
+        socket.emit('defuse_kitten', { roomId: currentRoomId, position: pos });
+        document.getElementById('modal-defuse').classList.add('hidden');
+      });
+    });
+
+    const depthSlider = document.getElementById('slider-kitten-depth');
+    depthSlider.addEventListener('input', () => {
+      const val = parseInt(depthSlider.value);
+      document.getElementById('slider-depth-val').innerText = val === 0 ? '#1 (TOP)' : `#${val + 1}`;
+    });
+
+    document.getElementById('btn-place-slider').addEventListener('click', () => {
+      const val = parseInt(depthSlider.value);
+      socket.emit('defuse_kitten', { roomId: currentRoomId, position: val });
+      document.getElementById('modal-defuse').classList.add('hidden');
+    });
+
+    function showSeeFutureModal(cards) {
+      const grid = document.getElementById('see-future-cards-grid');
+      grid.innerHTML = '';
+      cards.forEach((c) => {
+        const el = document.createElement('div');
+        el.className = 'w-24 h-36 sm:w-28 sm:h-40 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg';
+        el.style.borderColor = c.badgeColor || '#000';
+        el.innerHTML = `
+          <div class="flex justify-between items-center">
+            <span class="font-bangers text-[10px] text-white px-1 rounded" style="background:${c.badgeColor}">${c.title.split(' ')[0]}</span>
+            ${getCardIcon(c.iconName)}
+          </div>
+          <div class="font-bangers text-stone-900 text-xs text-center leading-tight">${c.title}</div>
+          <div class="text-[9px] text-stone-500 italic text-center">${c.subTitle}</div>
+        `;
+        grid.appendChild(el);
+      });
+      document.getElementById('modal-see-future').classList.remove('hidden');
+    }
+    document.getElementById('btn-close-see-future').addEventListener('click', () => {
+      document.getElementById('modal-see-future').classList.add('hidden');
+    });
+
+    function showAlterFutureModal(cards) {
+      pendingAlterCards = [...cards];
+      renderAlterCards();
+      document.getElementById('modal-alter-future').classList.remove('hidden');
+    }
+
+    function renderAlterCards() {
+      const grid = document.getElementById('alter-future-cards-grid');
+      grid.innerHTML = '';
+      pendingAlterCards.forEach((c, idx) => {
+        const el = document.createElement('div');
+        el.className = 'flex flex-col items-center gap-1';
+        el.innerHTML = `
+          <div class="w-24 h-36 rounded-xl bg-white border-3 p-2 flex flex-col justify-between shadow-lg" style="border-color:${c.badgeColor}">
+            <div class="font-bangers text-[10px] text-stone-400">#${idx + 1} ${idx === 0 ? '(TOP)' : ''}</div>
+            <div class="font-bangers text-stone-900 text-xs text-center">${c.title}</div>
+            <div class="text-[9px] text-stone-500 italic text-center">${c.subTitle}</div>
+          </div>
+          <div class="flex gap-1 mt-1">
+            ${idx > 0 ? `<button class="px-2 py-0.5 bg-stone-800 rounded text-xs hover:bg-stone-700" onclick="swapAlter(${idx}, ${idx - 1})">◀</button>` : ''}
+            ${idx < pendingAlterCards.length - 1 ? `<button class="px-2 py-0.5 bg-stone-800 rounded text-xs hover:bg-stone-700" onclick="swapAlter(${idx}, ${idx + 1})">▶</button>` : ''}
+          </div>
+        `;
+        grid.appendChild(el);
+      });
+    }
+
+    window.swapAlter = function(a, b) {
+      const temp = pendingAlterCards[a];
+      pendingAlterCards[a] = pendingAlterCards[b];
+      pendingAlterCards[b] = temp;
+      renderAlterCards();
+    };
+
+    document.getElementById('btn-confirm-alter-future').addEventListener('click', () => {
+      socket.emit('reorder_future', {
+        roomId: currentRoomId,
+        cardIds: pendingAlterCards.map((c) => c.id),
+      });
+      document.getElementById('modal-alter-future').classList.add('hidden');
+    });
+
+    function showTargetModal(title, desc, callback) {
+      document.getElementById('target-modal-title').innerText = title;
+      document.getElementById('target-modal-desc').innerText = desc;
+      const grid = document.getElementById('target-players-grid');
+      grid.innerHTML = '';
+
+      localGameState.players.forEach((p) => {
+        if (p.id === localGameState.myId || p.isDead || p.cardCount === 0) return;
+
+        const btn = document.createElement('button');
+        btn.className = 'comic-btn flex items-center gap-3 p-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-left';
+        btn.innerHTML = `
+          <div class="w-10 h-10 rounded-full overflow-hidden border border-stone-600 bg-stone-900">
+            ${getAvatarSVG(p.avatarId)}
+          </div>
+          <div>
+            <div class="font-bangers text-yellow-300 text-sm">${p.name}</div>
+            <div class="font-fredoka text-xs text-stone-400">${p.cardCount} cards</div>
+          </div>
+        `;
+        btn.addEventListener('click', () => {
+          document.getElementById('modal-target-select').classList.add('hidden');
+          callback(p.id);
+        });
+        grid.appendChild(btn);
+      });
+
+      document.getElementById('modal-target-select').classList.remove('hidden');
+    }
+    document.getElementById('btn-cancel-target').addEventListener('click', () => {
+      document.getElementById('modal-target-select').classList.add('hidden');
+    });
+
+    function showFavorGiveModal(requesterName, hand) {
+      document.getElementById('favor-give-desc').innerText = `${requesterName} played a Favor card. Choose 1 card from your hand to surrender:`;
+      const grid = document.getElementById('favor-give-hand-grid');
+      grid.innerHTML = '';
+
+      hand.forEach((card) => {
+        const btn = document.createElement('button');
+        btn.className = 'comic-btn w-20 h-28 rounded-xl bg-white border-2 p-1.5 flex flex-col justify-between text-left hover:scale-105';
+        btn.style.borderColor = card.badgeColor || '#000';
+        btn.innerHTML = `
+          <div class="font-bangers text-[9px] text-white px-1 rounded truncate" style="background:${card.badgeColor}">${card.title.split(' ')[0]}</div>
+          <div class="font-bangers text-stone-900 text-[11px] text-center leading-tight">${card.title}</div>
+          <div class="text-[8px] text-stone-500 italic text-center">${card.subTitle}</div>
+        `;
+        btn.addEventListener('click', () => {
+          socket.emit('favor_give', { roomId: currentRoomId, cardId: card.id });
+          document.getElementById('modal-favor-give').classList.add('hidden');
+        });
+        grid.appendChild(btn);
+      });
+
+      document.getElementById('modal-favor-give').classList.remove('hidden');
+    }
+
+    function showGameOverModal(data) {
+      const isWinner = data.winnerId === socket.id;
+      if (isWinner) sounds.victory();
+
+      document.getElementById('game-over-icon').innerText = isWinner ? '👑' : '💥';
+      document.getElementById('game-over-title').innerText = isWinner ? 'VICTORY!' : 'GAME OVER';
+      document.getElementById('game-over-subtitle').innerText = `${data.winnerName} won the match!`;
+
+      document.getElementById('stat-turns').innerText = data.stats?.turnsPlayed || 0;
+      document.getElementById('stat-defused').innerText = data.stats?.kittensDefused || 0;
+      document.getElementById('stat-attacks').innerText = data.stats?.attacksPlayed || 0;
+      document.getElementById('stat-stolen').innerText = data.stats?.cardsStolen || 0;
+
+      document.getElementById('modal-game-over').classList.remove('hidden');
+    }
+    document.getElementById('btn-return-lobby').addEventListener('click', () => {
+      document.getElementById('modal-game-over').classList.add('hidden');
+      showScreen('lobby');
+    });
+    document.getElementById('btn-game-over-menu').addEventListener('click', () => {
+      document.getElementById('modal-game-over').classList.add('hidden');
+      if (socket && currentRoomId) {
+        socket.emit('leave_room', { roomId: currentRoomId });
+      }
+      showScreen('menu');
+    });
+
+    function triggerExplosionVisual() {
+      sounds.explosion();
+      const flash = document.getElementById('explosion-flash');
+      flash.classList.remove('hidden');
+      document.getElementById('screen-game').classList.add('animate-shake');
+
+      setTimeout(() => {
+        flash.classList.add('hidden');
+        document.getElementById('screen-game').classList.remove('animate-shake');
+      }, 700);
+    }
+
+    document.querySelectorAll('.btn-emote').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const emote = btn.getAttribute('data-emote');
+        if (socket && currentRoomId) {
+          socket.emit('send_chat', { roomId: currentRoomId, emote });
+        }
+      });
+    });
+
+    function showFloatingChat(senderId, text) {
+      const targetElem = document.getElementById(`opp-box-${senderId}`) || document.getElementById('player-status-badge');
+      if (!targetElem) return;
+
+      const bubble = document.createElement('div');
+      bubble.className = 'absolute -top-7 bg-white text-stone-950 font-bangers text-xs px-2 py-0.5 rounded-full border-2 border-stone-950 shadow-lg animate-pop z-50';
+      bubble.innerText = text;
+      targetElem.appendChild(bubble);
+
+      setTimeout(() => bubble.remove(), 2500);
+    }
+
+    document.getElementById('btn-host-party').addEventListener('click', () => {
+      initSocket();
+      const playerName = document.getElementById('user-name').value.trim() || 'Player 1';
+      const avatarId = document.getElementById('user-avatar').value;
+
+      socket.emit('create_room', { playerName, avatarId, isPrivate: true }, (res) => {
+        if (res.success) {
+          currentRoomId = res.roomId;
+          currentRoomCode = res.roomCode;
+          isRoomHost = true;
+          showScreen('lobby');
+        }
+      });
+    });
+
+    document.getElementById('btn-join-party').addEventListener('click', () => {
+      initSocket();
+      const code = document.getElementById('input-join-code').value.trim();
+      const playerName = document.getElementById('user-name').value.trim() || 'Player 1';
+      const avatarId = document.getElementById('user-avatar').value;
+
+      if (!code) {
+        alert('Please enter a room code (e.g. KTN-789)');
+        return;
+      }
+
+      socket.emit('join_room', { roomCode: code, playerName, avatarId }, (res) => {
+        if (res.success) {
+          currentRoomId = res.roomId;
+          currentRoomCode = res.roomCode;
+          isRoomHost = false;
+          showScreen('lobby');
+        } else {
+          alert(`Could not join room: ${res.error}`);
+        }
+      });
+    });
+
+    document.getElementById('btn-quick-match').addEventListener('click', () => {
+      initSocket();
+      const playerName = document.getElementById('user-name').value.trim() || 'Guest';
+      const avatarId = document.getElementById('user-avatar').value;
+
+      socket.emit('quick_match', { playerName, avatarId }, (res) => {
+        if (res.success) {
+          currentRoomId = res.roomId;
+          currentRoomCode = res.roomCode;
+          isRoomHost = res.isHost;
+          showScreen('lobby');
+        }
+      });
+    });
+
+    document.getElementById('btn-practice-bots').addEventListener('click', () => {
+      initSocket();
+      const playerName = document.getElementById('user-name').value.trim() || 'Trainer';
+      const avatarId = document.getElementById('user-avatar').value;
+
+      socket.emit('create_room', { playerName, avatarId, isPrivate: true }, (res) => {
+        if (res.success) {
+          currentRoomId = res.roomId;
+          currentRoomCode = res.roomCode;
+          isRoomHost = true;
+
+          socket.emit('add_bot', { roomId: res.roomId });
+          socket.emit('add_bot', { roomId: res.roomId });
+          socket.emit('add_bot', { roomId: res.roomId });
+
+          setTimeout(() => {
+            socket.emit('start_game', { roomId: res.roomId });
+          }, 300);
+        }
+      });
+    });
+
+    document.getElementById('btn-toggle-ready').addEventListener('click', () => {
+      if (socket && currentRoomId) {
+        socket.emit('toggle_ready', { roomId: currentRoomId });
+      }
+    });
+
+    document.getElementById('btn-start-game').addEventListener('click', () => {
+      if (socket && currentRoomId && isRoomHost) {
+        socket.emit('start_game', { roomId: currentRoomId });
+      }
+    });
+
+    document.getElementById('btn-leave-lobby').addEventListener('click', () => {
+      if (socket && currentRoomId) {
+        socket.emit('leave_room', { roomId: currentRoomId });
+      }
+      showScreen('menu');
+    });
+
+    document.getElementById('btn-copy-code').addEventListener('click', () => {
+      if (!currentRoomCode) return;
+      navigator.clipboard.writeText(currentRoomCode);
+      alert(`Copied Room Code: ${currentRoomCode}`);
+    });
+
+    document.getElementById('btn-copy-link').addEventListener('click', () => {
+      if (!currentRoomCode) return;
+      const url = `${window.location.origin}/?room=${currentRoomCode}`;
+      navigator.clipboard.writeText(url);
+      alert(`Copied Invite Link: ${url}`);
+    });
+
+    document.getElementById('btn-menu-rules').addEventListener('click', () => {
+      document.getElementById('modal-tutorial').classList.remove('hidden');
+    });
+    document.getElementById('btn-game-menu').addEventListener('click', () => {
+      document.getElementById('modal-tutorial').classList.remove('hidden');
+    });
+    document.getElementById('btn-close-tutorial').addEventListener('click', () => {
+      document.getElementById('modal-tutorial').classList.add('hidden');
+    });
+
+    const toggleSoundFn = () => {
+      sounds.enabled = !sounds.enabled;
+      const text = sounds.enabled ? '🔊 SOUND: ON' : '🔇 SOUND: OFF';
+      document.getElementById('btn-menu-sound').innerText = text;
+      document.getElementById('btn-game-sound').innerText = sounds.enabled ? '🔊' : '🔇';
+    };
+    document.getElementById('btn-menu-sound').addEventListener('click', toggleSoundFn);
+    document.getElementById('btn-game-sound').addEventListener('click', toggleSoundFn);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const roomParam = urlParams.get('room');
+      if (roomParam) {
+        document.getElementById('input-join-code').value = roomParam.toUpperCase();
+        document.getElementById('btn-join-party').classList.add('animate-pulse');
+      }
+    });
+  </script>
+</body>
+</html>

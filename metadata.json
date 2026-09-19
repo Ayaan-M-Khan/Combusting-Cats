@@ -1,0 +1,6 @@
+{
+  "name": "Exploding Kittens",
+  "description": "A browser-based digital card game clone of Exploding Kittens with interactive tabletop, gauge, comic art, and AI bots.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
