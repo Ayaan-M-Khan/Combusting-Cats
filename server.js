@@ -734,6 +734,8 @@ class GameRoom {
         playerName: currentP.name,
         durationMs: 7000,
         hasDefuse,
+        card: drawnCard,
+        deckCount: this.drawPile.length,
       });
 
       this.broadcastGameState();
@@ -774,9 +776,13 @@ class GameRoom {
     this.matchStats.turnsPlayed++;
     this.log(currentP.name, currentP.avatarId, `drew a card from the reactor core.`);
 
-    io.to(this.id).emit('card_drawn', {
-      playerId: currentP.id,
-      playerName: currentP.name,
+    this.players.forEach((p) => {
+      io.to(p.socketId).emit('card_drawn', {
+        playerId: currentP.id,
+        playerName: currentP.name,
+        deckCount: this.drawPile.length,
+        card: (p.id === currentP.id) ? drawnCard : null,
+      });
     });
 
     // Bot banter if drawing safely under high tension
