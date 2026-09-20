@@ -254,12 +254,13 @@ function shuffle(arr) {
 
 const BOT_NAMES = [
   { name: 'Dr. Singe', avatarId: 'dr_singe' },
-  { name: 'Sizzles', avatarId: 'sizzles' },
-  { name: 'Pyro-Paw', avatarId: 'pyro_paw' },
-  { name: 'Meltdown Max', avatarId: 'meltdown_max' },
-  { name: 'Ash-Tail', avatarId: 'ash_tail' },
-  { name: 'Sharky', avatarId: 'sharky' },
-  { name: 'Bacon Cat', avatarId: 'bacon_cat' },
+  { name: 'Pyro-Paws', avatarId: 'pyro_paws' },
+  { name: 'Meow-o-tron', avatarId: 'meow_o_tron' },
+  { name: 'Sir Hiss', avatarId: 'sir_hiss' },
+  { name: 'Atomic Tom', avatarId: 'atomic_tom' },
+  { name: 'Captain Claws', avatarId: 'captain_claws' },
+  { name: 'Whiskers', avatarId: 'whiskers_cool' },
+  { name: 'Molten Mittens', avatarId: 'molten_mittens' },
 ];
 
 function generateRoomCode() {
@@ -851,7 +852,7 @@ class GameRoom {
   defuseKitten(playerId, position) {
     if (this.turnState !== 'DEFUSING') return;
     const currentP = this.players[this.activePlayerIndex];
-    if (!currentP || currentP.id !== playerId) return;
+    if (!currentP || (currentP.id !== playerId && currentP.socketId !== playerId)) return;
 
     const defuseIdx = currentP.hand.findIndex((c) => c.type === 'COOLANT_FOAM' || c.type === 'DEFUSE');
     if (defuseIdx === -1) return; // Cannot defuse without defuse card!
@@ -884,10 +885,13 @@ class GameRoom {
       this.log(currentP.name, currentP.avatarId, 'secretly reinserted the Combustion Cat into the reactor core.');
     }
 
+    this.log(currentP.name, currentP.avatarId, `${currentP.name} neutralized the Combustion Cat with Coolant Foam!`);
+
     io.to(this.id).emit('kitten_defused', {
       playerId: currentP.id,
       playerName: currentP.name,
       card: defuseCard,
+      message: `${currentP.name} neutralized the Combustion Cat with Coolant Foam!`,
     });
 
     this.turnState = 'NORMAL';
@@ -942,7 +946,7 @@ class GameRoom {
   playNope(playerId) {
     if (this.turnState !== 'NOPE_WINDOW' || !this.pendingAction) return;
 
-    const player = this.players.find((p) => p.id === playerId);
+    const player = this.players.find((p) => p.id === playerId || p.socketId === playerId);
     if (!player || player.isDead) return;
 
     const nopeIdx = player.hand.findIndex((c) => c.type === 'NOPE');
@@ -1032,18 +1036,20 @@ class GameRoom {
     const isNoped = action.nopeCount % 2 === 1;
 
     if (isNoped) {
+      const actTitle = action.card?.title || 'Action';
       this.log(
         action.sourcePlayerName,
         'player',
-        `🚫 NOPED! ${action.card?.title || 'Action'} was cancelled!`,
+        `🚫 [${actTitle}] was successfully NOPED!`,
         'NOPE'
       );
 
       io.to(this.id).emit('action_noped', {
-        actionTitle: action.card?.title || 'Action',
+        actionTitle: actTitle,
         sourcePlayerName: action.sourcePlayerName,
         sourcePlayerId: action.sourcePlayerId,
         nopeCount: action.nopeCount,
+        message: `[${actTitle}] was successfully NOPED!`,
       });
 
       this.broadcastGameState();
@@ -1774,6 +1780,30 @@ io.on('connection', (socket) => {
     }
   });
 
+  // 4b. UPDATE PROFILE (Name & Avatar in Lobby)
+  socket.on('update_profile', ({ roomId, name, avatarId }) => {
+    const room = rooms.get(roomId);
+    if (!room || room.gameStarted) return;
+
+    const player = room.players.find((p) => p.socketId === socket.id);
+    if (!player) return;
+
+    if (name && typeof name === 'string') {
+      const cleanName = name.trim().slice(0, 15);
+      if (cleanName.length > 0) player.name = cleanName;
+    }
+    if (avatarId && typeof avatarId === 'string') {
+      player.avatarId = avatarId.slice(0, 30);
+    }
+
+    room.broadcastLobby();
+    io.to(roomId).emit('player_profile_updated', {
+      playerId: player.id,
+      name: player.name,
+      avatarId: player.avatarId,
+    });
+  });
+
   // 5. ADD BOT
   socket.on('add_bot', ({ roomId }) => {
     const room = rooms.get(roomId);
@@ -1857,6 +1887,23 @@ io.on('connection', (socket) => {
     const room = rooms.get(roomId);
     if (!room || !room.gameStarted) return;
 
+    const sender = room.players.find((p) => p.socketId === socket.id || p.id === socket.id);
+    if (!sender || sender.isDead) return;
+
+    // Check if player is attempting to play Defuse (Coolant Foam)
+    const playedCard = sender.hand?.find((c) => c.id === cardId);
+    if (playedCard && (playedCard.type === 'COOLANT_FOAM' || playedCard.type === 'DEFUSE')) {
+      // Must be in DEFUSING state for this player
+      if (room.turnState === 'DEFUSING' && (room.turnStateData?.defusingSocketId === socket.id || room.turnStateData?.defusingPlayerId === sender.id)) {
+        room.defuseKitten(socket.id, 'random');
+        return;
+      }
+      socket.emit('card_rejected', {
+        reason: 'Coolant Foam can only be used when you draw a Combustion Cat!',
+      });
+      return;
+    }
+
     // Direct combo invocations
     if (comboType === 'THREE_OF_A_KIND' && cardIds && targetPlayerId && demandedCardType) {
       room.playThreeOfAKind(socket.id, cardIds, targetPlayerId, demandedCardType);
@@ -1907,6 +1954,13 @@ io.on('connection', (socket) => {
     const room = rooms.get(roomId);
     if (!room || !room.gameStarted) return;
     room.defuseKitten(socket.id, position);
+  });
+
+  // 11b. PLAY NOPE
+  socket.on('play_nope', ({ roomId }) => {
+    const room = rooms.get(roomId);
+    if (!room || !room.gameStarted) return;
+    room.playNope(socket.id);
   });
 
   // 12. ALTER THE FUTURE CONFIRM

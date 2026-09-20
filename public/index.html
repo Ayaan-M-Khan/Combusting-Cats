@@ -154,6 +154,59 @@
       box-shadow: 0 0 26px rgba(255, 183, 3, 0.95), 0 16px 30px rgba(0, 0, 0, 0.75) !important;
     }
 
+    /* Situation-Specific Card Restrictions & Visual Highlights */
+    .card.disabled, .card-item.disabled {
+      filter: grayscale(40%) opacity(0.5) !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+      pointer-events: auto !important;
+    }
+
+    .card.defuse-pulse, .card-item.defuse-pulse {
+      border-color: #10b981 !important;
+      outline: 4px solid #34d399 !important;
+      box-shadow: 0 0 35px #10b981, 0 0 70px rgba(16, 185, 129, 0.75) !important;
+      animation: pulseDefuse 0.9s infinite alternate cubic-bezier(0.4, 0, 0.2, 1) !important;
+      z-index: 600 !important;
+      transform: translateY(-30px) scale(1.06) !important;
+      cursor: pointer !important;
+      filter: none !important;
+      opacity: 1 !important;
+    }
+
+    .card.nope-pulse, .card-item.nope-pulse {
+      border-color: #ef4444 !important;
+      outline: 4px solid #f87171 !important;
+      box-shadow: 0 0 35px #ef4444, 0 0 70px rgba(239, 68, 68, 0.85) !important;
+      animation: pulseNope 0.75s infinite alternate cubic-bezier(0.4, 0, 0.2, 1) !important;
+      z-index: 650 !important;
+      transform: translateY(-35px) scale(1.08) !important;
+      cursor: pointer !important;
+      filter: none !important;
+      opacity: 1 !important;
+    }
+
+    @keyframes pulseDefuse {
+      0% { box-shadow: 0 0 18px #10b981, 0 0 30px rgba(16, 185, 129, 0.4); transform: translateY(-26px) scale(1.04); }
+      100% { box-shadow: 0 0 42px #34d399, 0 0 85px rgba(52, 211, 153, 0.95); transform: translateY(-34px) scale(1.08); }
+    }
+
+    @keyframes pulseNope {
+      0% { box-shadow: 0 0 18px #ef4444, 0 0 35px rgba(239, 68, 68, 0.4); transform: translateY(-30px) scale(1.05); }
+      100% { box-shadow: 0 0 45px #f87171, 0 0 90px rgba(248, 113, 113, 0.98); transform: translateY(-38px) scale(1.1); }
+    }
+
+    @keyframes emergencyAlarmFlash {
+      0%, 100% { opacity: 0.2; box-shadow: inset 0 0 60px rgba(239, 68, 68, 0.4); }
+      50% { opacity: 0.85; box-shadow: inset 0 0 150px rgba(239, 68, 68, 0.85); }
+    }
+
+    .screen-vignette-alarm {
+      animation: emergencyAlarmFlash 0.65s infinite ease-in-out;
+      pointer-events: none;
+    }
+
     /* Internal Card Layout (No Text Clipping) */
     .card-header {
       display: flex;
@@ -245,27 +298,28 @@
     }
 
     /* Avatar Container & Comic Reaction Bubbles */
-    .avatar-container {
+    .avatar-container,
+    .player-pedestal {
       position: relative; /* Anchor point for bubbles */
     }
 
     .reaction-bubble {
       position: absolute;
-      bottom: 110%; /* Sits directly above/beside the avatar */
+      bottom: calc(100% + 10px); /* Sits directly above the avatar by default */
       left: 50%;
       transform: translateX(-50%) scale(0);
       background: #ffffff;
       color: #111111;
-      border: 3px solid #222222;
-      border-radius: 16px;
-      padding: 6px 14px;
-      font-size: 16px;
+      border: 2px solid #222222;
+      border-radius: 14px;
+      padding: 6px 12px;
+      font-size: 18px;
       font-weight: 800;
       white-space: nowrap;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
       z-index: 1200;
       pointer-events: none;
-      animation: popSpeechBubble 3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+      animation: popSpeechBubble 2.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
     }
 
     /* Comic speech bubble tail pointing down to avatar */
@@ -275,23 +329,44 @@
       top: 100%;
       left: 50%;
       transform: translateX(-50%);
-      border-width: 8px 8px 0 8px;
+      border-width: 7px 7px 0 7px;
       border-style: solid;
       border-color: #222222 transparent transparent transparent;
     }
 
-    /* For top opponent avatars where bubble appears below */
+    /* Reaction bubble positioned underneath top-row players */
+    .top-player .reaction-bubble,
     .reaction-bubble.bubble-down {
-      bottom: auto;
-      top: 110%;
-      animation: popSpeechBubbleDown 3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+      bottom: auto !important;
+      top: calc(100% + 10px) !important; /* Sits right beneath name/avatar */
+      animation: popUnderBubble 2.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards !important;
     }
+
+    /* Hide standard downward tail on top-row bubbles */
+    .top-player .reaction-bubble::after,
     .reaction-bubble.bubble-down::after {
-      top: auto;
-      bottom: 100%;
-      border-width: 0 8px 8px 8px;
+      display: none !important;
+    }
+
+    /* Comic tail pointing UP toward the player above */
+    .top-player .reaction-bubble::before,
+    .reaction-bubble.bubble-down::before {
+      content: '';
+      position: absolute;
+      bottom: 100%; /* Sits at top edge of bubble */
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 0 7px 7px 7px;
       border-style: solid;
       border-color: transparent transparent #222222 transparent;
+    }
+
+    @keyframes popUnderBubble {
+      0% { transform: translateX(-50%) scale(0); opacity: 0; }
+      15% { transform: translateX(-50%) scale(1.15); opacity: 1; }
+      25% { transform: translateX(-50%) scale(1); }
+      80% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateX(-50%) translateY(8px) scale(0.9); opacity: 0; }
     }
 
     @keyframes popSpeechBubble {
@@ -299,15 +374,17 @@
       15% { transform: translateX(-50%) scale(1.15); opacity: 1; }
       25% { transform: translateX(-50%) scale(1); }
       80% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
-      100% { transform: translateX(-50%) translateY(-15px) scale(0.9); opacity: 0; }
+      100% { transform: translateX(-50%) translateY(-10px) scale(0.9); opacity: 0; }
     }
 
-    @keyframes popSpeechBubbleDown {
-      0% { transform: translateX(-50%) scale(0); opacity: 0; }
-      15% { transform: translateX(-50%) scale(1.15); opacity: 1; }
-      25% { transform: translateX(-50%) scale(1); }
-      80% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
-      100% { transform: translateX(-50%) translateY(15px) scale(0.9); opacity: 0; }
+    /* Discard Pile Interactive Hover Glow */
+    #discardPile {
+      cursor: pointer;
+      user-select: none;
+    }
+    #discardPile:hover #discard-card-slot {
+      box-shadow: 0 0 16px rgba(255, 255, 255, 0.45);
+      transform: scale(1.03) rotate(2deg);
     }
 
     /* Center-Table Animated Combo Announcement Banner */
@@ -586,12 +663,14 @@
           <label class="font-bangers text-xs sm:text-sm text-amber-200 tracking-wider">OPERATOR CODENAME & AVATAR</label>
           <div class="flex items-center gap-2">
             <select id="user-avatar" class="bg-stone-800 text-white font-bangers text-sm px-2 py-1.5 rounded-xl border border-stone-700 outline-none cursor-pointer">
-              <option value="player">😎 Operator (Chief)</option>
-              <option value="sharky">🦈 Sharky</option>
-              <option value="bacon_cat">🥓 Bacon Cat</option>
-              <option value="schmoopy">💖 Schmoopy</option>
-              <option value="otho">🎩 Otho</option>
-              <option value="lydia">🎀 Lydia</option>
+              <option value="dr_singe" selected>🔬 Dr. Singe</option>
+              <option value="pyro_paws">🔥 Pyro-Paws</option>
+              <option value="meow_o_tron">🤖 Meow-o-tron</option>
+              <option value="sir_hiss">🎩 Sir Hiss</option>
+              <option value="atomic_tom">☢️ Atomic Tom</option>
+              <option value="captain_claws">🚀 Captain Claws</option>
+              <option value="whiskers_cool">❄️ Whiskers the Cool</option>
+              <option value="molten_mittens">🌋 Molten Mittens</option>
             </select>
             <input id="user-name" type="text" maxlength="15" value="Operator 1" placeholder="Enter nickname..." class="bg-stone-800 text-amber-100 font-bangers text-base px-3 py-1.5 rounded-xl border border-stone-700 outline-none w-36 text-center focus:border-amber-400" />
           </div>
@@ -758,6 +837,55 @@
   <!-- ============================================================ -->
   <div id="screen-game" class="w-full h-screen wood-tabletop flex flex-col justify-between overflow-hidden hidden relative">
     
+    <!-- Red Flashing Screen Vignette for Combustion Cat Meltdown Alert -->
+    <div id="screen-vignette-alarm" class="fixed inset-0 z-40 pointer-events-none hidden border-[12px] sm:border-[16px] border-red-600 screen-vignette-alarm bg-red-950/25"></div>
+
+    <!-- Emergency Combustion Cat Defuse Alert Center Banner -->
+    <div id="emergency-defuse-banner" class="hidden fixed top-24 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-lg bg-[#240a0a] border-4 border-red-500 rounded-3xl p-5 shadow-[0_0_50px_rgba(239,68,68,0.9)] text-center animate-pop">
+      <div class="flex items-center justify-center gap-2 text-2xl sm:text-3xl mb-1">
+        <span class="animate-bounce">⚠️</span>
+        <span class="text-yellow-300 font-bangers tracking-wider">COMBUSTION CAT DRAWN!</span>
+        <span class="animate-bounce">⚠️</span>
+      </div>
+      <h2 id="emergency-defuse-title" class="font-bangers text-2xl sm:text-3xl text-red-400 tracking-wider">
+        DEFUSE OR MELTDOWN!
+      </h2>
+      <p id="emergency-defuse-subtitle" class="font-fredoka text-xs sm:text-sm text-stone-200 mt-1">
+        Deploy Coolant Foam now or vaporize in a nuclear cat blast!
+      </p>
+      
+      <!-- 7-second emergency countdown bar -->
+      <div class="w-full bg-black/80 h-4 rounded-full overflow-hidden border-2 border-red-800 mt-3 relative">
+        <div id="defuse-progress-bar" class="h-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-400 transition-all duration-100 ease-linear" style="width: 100%;"></div>
+      </div>
+      <div class="flex items-center justify-between mt-2 font-bangers text-xs sm:text-sm">
+        <span id="emergency-timer-seconds" class="text-yellow-300">7.0s REMAINING</span>
+        <span id="emergency-defuse-action-hint" class="text-emerald-400 animate-pulse font-bold">CLICK COOLANT FOAM!</span>
+      </div>
+    </div>
+
+    <!-- Center-Table Nope Interruption Countdown Banner -->
+    <div id="nope-window-banner" class="hidden fixed top-28 sm:top-32 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-xl bg-gradient-to-r from-purple-950 via-stone-900 to-purple-950 border-3 border-yellow-400 rounded-2xl p-3.5 shadow-[0_0_35px_rgba(234,179,8,0.7)] flex flex-col items-center text-center">
+      <div class="flex items-center justify-between w-full px-2">
+        <span class="font-bangers text-sm sm:text-base text-yellow-300 flex items-center gap-1.5" id="nope-banner-title">
+          ⚡ <span id="nope-banner-action-text">PLAYER PLAYED ACTION</span> — ANYONE NOPE? ⚡
+        </span>
+        <span id="nope-banner-timer-text" class="font-bangers text-xs sm:text-sm text-yellow-300 bg-black/70 px-2.5 py-0.5 rounded-full border border-yellow-400">3.5s</span>
+      </div>
+      <!-- Countdown bar -->
+      <div class="w-full bg-stone-950 h-3.5 rounded-full overflow-hidden border border-stone-700 mt-2 relative">
+        <div id="nope-progress-bar" class="h-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 transition-all duration-100 ease-linear" style="width: 100%;"></div>
+      </div>
+      <div id="nope-status-subtitle" class="font-fredoka text-xs text-yellow-200 mt-1.5 font-medium">
+        Any technician holding a Nope card can slap to cancel!
+      </div>
+    </div>
+
+    <!-- Floating SLAP NOPE button when player holds a Nope and Nope window is active -->
+    <button id="btn-slap-nope" class="hidden fixed bottom-32 sm:bottom-36 left-1/2 -translate-x-1/2 z-50 comic-btn px-8 py-3 rounded-2xl bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bangers text-xl sm:text-2xl shadow-[0_0_35px_rgba(239,68,68,0.9)] border-3 border-yellow-300 cursor-pointer animate-pulse">
+      ✋ SLAP NOPE! (CANCEL ACTION) ✋
+    </button>
+
     <!-- Flash effect for explosion -->
     <div id="explosion-flash" class="fixed inset-0 z-50 bg-red-600/80 flex items-center justify-center pointer-events-none hidden">
       <span class="font-bangers text-8xl sm:text-9xl text-yellow-300 drop-shadow-[0_8px_0_#000] rotate-[-8deg] animate-ping">
@@ -865,12 +993,15 @@
           </div>
         </div>
 
-        <!-- Discard Pile -->
-        <div class="flex flex-col items-center">
-          <div id="discard-card-slot" class="w-32 h-48 sm:w-40 sm:h-58 rounded-2xl bg-black/40 border-3 border-dashed border-stone-700 flex flex-col items-center justify-center p-2 text-center relative rotate-2 shadow-inner">
+        <!-- Discard Pile (Clickable to open Discard Pile History) -->
+        <div id="discardPile" class="flex flex-col items-center cursor-pointer group" title="Click to view discard history">
+          <div id="discard-card-slot" class="w-32 h-48 sm:w-40 sm:h-58 rounded-2xl bg-black/40 border-3 border-dashed border-stone-700 flex flex-col items-center justify-center p-2 text-center relative rotate-2 shadow-inner transition-all duration-200">
             <span class="font-bangers text-stone-500 text-sm sm:text-base">DISCARD PILE (EMPTY)</span>
           </div>
-          <span class="font-bangers text-xs text-amber-200 tracking-wider mt-2">LAST PLAYED</span>
+          <div class="font-bangers text-xs text-amber-200 tracking-wider mt-2 flex items-center gap-1.5 group-hover:text-yellow-300 transition-colors">
+            <span>📜 DISCARD HISTORY</span>
+            <span id="discard-count-badge" class="bg-stone-900 border border-stone-700 text-yellow-400 text-[10px] px-2 py-0.5 rounded-full font-fredoka">0 cards</span>
+          </div>
         </div>
       </div>
 
@@ -959,7 +1090,7 @@
           <div class="flex items-center gap-2">
             <!-- My Avatar Container (anchor for reaction bubble) -->
             <div class="avatar-container relative flex items-center">
-              <div id="my-avatar-box" class="flex items-center gap-2.5 bg-stone-900/90 border-2 border-yellow-500/70 hover:border-yellow-400 px-3 py-1.5 rounded-2xl shadow-md transition-colors relative">
+              <div id="my-avatar-box" class="player-pedestal local-player flex items-center gap-2.5 bg-stone-900/90 border-2 border-yellow-500/70 hover:border-yellow-400 px-3 py-1.5 rounded-2xl shadow-md transition-colors relative">
                 <div id="my-avatar-icon" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-yellow-400 bg-stone-800 relative flex items-center justify-center flex-shrink-0">
                   <!-- SVG Avatar -->
                 </div>
@@ -1029,20 +1160,20 @@
           <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10h2v4h-2zm0 6h2v2h-2z"/>
         </svg>
       </div>
-      <h2 class="font-bangers text-3xl text-emerald-400 mb-1">CORE MELTDOWN CONTAINED!</h2>
+      <h2 class="font-bangers text-3xl text-emerald-400 mb-1">DEFUSE DEPLOYED!</h2>
       <p class="font-fredoka text-sm text-stone-300 mb-5">
-        Coolant Foam deployed! Secretly choose where to tuck the volatile Combustion Cat back into the Reactor Core:
+        Where do you want to hide the Combustion Cat?
       </p>
 
       <div class="grid grid-cols-3 gap-3 mb-4">
         <button class="btn-place-kitten comic-btn py-3 rounded-xl bg-red-800 hover:bg-red-700 font-bangers text-white text-sm" data-pos="top">
-          TOP OF CORE<br><span class="text-[10px] text-yellow-300">TRAP NEXT!</span>
-        </button>
-        <button class="btn-place-kitten comic-btn py-3 rounded-xl bg-amber-800 hover:bg-amber-700 font-bangers text-white text-sm" data-pos="random">
-          RANDOM<br><span class="text-[10px] text-yellow-300">SHUFFLED IN</span>
+          [ Top of Deck ]<br><span class="text-[10px] text-yellow-300">TRAP NEXT!</span>
         </button>
         <button class="btn-place-kitten comic-btn py-3 rounded-xl bg-stone-800 hover:bg-stone-700 font-bangers text-white text-sm" data-pos="bottom">
-          BOTTOM<br><span class="text-[10px] text-yellow-300">SAFE FOR NOW</span>
+          [ Bottom of Deck ]<br><span class="text-[10px] text-yellow-300">SAFE FOR NOW</span>
+        </button>
+        <button class="btn-place-kitten comic-btn py-3 rounded-xl bg-amber-800 hover:bg-amber-700 font-bangers text-white text-sm" data-pos="random">
+          [ Random Position ]<br><span class="text-[10px] text-yellow-300">SHUFFLED IN</span>
         </button>
       </div>
 
@@ -1209,6 +1340,86 @@
         <p><b class="text-fuchsia-400 font-bangers text-base">3-OF-A-KIND (TRIO):</b> Play three identical feline cards to demand a named card type (e.g. Coolant Foam). If they hold it, they must surrender it!</p>
         <p><b class="text-emerald-400 font-bangers text-base">5-UNIQUE CARDS:</b> Play 5 distinct cards to scavenge the Discard Pile and claim any card of your choice!</p>
         <p><b class="text-amber-200 font-bangers text-base">AUTO-SORT:</b> Hand sorting groups action cards by tactical priority and clusters feline combo sets automatically.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. AVATAR SELECTION MODAL -->
+  <div id="modal-avatar-select" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden">
+    <div id="modal-avatar-dialog" class="bg-[#1f130b] border-4 border-amber-500 rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl animate-pop flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between border-b border-amber-800/40 pb-2.5 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🐱</span>
+          <h2 class="font-bangers text-2xl sm:text-3xl text-yellow-400 tracking-wide">CHOOSE YOUR COMBUSTION CAT</h2>
+        </div>
+        <button id="btn-close-avatar-modal" class="text-stone-400 hover:text-white font-bangers text-2xl cursor-pointer p-1 transition-colors leading-none">✕</button>
+      </div>
+
+      <p class="font-fredoka text-xs sm:text-sm text-stone-300 mb-3 text-center">
+        Select your technician avatar to represent you across the laboratory and game table:
+      </p>
+
+      <!-- 8 Predetermined Feline Avatars Grid -->
+      <div id="avatar-selection-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 overflow-y-auto p-1.5 flex-1 max-h-[60vh]">
+        <!-- Rendered dynamically via openAvatarSelectionModal -->
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-stone-800 flex items-center justify-between">
+        <span id="avatar-modal-current-name" class="font-fredoka text-xs text-amber-200/70 truncate max-w-[200px]"></span>
+        <button id="btn-done-avatar-modal" class="comic-btn px-6 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 font-bangers text-white text-sm tracking-wider cursor-pointer">
+          CONFIRM SELECTION
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. DISCARD PILE HISTORY VIEWER MODAL -->
+  <div id="discardHistoryModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-5 hidden">
+    <div id="discard-history-dialog" class="bg-[#1c110a] border-4 border-amber-600 rounded-3xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl animate-pop flex flex-col max-h-[90vh]">
+      <!-- Header -->
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-amber-800/40 pb-3 mb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-amber-950 border-2 border-amber-500 flex items-center justify-center text-xl shadow">
+            📜
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-bangers text-2xl sm:text-3xl text-yellow-400 tracking-wide leading-none">DISCARD PILE HISTORY</h2>
+              <span id="discard-history-count" class="font-fredoka text-xs sm:text-sm font-bold text-amber-300 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-700/60 shadow-xs">
+                0 Cards Played
+              </span>
+            </div>
+            <p class="font-fredoka text-xs text-stone-400 mt-0.5">
+              Inspect all previously expended cards and laboratory reactions.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Sort Toggle Button -->
+          <button id="btn-toggle-discard-sort" class="comic-btn px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 font-bangers text-xs sm:text-sm text-stone-950 flex items-center gap-1.5 shadow-md cursor-pointer transition-transform active:scale-95">
+            <span id="discard-sort-btn-icon">📑</span>
+            <span id="discard-sort-btn-text">Sort by Type</span>
+          </button>
+          <!-- Close button -->
+          <button id="btn-close-discard-history" class="w-8 h-8 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-bangers text-xl flex items-center justify-center cursor-pointer transition-colors leading-none" title="Close">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="discard-history-empty" class="hidden flex-1 flex flex-col items-center justify-center py-16 text-center">
+        <span class="text-6xl mb-3 opacity-60">📭</span>
+        <div class="font-bangers text-2xl text-stone-400">DISCARD GRAVEYARD IS EMPTY</div>
+        <p class="font-fredoka text-xs sm:text-sm text-stone-500 mt-1 max-w-sm">
+          No cards have been discarded yet. Play action cards or trigger combos to populate the laboratory archive.
+        </p>
+      </div>
+
+      <!-- Card Grid Container -->
+      <div id="discard-history-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-2.5 overflow-y-auto max-h-[66vh] bg-stone-950/60 rounded-2xl border border-stone-800">
+        <!-- Rendered dynamically -->
       </div>
     </div>
   </div>
@@ -1419,6 +1630,45 @@
           gain.connect(this.ctx.destination);
           osc.start();
           osc.stop(this.ctx.currentTime + 0.09);
+        } catch (e) {}
+      }
+      alarm() {
+        if (!this.enabled) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(650, now);
+          osc.frequency.linearRampToValueAtTime(900, now + 0.18);
+          osc.frequency.linearRampToValueAtTime(650, now + 0.36);
+          osc.frequency.linearRampToValueAtTime(900, now + 0.54);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.65);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.65);
+        } catch (e) {}
+      }
+      nopeSlap() {
+        if (!this.enabled) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(85, now + 0.22);
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.24);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+          this.playTone(190, 'sine', 0.15, 0.35);
         } catch (e) {}
       }
     }
@@ -1732,9 +1982,192 @@
       });
     }
 
+    // --- 8 PREDETERMINED FELINE AVATARS METADATA ---
+    const AVATAR_PRESETS = [
+      { id: 'dr_singe', name: 'Dr. Singe', desc: 'Scientist cat with goggles', icon: '🔬', themeColor: '#0284c7' },
+      { id: 'pyro_paws', name: 'Pyro-Paws', desc: 'Fiery orange tabby with smoke wisp', icon: '🔥', themeColor: '#f97316' },
+      { id: 'meow_o_tron', name: 'Meow-o-tron', desc: 'Cyborg cat with laser eye', icon: '🤖', themeColor: '#ec4899' },
+      { id: 'sir_hiss', name: 'Sir Hiss', desc: 'Tuxedo cat with monocle', icon: '🎩', themeColor: '#eab308' },
+      { id: 'atomic_tom', name: 'Atomic Tom', desc: 'Glowing radioactive green feline', icon: '☢️', themeColor: '#84cc16' },
+      { id: 'captain_claws', name: 'Captain Claws', desc: 'Astronaut cat with blast helmet', icon: '🚀', themeColor: '#38bdf8' },
+      { id: 'whiskers_cool', name: 'Whiskers the Cool', desc: 'Cyan cat with cryo-shades', icon: '❄️', themeColor: '#06b6d4' },
+      { id: 'molten_mittens', name: 'Molten Mittens', desc: 'Lava-cracked magma cat', icon: '🌋', themeColor: '#ea580c' },
+    ];
+
     // --- AVATAR SVG GENERATOR ---
     function getAvatarSVG(avatarId) {
       switch (avatarId) {
+        case 'dr_singe':
+        case 'player':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="50" r="46" fill="#0284c7" stroke="#0369a1" stroke-width="3"/>
+            <circle cx="50" cy="56" r="28" fill="#e0f2fe" stroke="#0c4a6e" stroke-width="2"/>
+            <polygon points="30,42 20,18 42,34" fill="#bae6fd" stroke="#0c4a6e" stroke-width="2"/>
+            <polygon points="20,18 25,26 18,24" fill="#1e293b"/>
+            <polygon points="70,42 80,18 58,34" fill="#bae6fd" stroke="#0c4a6e" stroke-width="2"/>
+            <polygon points="80,18 75,26 82,24" fill="#1e293b"/>
+            <path d="M34,80 L50,68 L66,80 L58,95 L42,95 Z" fill="#ffffff" stroke="#0c4a6e" stroke-width="1.5"/>
+            <line x1="50" y1="68" x2="50" y2="95" stroke="#0284c7" stroke-width="1.5"/>
+            <rect x="25" y="44" width="22" height="18" rx="8" fill="#164e63" stroke="#facc15" stroke-width="2.5"/>
+            <rect x="53" y="44" width="22" height="18" rx="8" fill="#164e63" stroke="#facc15" stroke-width="2.5"/>
+            <line x1="47" y1="52" x2="53" y2="52" stroke="#facc15" stroke-width="2.5"/>
+            <ellipse cx="36" cy="53" rx="7" ry="5.5" fill="#38bdf8"/>
+            <ellipse cx="64" cy="53" rx="7" ry="5.5" fill="#38bdf8"/>
+            <ellipse cx="34" cy="50" rx="2.5" ry="1.5" fill="#ffffff"/>
+            <ellipse cx="62" cy="50" rx="2.5" ry="1.5" fill="#ffffff"/>
+            <polygon points="48,66 52,66 50,69" fill="#f43f5e"/>
+            <path d="M50,69 Q46,74 42,72 M50,69 Q54,74 58,72" fill="none" stroke="#0c4a6e" stroke-width="1.5"/>
+            <line x1="22" y1="64" x2="38" y2="65" stroke="#0c4a6e" stroke-width="1.5"/>
+            <line x1="78" y1="64" x2="62" y2="65" stroke="#0c4a6e" stroke-width="1.5"/>
+          </svg>`;
+        case 'pyro_paws':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="50" r="46" fill="#c2410c" stroke="#7c2d12" stroke-width="3"/>
+            <path d="M50,18 Q45,10 52,4 Q58,0 52,-4" fill="none" stroke="#fed7aa" stroke-width="2" stroke-dasharray="2 2" opacity="0.8"/>
+            <circle cx="53" cy="6" r="3" fill="#cbd5e1" opacity="0.6"/>
+            <circle cx="48" cy="12" r="2" fill="#cbd5e1" opacity="0.5"/>
+            <circle cx="50" cy="56" r="28" fill="#f97316" stroke="#431407" stroke-width="2"/>
+            <polygon points="30,42 18,16 42,32" fill="#ea580c" stroke="#431407" stroke-width="2"/>
+            <polygon points="28,38 22,22 36,32" fill="#facc15"/>
+            <polygon points="70,42 82,16 58,32" fill="#ea580c" stroke="#431407" stroke-width="2"/>
+            <polygon points="72,38 78,22 64,32" fill="#facc15"/>
+            <path d="M44,38 L50,48 L56,38 M47,34 L50,42 L53,34" fill="none" stroke="#7c2d12" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="38" cy="54" rx="6" ry="7" fill="#fef08a" stroke="#431407" stroke-width="1.5"/>
+            <ellipse cx="62" cy="54" rx="6" ry="7" fill="#fef08a" stroke="#431407" stroke-width="1.5"/>
+            <ellipse cx="38" cy="54" rx="2.5" ry="5.5" fill="#18181b"/>
+            <ellipse cx="62" cy="54" rx="2.5" ry="5.5" fill="#18181b"/>
+            <polygon points="48,65 52,65 50,68" fill="#ef4444"/>
+            <path d="M50,68 Q46,73 42,71 M50,68 Q54,73 58,71" fill="none" stroke="#431407" stroke-width="1.5"/>
+            <line x1="20" y1="63" x2="35" y2="65" stroke="#fde047" stroke-width="2"/>
+            <line x1="18" y1="70" x2="34" y2="69" stroke="#fde047" stroke-width="2"/>
+            <line x1="80" y1="63" x2="65" y2="65" stroke="#fde047" stroke-width="2"/>
+            <line x1="82" y1="70" x2="66" y2="69" stroke="#fde047" stroke-width="2"/>
+          </svg>`;
+        case 'meow_o_tron':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="50" r="46" fill="#18181b" stroke="#3f3f46" stroke-width="3"/>
+            <line x1="32" y1="26" x2="24" y2="10" stroke="#a1a1aa" stroke-width="2.5"/>
+            <circle cx="23" cy="9" r="4" fill="#ef4444" stroke="#7f1d1d" stroke-width="1.5"/>
+            <circle cx="50" cy="56" r="28" fill="#71717a" stroke="#09090b" stroke-width="2.5"/>
+            <path d="M50,28 A28,28 0 0,1 78,56 A28,28 0 0,1 50,84 Z" fill="#52525b"/>
+            <line x1="50" y1="28" x2="50" y2="84" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <polygon points="30,42 18,18 42,34" fill="#3f3f46" stroke="#09090b" stroke-width="2"/>
+            <polygon points="70,42 82,18 58,34" fill="#3f3f46" stroke="#09090b" stroke-width="2"/>
+            <polygon points="72,38 78,24 64,34" fill="#ef4444"/>
+            <ellipse cx="38" cy="54" rx="5.5" ry="6" fill="#22c55e" stroke="#09090b" stroke-width="1.5"/>
+            <ellipse cx="38" cy="54" rx="2" ry="4.5" fill="#000"/>
+            <circle cx="64" cy="54" r="8" fill="#09090b" stroke="#ef4444" stroke-width="2"/>
+            <circle cx="64" cy="54" r="4" fill="#ef4444"/>
+            <circle cx="64" cy="54" r="1.5" fill="#fef08a"/>
+            <line x1="54" y1="54" x2="74" y2="54" stroke="#ef4444" stroke-width="1"/>
+            <line x1="64" y1="44" x2="64" y2="64" stroke="#ef4444" stroke-width="1"/>
+            <circle cx="72" cy="40" r="1.5" fill="#d4d4d8"/>
+            <circle cx="74" cy="68" r="1.5" fill="#d4d4d8"/>
+            <rect x="42" y="68" width="16" height="5" rx="2" fill="#27272a" stroke="#09090b" stroke-width="1"/>
+            <line x1="45" y1="69" x2="45" y2="72" stroke="#ef4444" stroke-width="1"/>
+            <line x1="50" y1="69" x2="50" y2="72" stroke="#ef4444" stroke-width="1"/>
+            <line x1="55" y1="69" x2="55" y2="72" stroke="#ef4444" stroke-width="1"/>
+          </svg>`;
+        case 'sir_hiss':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="50" r="46" fill="#0f172a" stroke="#ca8a04" stroke-width="3"/>
+            <circle cx="50" cy="56" r="28" fill="#020617" stroke="#000000" stroke-width="2.5"/>
+            <path d="M42,52 Q50,44 58,52 L66,80 Q50,86 34,80 Z" fill="#ffffff"/>
+            <polygon points="30,42 18,18 42,34" fill="#020617" stroke="#000" stroke-width="2"/>
+            <polygon points="28,38 24,24 36,34" fill="#f43f5e"/>
+            <polygon points="70,42 82,18 58,34" fill="#020617" stroke="#000" stroke-width="2"/>
+            <polygon points="72,38 76,24 64,34" fill="#f43f5e"/>
+            <ellipse cx="37" cy="54" rx="5" ry="6" fill="#f59e0b" stroke="#000" stroke-width="1.5"/>
+            <ellipse cx="37" cy="54" rx="2" ry="4.5" fill="#000"/>
+            <ellipse cx="63" cy="54" rx="5" ry="6" fill="#f59e0b" stroke="#000" stroke-width="1.5"/>
+            <ellipse cx="63" cy="54" rx="2" ry="4.5" fill="#000"/>
+            <circle cx="63" cy="54" r="8.5" fill="#38bdf8" fill-opacity="0.25" stroke="#eab308" stroke-width="2.5"/>
+            <path d="M71,56 Q78,64 74,78" fill="none" stroke="#eab308" stroke-width="1.5"/>
+            <polygon points="48,63 52,63 50,66" fill="#f43f5e"/>
+            <path d="M50,66 Q46,70 43,68 M50,66 Q54,70 57,68" fill="none" stroke="#000" stroke-width="1.5"/>
+            <polygon points="42,80 50,83 42,86" fill="#dc2626" stroke="#000" stroke-width="1"/>
+            <polygon points="58,80 50,83 58,86" fill="#dc2626" stroke="#000" stroke-width="1"/>
+            <circle cx="50" cy="83" r="2.5" fill="#ef4444" stroke="#000" stroke-width="1"/>
+          </svg>`;
+        case 'atomic_tom':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="50" r="46" fill="#14532d" stroke="#84cc16" stroke-width="3"/>
+            <circle cx="50" cy="56" r="28" fill="#4ade80" stroke="#15803d" stroke-width="2.5"/>
+            <circle cx="24" cy="28" r="2" fill="#facc15"/>
+            <circle cx="76" cy="30" r="2.5" fill="#facc15"/>
+            <circle cx="50" cy="16" r="2" fill="#84cc16"/>
+            <polygon points="30,42 18,18 42,34" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+            <polygon points="28,38 22,24 36,34" fill="#86efac"/>
+            <polygon points="70,42 82,18 58,34" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+            <polygon points="72,38 78,24 64,34" fill="#86efac"/>
+            <ellipse cx="38" cy="52" rx="6" ry="7" fill="#facc15" stroke="#14532d" stroke-width="1.5"/>
+            <ellipse cx="62" cy="52" rx="6" ry="7" fill="#facc15" stroke="#14532d" stroke-width="1.5"/>
+            <polygon points="38,46 36,52 38,58 40,52" fill="#000"/>
+            <polygon points="62,46 60,52 62,58 64,52" fill="#000"/>
+            <circle cx="50" cy="76" r="7" fill="#facc15" stroke="#000" stroke-width="1.5"/>
+            <circle cx="50" cy="76" r="2" fill="#000"/>
+            <path d="M50,71 A5,5 0 0,1 54,74 L50,76 Z M46,78 A5,5 0 0,1 46,73 L50,76 Z M54,78 A5,5 0 0,1 50,81 L50,76 Z" fill="#000"/>
+            <line x1="22" y1="62" x2="36" y2="63" stroke="#84cc16" stroke-width="2"/>
+            <line x1="78" y1="62" x2="64" y2="63" stroke="#84cc16" stroke-width="2"/>
+          </svg>`;
+        case 'captain_claws':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="50" r="46" fill="#030712" stroke="#38bdf8" stroke-width="3"/>
+            <circle cx="26" cy="22" r="1.5" fill="#fff"/>
+            <circle cx="74" cy="20" r="1.5" fill="#fff"/>
+            <circle cx="30" cy="80" r="1" fill="#fde047"/>
+            <circle cx="72" cy="76" r="1" fill="#fde047"/>
+            <rect x="30" y="78" width="40" height="12" rx="4" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+            <circle cx="50" cy="52" r="23" fill="#f59e0b" stroke="#78350f" stroke-width="2"/>
+            <polygon points="34,36 28,18 42,30" fill="#d97706" stroke="#78350f" stroke-width="1.5"/>
+            <polygon points="66,36 72,18 58,30" fill="#d97706" stroke="#78350f" stroke-width="1.5"/>
+            <circle cx="42" cy="50" r="4.5" fill="#38bdf8"/>
+            <circle cx="58" cy="50" r="4.5" fill="#38bdf8"/>
+            <circle cx="42" cy="50" r="2" fill="#0284c7"/>
+            <circle cx="58" cy="50" r="2" fill="#0284c7"/>
+            <polygon points="48,58 52,58 50,61" fill="#f43f5e"/>
+            <circle cx="50" cy="50" r="34" fill="#38bdf8" fill-opacity="0.18" stroke="#bae6fd" stroke-width="3"/>
+            <path d="M30,30 A26,26 0 0,1 70,30" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+            <path d="M68,64 Q60,70 54,66" fill="none" stroke="#475569" stroke-width="2"/>
+            <circle cx="53" cy="66" r="2" fill="#ef4444"/>
+          </svg>`;
+        case 'whiskers_cool':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="50" r="46" fill="#083344" stroke="#06b6d4" stroke-width="3"/>
+            <circle cx="50" cy="56" r="28" fill="#67e8f9" stroke="#0e7490" stroke-width="2.5"/>
+            <polygon points="30,42 18,18 42,34" fill="#22d3ee" stroke="#0e7490" stroke-width="2"/>
+            <polygon points="28,38 24,24 36,34" fill="#cffafe"/>
+            <polygon points="70,42 82,18 58,34" fill="#22d3ee" stroke="#0e7490" stroke-width="2"/>
+            <polygon points="72,38 76,24 64,34" fill="#cffafe"/>
+            <rect x="24" y="46" width="23" height="15" rx="5" fill="#0f172a" stroke="#0891b2" stroke-width="2"/>
+            <rect x="53" y="46" width="23" height="15" rx="5" fill="#0f172a" stroke="#0891b2" stroke-width="2"/>
+            <line x1="47" y1="52" x2="53" y2="52" stroke="#0891b2" stroke-width="2.5"/>
+            <line x1="28" y1="49" x2="38" y2="57" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+            <line x1="57" y1="49" x2="67" y2="57" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+            <path d="M48,68 Q54,73 60,68" fill="none" stroke="#0e7490" stroke-width="2" stroke-linecap="round"/>
+            <line x1="16" y1="64" x2="32" y2="65" stroke="#e0f2fe" stroke-width="2"/>
+            <line x1="18" y1="71" x2="31" y2="69" stroke="#e0f2fe" stroke-width="2"/>
+            <line x1="84" y1="64" x2="68" y2="65" stroke="#e0f2fe" stroke-width="2"/>
+            <line x1="82" y1="71" x2="69" y2="69" stroke="#e0f2fe" stroke-width="2"/>
+          </svg>`;
+        case 'molten_mittens':
+          return `<svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="50" r="46" fill="#431407" stroke="#ea580c" stroke-width="3"/>
+            <circle cx="50" cy="56" r="28" fill="#1c1917" stroke="#7c2d12" stroke-width="2.5"/>
+            <polygon points="30,42 18,18 42,34" fill="#292524" stroke="#ea580c" stroke-width="2"/>
+            <polygon points="28,38 24,24 36,34" fill="#f97316"/>
+            <polygon points="70,42 82,18 58,34" fill="#292524" stroke="#ea580c" stroke-width="2"/>
+            <polygon points="72,38 76,24 64,34" fill="#f97316"/>
+            <path d="M50,30 L48,42 L42,46 M50,30 L54,38 L60,44" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M35,68 L44,66 L48,72 M65,68 L56,66 L52,72" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="38" cy="52" r="5.5" fill="#facc15" stroke="#ea580c" stroke-width="2"/>
+            <circle cx="62" cy="52" r="5.5" fill="#facc15" stroke="#ea580c" stroke-width="2"/>
+            <circle cx="38" cy="52" r="2.5" fill="#dc2626"/>
+            <circle cx="62" cy="52" r="2.5" fill="#dc2626"/>
+            <circle cx="28" cy="24" r="1.5" fill="#fef08a"/>
+            <circle cx="74" cy="22" r="1.5" fill="#f97316"/>
+            <circle cx="50" cy="12" r="2" fill="#f97316"/>
+          </svg>`;
         case 'sharky':
           return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#0284c7"/><path d="M25,65 Q50,20 75,65 Z" fill="#e0f2fe"/><circle cx="42" cy="45" r="5" fill="#000"/><circle cx="58" cy="45" r="5" fill="#000"/><polygon points="35,62 40,56 45,62 50,56 55,62 60,56 65,62" fill="#fff"/></svg>`;
         case 'bacon_cat':
@@ -1746,7 +2179,7 @@
         case 'lydia':
           return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#8b5cf6"/><polygon points="50,20 40,35 60,35" fill="#f472b6"/><circle cx="38" cy="52" r="5" fill="#000"/><circle cx="62" cy="52" r="5" fill="#000"/><ellipse cx="50" cy="65" rx="5" ry="3" fill="#f43f5e"/></svg>`;
         default:
-          return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#ea580c"/><circle cx="38" cy="46" r="5" fill="#fff"/><circle cx="62" cy="46" r="5" fill="#fff"/><circle cx="39" cy="46" r="2.5" fill="#000"/><circle cx="61" cy="46" r="2.5" fill="#000"/><path d="M40,65 Q50,75 60,65" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>`;
+          return `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="46" fill="#0284c7"/><circle cx="50" cy="56" r="28" fill="#e0f2fe"/><polygon points="30,42 20,18 42,34" fill="#bae6fd"/><polygon points="70,42 80,18 58,34" fill="#bae6fd"/><circle cx="38" cy="50" r="5" fill="#0c4a6e"/><circle cx="62" cy="50" r="5" fill="#0c4a6e"/><polygon points="48,60 52,60 50,63" fill="#f43f5e"/></svg>`;
       }
     }
 
@@ -2514,6 +2947,13 @@
         }
         localGameState = state;
         renderGameTable(state);
+
+        if (state.turnState !== 'NOPE_WINDOW') {
+          clearNopeWindow();
+        }
+        if (state.turnState !== 'DEFUSING' && state.turnState !== 'AWAITING_DEFUSE') {
+          clearEmergencyDefuse();
+        }
       });
 
       // Discard browser for 5-card combo
@@ -2615,6 +3055,7 @@
       });
 
       socket.on('kitten_defused', (data) => {
+        clearEmergencyDefuse();
         if (data.card) {
           const origin = (data.playerId === socket.id && lastPlayedCardOrigin) ? lastPlayedCardOrigin : data.playerId;
           lastPlayedCardOrigin = null;
@@ -2629,11 +3070,28 @@
       });
 
       socket.on('player_exploded', (data) => {
+        clearEmergencyDefuse();
         triggerExplosionVisual();
         showComboNotification('💥 DETONATION!', `${data.playerName || 'Technician'} drew a Combustion Cat and suffered vaporisation!`, '💥');
         if (data.playerId) {
           showSpeechBubble(data.playerId, '💥 ME-OWCH! Meltdown!', 'explosion');
         }
+      });
+
+      socket.on('bomb_drawn', (data) => {
+        handleBombDrawn(data);
+      });
+
+      socket.on('nope_window_started', (data) => {
+        handleNopeWindowStarted(data);
+      });
+
+      socket.on('nope_played', (data) => {
+        handleNopePlayed(data);
+      });
+
+      socket.on('action_noped', (data) => {
+        handleActionNoped(data);
       });
 
       socket.on('game_over', (data) => {
@@ -2646,6 +3104,15 @@
 
       socket.on('player_reacted', (data) => {
         showAvatarReaction(data.playerId, data.reactionText);
+      });
+
+      socket.on('player_profile_updated', (data) => {
+        if (data.playerId === socket.id) {
+          const nameInput = document.getElementById('user-name');
+          if (nameInput) nameInput.value = data.name;
+          const avatarSelect = document.getElementById('user-avatar');
+          if (avatarSelect) avatarSelect.value = data.avatarId;
+        }
       });
 
       socket.on('kicked', () => {
@@ -2684,18 +3151,50 @@
         const displayName = String(p.name || 'Technician').slice(0, 30);
         const card = document.createElement('div');
         card.id = `lobby-player-${p.id}`;
+        card.setAttribute('data-player-id', p.id);
         card.className = `avatar-container flex flex-col items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-stone-900/90 border-3 ${
           p.isReady ? 'border-lime-500 shadow-[0_0_15px_rgba(132,204,22,0.3)]' : 'border-stone-800'
         } relative`;
 
+        const avatarMarkup = isMe
+          ? `
+            <div class="lobby-avatar-picker w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-amber-400 bg-stone-800 mb-2 relative cursor-pointer hover:scale-105 hover:border-yellow-300 hover:shadow-[0_0_15px_rgba(251,191,36,0.6)] transition-all duration-200 group" title="Click to choose your feline avatar">
+              ${getAvatarSVG(p.avatarId)}
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity rounded-full pointer-events-none">
+                <span class="text-xs">🔄</span>
+                <span class="font-bangers text-[9px] text-amber-300">CHANGE</span>
+              </div>
+              <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber-500 border border-stone-950 flex items-center justify-center text-[10px] shadow pointer-events-none">
+                ✏️
+              </div>
+            </div>
+          `
+          : `
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-stone-700 bg-stone-800 mb-2 relative">
+              ${getAvatarSVG(p.avatarId)}
+            </div>
+          `;
+
+        const nameMarkup = isMe
+          ? `
+            <div class="lobby-name-container flex flex-col items-center justify-center w-full px-1">
+              <div class="lobby-name-display font-bangers text-sm sm:text-base text-yellow-300 hover:text-yellow-100 text-center leading-tight break-words max-w-[140px] cursor-pointer flex items-center justify-center gap-1 group py-0.5 px-1.5 rounded-lg hover:bg-stone-800/80 border border-transparent hover:border-amber-500/50 transition-colors" title="Click to edit your codename">
+                <span class="lobby-player-name-text">${displayName}</span>
+                <span class="text-[11px] opacity-70 group-hover:opacity-100 group-hover:text-amber-300">✏️</span>
+              </div>
+              <span class="text-xs text-lime-400 font-bold">(YOU)</span>
+            </div>
+          `
+          : `
+            <div class="font-bangers text-sm sm:text-base text-yellow-300 text-center leading-tight break-words max-w-[140px] px-1">
+              ${displayName}
+            </div>
+          `;
+
         card.innerHTML = `
           ${p.isHost ? '<span class="absolute -top-3 bg-amber-500 text-stone-950 font-bangers text-[10px] px-2 py-0.5 rounded-full border border-stone-950 shadow">👑 HOST</span>' : ''}
-          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-stone-700 bg-stone-800 mb-2 relative">
-            ${getAvatarSVG(p.avatarId)}
-          </div>
-          <div class="font-bangers text-sm sm:text-base text-yellow-300 text-center leading-tight break-words max-w-[140px] px-1">
-            ${displayName} ${isMe ? '<br><span class="text-xs text-lime-400 font-bold">(YOU)</span>' : ''}
-          </div>
+          ${avatarMarkup}
+          ${nameMarkup}
           <div class="font-bangers text-xs mt-1.5 ${p.isReady ? 'text-lime-400' : 'text-stone-400'}">
             ${p.isBot ? '🤖 BOT' : p.isReady ? 'READY!' : 'WAITING...'}
           </div>
@@ -2705,6 +3204,91 @@
               : ''
           }
         `;
+
+        // Attach direct click-to-edit listeners for current player
+        if (isMe) {
+          // 1. Avatar Click -> Open Avatar Selection Modal
+          const avatarBtn = card.querySelector('.lobby-avatar-picker');
+          if (avatarBtn) {
+            avatarBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              openAvatarSelectionModal(p.avatarId, p.name);
+            });
+          }
+
+          // 2. Name Click -> Inline Edit Input
+          const nameDisplay = card.querySelector('.lobby-name-display');
+          if (nameDisplay) {
+            nameDisplay.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (card.querySelector('.lobby-name-input')) return;
+
+              const currentName = p.name || 'Technician';
+              const input = document.createElement('input');
+              input.type = 'text';
+              input.maxLength = 15;
+              input.value = currentName;
+              input.className = 'lobby-name-input w-full max-w-[130px] bg-stone-950 text-amber-300 font-bangers text-sm text-center px-2 py-1 rounded-lg border-2 border-amber-400 outline-none shadow-lg focus:border-yellow-300';
+
+              let committed = false;
+              const commit = () => {
+                if (committed) return;
+                committed = true;
+                const cleanName = input.value.trim().slice(0, 15);
+                const finalName = cleanName.length > 0 ? cleanName : currentName;
+                p.name = finalName;
+
+                // Sync main menu input
+                const menuInput = document.getElementById('user-name');
+                if (menuInput) menuInput.value = finalName;
+
+                // Sync live to room via socket
+                if (socket && currentRoomId) {
+                  socket.emit('update_profile', {
+                    roomId: currentRoomId,
+                    name: finalName,
+                    avatarId: p.avatarId,
+                  });
+                }
+
+                nameDisplay.innerHTML = `
+                  <span class="lobby-player-name-text">${finalName}</span>
+                  <span class="text-[11px] opacity-70 group-hover:opacity-100 group-hover:text-amber-300">✏️</span>
+                `;
+                if (input.parentNode) input.replaceWith(nameDisplay);
+              };
+
+              const cancel = () => {
+                if (committed) return;
+                committed = true;
+                nameDisplay.innerHTML = `
+                  <span class="lobby-player-name-text">${currentName}</span>
+                  <span class="text-[11px] opacity-70 group-hover:opacity-100 group-hover:text-amber-300">✏️</span>
+                `;
+                if (input.parentNode) input.replaceWith(nameDisplay);
+              };
+
+              input.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Enter') {
+                  ev.preventDefault();
+                  commit();
+                } else if (ev.key === 'Escape') {
+                  ev.preventDefault();
+                  cancel();
+                }
+              });
+
+              input.addEventListener('blur', () => {
+                commit();
+              });
+
+              nameDisplay.replaceWith(input);
+              input.focus();
+              input.select();
+            });
+          }
+        }
+
         grid.appendChild(card);
       });
 
@@ -2761,6 +3345,429 @@
       socket.emit('kick_player', { roomId: currentRoomId, targetId });
     };
 
+    // --- AVATAR SELECTION MODAL SYSTEM ---
+    let avatarModalCurrentAvatarId = 'dr_singe';
+    let avatarModalCurrentPlayerName = 'Operator 1';
+
+    function openAvatarSelectionModal(currentAvatarId, playerName) {
+      avatarModalCurrentAvatarId = currentAvatarId || 'dr_singe';
+      avatarModalCurrentPlayerName = playerName || 'Operator 1';
+
+      const modal = document.getElementById('modal-avatar-select');
+      const grid = document.getElementById('avatar-selection-grid');
+      const nameTag = document.getElementById('avatar-modal-current-name');
+      if (!modal || !grid) return;
+
+      if (nameTag) {
+        nameTag.innerText = `TECHNICIAN: ${avatarModalCurrentPlayerName.toUpperCase()}`;
+      }
+
+      grid.innerHTML = '';
+      AVATAR_PRESETS.forEach((preset) => {
+        const isSelected = preset.id === avatarModalCurrentAvatarId;
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = `avatar-option-btn flex flex-col items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-stone-900/90 border-3 transition-all duration-200 cursor-pointer text-center relative group ${
+          isSelected
+            ? 'border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6)] scale-102 bg-stone-800'
+            : 'border-stone-800 hover:border-amber-500/60 hover:scale-101 hover:bg-stone-850'
+        }`;
+        item.setAttribute('data-avatar-id', preset.id);
+
+        item.innerHTML = `
+          ${isSelected ? '<span class="absolute -top-2.5 right-2 bg-amber-400 text-stone-950 font-bangers text-[10px] px-1.5 py-0.2 rounded-full border border-stone-950 font-bold shadow">SELECTED ✓</span>' : ''}
+          <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 ${isSelected ? 'border-amber-300' : 'border-stone-700 group-hover:border-amber-400'} bg-stone-800 mb-1.5 transition-colors">
+            ${getAvatarSVG(preset.id)}
+          </div>
+          <div class="font-bangers text-xs sm:text-sm text-yellow-300 group-hover:text-yellow-100 leading-tight">
+            ${preset.icon} ${preset.name}
+          </div>
+          <div class="font-fredoka text-[10px] text-stone-400 group-hover:text-stone-300 leading-tight mt-0.5 line-clamp-2">
+            ${preset.desc}
+          </div>
+        `;
+
+        item.addEventListener('click', () => {
+          selectAvatarPreset(preset.id);
+        });
+
+        grid.appendChild(item);
+      });
+
+      modal.classList.remove('hidden');
+    }
+
+    function selectAvatarPreset(selectedId) {
+      avatarModalCurrentAvatarId = selectedId;
+
+      // Update menu select as well
+      const menuAvatarSelect = document.getElementById('user-avatar');
+      if (menuAvatarSelect) {
+        menuAvatarSelect.value = selectedId;
+      }
+
+      // If in a room, emit update_profile
+      if (socket && currentRoomId) {
+        socket.emit('update_profile', {
+          roomId: currentRoomId,
+          name: avatarModalCurrentPlayerName,
+          avatarId: selectedId,
+        });
+      }
+
+      closeAvatarSelectionModal();
+      playSFX('bubblePop');
+    }
+
+    function closeAvatarSelectionModal() {
+      const modal = document.getElementById('modal-avatar-select');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // Modal close and confirm triggers
+    document.getElementById('btn-close-avatar-modal').addEventListener('click', closeAvatarSelectionModal);
+    document.getElementById('btn-done-avatar-modal').addEventListener('click', () => {
+      selectAvatarPreset(avatarModalCurrentAvatarId);
+    });
+    document.getElementById('modal-avatar-select').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal-avatar-select')) {
+        closeAvatarSelectionModal();
+      }
+    });
+
+    // --- SITUATION-SPECIFIC CARD RESTRICTIONS & PLAYABILITY ---
+    function getCardPlayability(card, state) {
+      if (!state) return { isPlayable: true, isDisabled: false };
+      const myId = state.myId || socket.id;
+      const isDefusing = state.turnState === 'DEFUSING' || state.turnState === 'AWAITING_DEFUSE';
+      const isNopeWindow = state.turnState === 'NOPE_WINDOW';
+      const defusingPlayerId = state.turnStateData?.defusingPlayerId;
+      const defusingSocketId = state.turnStateData?.defusingSocketId || state.turnStateData?.targetSocketId;
+      const isMyDefuse = isDefusing && (defusingPlayerId === myId || defusingSocketId === socket.id);
+
+      // 1. EMERGENCY DEFUSE STATE (Combustion Cat Drawn)
+      if (isDefusing) {
+        if (isMyDefuse) {
+          if (card.type === 'COOLANT_FOAM' || card.type === 'DEFUSE') {
+            return {
+              isPlayable: true,
+              isDisabled: false,
+              isPulseDefuse: true,
+              reason: 'Click to deploy Coolant Foam and neutralize the Combustion Cat!'
+            };
+          }
+          return {
+            isPlayable: false,
+            isDisabled: true,
+            reason: 'Emergency defusal! You can ONLY play Coolant Foam (Defuse) right now!'
+          };
+        } else {
+          return {
+            isPlayable: false,
+            isDisabled: true,
+            reason: 'Emergency defusal in progress! Wait for operator to defuse or explode.'
+          };
+        }
+      }
+
+      // 2. NOPE INTERRUPTION WINDOW
+      if (isNopeWindow) {
+        if (card.type === 'NOPE') {
+          return {
+            isPlayable: true,
+            isDisabled: false,
+            isPulseNope: true,
+            reason: 'Click to slap NOPE and cancel the pending action!'
+          };
+        }
+        return {
+          isPlayable: false,
+          isDisabled: true,
+          reason: 'Nope window active! Only Nope cards can be played right now.'
+        };
+      }
+
+      // 3. NORMAL TURN
+      // Coolant Foam cannot be played arbitrarily
+      if (card.type === 'COOLANT_FOAM' || card.type === 'DEFUSE') {
+        return {
+          isPlayable: false,
+          isDisabled: true,
+          reason: 'Coolant Foam can only be used when you draw a Combustion Cat!'
+        };
+      }
+
+      // Nope cannot be played outside of an active Nope window
+      if (card.type === 'NOPE') {
+        return {
+          isPlayable: false,
+          isDisabled: true,
+          reason: 'Nope cards can only be played to interrupt an action during a Nope window!'
+        };
+      }
+
+      // Action & Cat cards can only be played on your turn
+      if (!state.isMyTurn) {
+        return {
+          isPlayable: false,
+          isDisabled: true,
+          reason: "It is not your turn! Wait for your turn to play action cards."
+        };
+      }
+
+      return { isPlayable: true, isDisabled: false };
+    }
+
+    // --- REAL-TIME NOPE INTERRUPTION SYSTEM ---
+    let nopeCountdownInterval = null;
+    let nopeDurationMs = 3500;
+    let nopeStartTime = 0;
+    let currentPendingAction = null;
+
+    function handleNopeWindowStarted(data) {
+      currentPendingAction = data.pendingAction;
+      nopeDurationMs = data.durationMs || 3500;
+      nopeStartTime = Date.now();
+
+      const banner = document.getElementById('nope-window-banner');
+      const actionText = document.getElementById('nope-banner-action-text');
+      const timerText = document.getElementById('nope-banner-timer-text');
+      const progressBar = document.getElementById('nope-progress-bar');
+      const statusSubtitle = document.getElementById('nope-status-subtitle');
+      const btnSlapNope = document.getElementById('btn-slap-nope');
+
+      if (!banner) return;
+
+      const actTitle = currentPendingAction?.cardTitle || currentPendingAction?.card?.title || 'ACTION';
+      const pName = currentPendingAction?.sourcePlayerName || 'PLAYER';
+      if (actionText) actionText.innerText = `${pName.toUpperCase()} PLAYED ${actTitle.toUpperCase()}`;
+      if (statusSubtitle) {
+        statusSubtitle.innerText = '⚡ Any technician holding a Nope card can slap to cancel!';
+        statusSubtitle.className = 'font-fredoka text-xs text-yellow-200 mt-1.5 font-medium';
+      }
+
+      banner.classList.remove('hidden');
+      if (progressBar) progressBar.style.width = '100%';
+
+      const hasNope = localGameState?.myHand?.some((c) => c.type === 'NOPE');
+      const isAlive = !localGameState?.isDead;
+
+      if (hasNope && isAlive && btnSlapNope) {
+        btnSlapNope.classList.remove('hidden');
+      } else if (btnSlapNope) {
+        btnSlapNope.classList.add('hidden');
+      }
+
+      if (localGameState) {
+        renderGameTable(localGameState);
+      }
+
+      clearInterval(nopeCountdownInterval);
+      nopeCountdownInterval = setInterval(() => {
+        const elapsed = Date.now() - nopeStartTime;
+        const remaining = Math.max(0, nopeDurationMs - elapsed);
+        const pct = Math.max(0, (remaining / nopeDurationMs) * 100);
+
+        if (progressBar) progressBar.style.width = `${pct}%`;
+        if (timerText) timerText.innerText = `${(remaining / 1000).toFixed(1)}s`;
+
+        if (remaining <= 0) {
+          clearInterval(nopeCountdownInterval);
+        }
+      }, 50);
+    }
+
+    function handleNopePlayed(data) {
+      if (sounds && sounds.nopeSlap) sounds.nopeSlap();
+      spawnComicImpactWord(window.innerWidth / 2, window.innerHeight / 2 - 40);
+
+      const banner = document.getElementById('nope-window-banner');
+      const actionText = document.getElementById('nope-banner-action-text');
+      const statusSubtitle = document.getElementById('nope-status-subtitle');
+      const progressBar = document.getElementById('nope-progress-bar');
+      const timerText = document.getElementById('nope-banner-timer-text');
+      const btnSlapNope = document.getElementById('btn-slap-nope');
+
+      nopeDurationMs = data.durationMs || 2500;
+      nopeStartTime = Date.now();
+
+      const isNoped = (data.nopeCount % 2 === 1);
+      if (actionText) {
+        if (isNoped) {
+          actionText.innerHTML = `<span class="text-rose-400">🚫 NOPED! Action will be cancelled...</span>`;
+          if (statusSubtitle) {
+            statusSubtitle.innerText = `${data.noperName.toUpperCase()} slapped a NOPE! (Nope Chain: #${data.nopeCount})`;
+            statusSubtitle.className = 'font-fredoka text-xs text-rose-300 mt-1.5 font-bold animate-pulse';
+          }
+        } else {
+          actionText.innerHTML = `<span class="text-emerald-400">✅ NOPE NOPED! Action will proceed...</span>`;
+          if (statusSubtitle) {
+            statusSubtitle.innerText = `${data.noperName.toUpperCase()} counter-noped! (Nope Chain: #${data.nopeCount})`;
+            statusSubtitle.className = 'font-fredoka text-xs text-emerald-300 mt-1.5 font-bold animate-pulse';
+          }
+        }
+      }
+
+      if (progressBar) progressBar.style.width = '100%';
+
+      const hasNope = localGameState?.myHand?.some((c) => c.type === 'NOPE');
+      const isAlive = !localGameState?.isDead;
+      if (hasNope && isAlive && btnSlapNope) {
+        btnSlapNope.classList.remove('hidden');
+      }
+
+      if (localGameState) {
+        renderGameTable(localGameState);
+      }
+
+      clearInterval(nopeCountdownInterval);
+      nopeCountdownInterval = setInterval(() => {
+        const elapsed = Date.now() - nopeStartTime;
+        const remaining = Math.max(0, nopeDurationMs - elapsed);
+        const pct = Math.max(0, (remaining / nopeDurationMs) * 100);
+
+        if (progressBar) progressBar.style.width = `${pct}%`;
+        if (timerText) timerText.innerText = `${(remaining / 1000).toFixed(1)}s`;
+
+        if (remaining <= 0) {
+          clearInterval(nopeCountdownInterval);
+        }
+      }, 50);
+
+      showComboNotification(
+        isNoped ? '🚫 NOPE PLAYED!' : '⚡ COUNTER-NOPE!',
+        `${data.noperName} played NOPE! (Chain count: ${data.nopeCount})`,
+        '🚫'
+      );
+    }
+
+    function handleActionNoped(data) {
+      clearInterval(nopeCountdownInterval);
+      const banner = document.getElementById('nope-window-banner');
+      const actionText = document.getElementById('nope-banner-action-text');
+      const statusSubtitle = document.getElementById('nope-status-subtitle');
+      const btnSlapNope = document.getElementById('btn-slap-nope');
+
+      if (btnSlapNope) btnSlapNope.classList.add('hidden');
+
+      if (actionText) {
+        actionText.innerHTML = `<span class="text-rose-400">🚫 [${data.actionTitle}] was successfully NOPED!</span>`;
+      }
+      if (statusSubtitle) {
+        statusSubtitle.innerText = `Card discarded with zero effect!`;
+        statusSubtitle.className = 'font-fredoka text-xs text-stone-300 mt-1.5 font-bold';
+      }
+
+      showComboNotification('🚫 ACTION NOPED!', `[${data.actionTitle}] was successfully NOPED!`, '🚫');
+
+      setTimeout(() => {
+        clearNopeWindow();
+      }, 1600);
+    }
+
+    function clearNopeWindow() {
+      clearInterval(nopeCountdownInterval);
+      const banner = document.getElementById('nope-window-banner');
+      const btnSlapNope = document.getElementById('btn-slap-nope');
+      if (banner) banner.classList.add('hidden');
+      if (btnSlapNope) btnSlapNope.classList.add('hidden');
+      currentPendingAction = null;
+    }
+
+    function handlePlayNope() {
+      if (!socket || !currentRoomId) return;
+      socket.emit('play_nope', { roomId: currentRoomId });
+      if (sounds && sounds.nopeSlap) sounds.nopeSlap();
+      const btnSlapNope = document.getElementById('btn-slap-nope');
+      if (btnSlapNope) btnSlapNope.classList.add('hidden');
+    }
+
+    // --- EMERGENCY COMBUSTION CAT DEFUSE STATE ---
+    let defuseCountdownInterval = null;
+    let defuseDurationMs = 7000;
+    let defuseStartTime = 0;
+
+    function handleBombDrawn(data) {
+      defuseDurationMs = data.durationMs || 7000;
+      defuseStartTime = Date.now();
+
+      if (sounds && sounds.alarm) sounds.alarm();
+      vfx.coolantSpray(window.innerWidth / 2, window.innerHeight / 2);
+
+      const vignette = document.getElementById('screen-vignette-alarm');
+      if (vignette) vignette.classList.remove('hidden');
+
+      const banner = document.getElementById('emergency-defuse-banner');
+      const title = document.getElementById('emergency-defuse-title');
+      const subtitle = document.getElementById('emergency-defuse-subtitle');
+      const progressBar = document.getElementById('defuse-progress-bar');
+      const timerSec = document.getElementById('emergency-timer-seconds');
+      const actionHint = document.getElementById('emergency-defuse-action-hint');
+
+      const isMe = data.playerId === (localGameState?.myId || socket.id);
+
+      if (banner) {
+        banner.classList.remove('hidden');
+        if (isMe) {
+          title.innerText = '⚠️ COMBUSTION CAT DRAWN! DEFUSE OR EXPLODE! ⚠️';
+          title.className = 'font-bangers text-2xl sm:text-3xl text-red-400 tracking-wider animate-pulse';
+          subtitle.innerText = data.hasDefuse
+            ? 'DEPLOY COOLANT FOAM NOW TO DEFUSE AND HIDE THE CAT!'
+            : 'NO COOLANT FOAM IN HAND! REACTOR MELTDOWN IMMINENT!';
+          actionHint.innerText = data.hasDefuse ? '👉 CLICK GLOWING COOLANT FOAM CARD TO DEFUSE! 👈' : '💀 IMMINENT MELTDOWN! 💀';
+          actionHint.className = data.hasDefuse ? 'text-emerald-400 font-bold animate-bounce' : 'text-red-500 font-bold animate-ping';
+          if (data.hasDefuse) {
+            banner.style.cursor = 'pointer';
+            banner.onclick = () => showDefuseModal();
+          }
+        } else {
+          title.innerText = `⚠️ ${data.playerName.toUpperCase()} DREW A COMBUSTION CAT! ⚠️`;
+          title.className = 'font-bangers text-2xl sm:text-3xl text-red-400 tracking-wider';
+          subtitle.innerText = `${data.playerName} has 7 seconds to deploy Coolant Foam or explode!`;
+          actionHint.innerText = 'OBSERVING REACTOR CORE...';
+          actionHint.className = 'text-yellow-300 font-bold';
+        }
+      }
+
+      if (progressBar) progressBar.style.width = '100%';
+
+      if (localGameState) {
+        renderGameTable(localGameState);
+      }
+
+      clearInterval(defuseCountdownInterval);
+      defuseCountdownInterval = setInterval(() => {
+        const elapsed = Date.now() - defuseStartTime;
+        const remaining = Math.max(0, defuseDurationMs - elapsed);
+        const pct = Math.max(0, (remaining / defuseDurationMs) * 100);
+
+        if (progressBar) progressBar.style.width = `${pct}%`;
+        if (timerSec) timerSec.innerText = `${(remaining / 1000).toFixed(1)}s REMAINING`;
+
+        if (remaining <= 0) {
+          clearInterval(defuseCountdownInterval);
+        }
+      }, 50);
+
+      if (localGameState) {
+        renderGameTable(localGameState);
+      }
+    }
+
+    function clearEmergencyDefuse() {
+      clearInterval(defuseCountdownInterval);
+      const vignette = document.getElementById('screen-vignette-alarm');
+      if (vignette) vignette.classList.add('hidden');
+      const banner = document.getElementById('emergency-defuse-banner');
+      if (banner) banner.classList.add('hidden');
+      const modal = document.getElementById('modal-defuse');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function showToast(msg, icon = '⚠️') {
+      showComboNotification('ATTENTION', msg, icon);
+    }
+
     // --- GAME TABLE RENDERER ---
     function renderGameTable(state) {
       // 1. Gauge needle and percentage
@@ -2784,7 +3791,7 @@
         drawBadge.classList.add('hidden');
       }
 
-      // 3. Top Discard Card
+      // 3. Top Discard Card & Discard Pile Count
       const discardSlot = document.getElementById('discard-card-slot');
       if (state.topDiscard) {
         discardSlot.className = 'w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-white shadow-xl overflow-hidden relative select-none';
@@ -2794,6 +3801,18 @@
         discardSlot.className = 'w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-black/40 border-3 border-dashed border-stone-700 flex flex-col items-center justify-center p-2 text-center relative';
         discardSlot.style.transform = 'rotate(0deg)';
         discardSlot.innerHTML = `<span class="font-bangers text-stone-500 text-sm">DISCARD PILE</span>`;
+      }
+
+      const discardCountBadge = document.getElementById('discard-count-badge');
+      if (discardCountBadge) {
+        const dCount = (state.discardPile || []).length;
+        discardCountBadge.innerText = `${dCount} ${dCount === 1 ? 'card' : 'cards'}`;
+      }
+
+      // Live update Discard History Modal if currently open
+      const discardModal = document.getElementById('discardHistoryModal');
+      if (discardModal && !discardModal.classList.contains('hidden')) {
+        renderDiscardHistoryGrid();
       }
 
       // 4. Parchment Log
@@ -2819,7 +3838,8 @@
         const displayName = String(p.name || 'Technician').slice(0, 30);
         const opp = document.createElement('div');
         opp.id = `opp-box-${p.id}`;
-        opp.className = `avatar-container flex flex-col items-center justify-between p-2 sm:p-2.5 rounded-2xl border-3 transition-all ${
+        opp.setAttribute('data-player-id', p.id);
+        opp.className = `player-pedestal top-player avatar-container flex flex-col items-center justify-between p-2 sm:p-2.5 rounded-2xl border-3 transition-all ${
           p.isDead
             ? 'opacity-40 border-stone-900 bg-stone-950/70'
             : isActive
@@ -2848,6 +3868,9 @@
       const myP = state.players.find((p) => p.id === state.myId);
       const myAvatarBox = document.getElementById('my-avatar-box');
       if (myP && myAvatarBox) {
+        myAvatarBox.setAttribute('data-player-id', myP.id);
+        if (!myAvatarBox.classList.contains('player-pedestal')) myAvatarBox.classList.add('player-pedestal');
+        if (!myAvatarBox.classList.contains('local-player')) myAvatarBox.classList.add('local-player');
         document.getElementById('my-avatar-icon').innerHTML = getAvatarSVG(myP.avatarId);
         document.getElementById('my-avatar-name').innerText = myP.name || 'You';
         document.getElementById('my-avatar-cards-count').innerText = `${(state.myHand || []).length} cards`;
@@ -2868,12 +3891,36 @@
 
       (state.myHand || []).forEach((card) => {
         const isSelected = selectedCards.some((c) => c.id === card.id);
+        const cardPlay = getCardPlayability(card, state);
+
         const cardElem = document.createElement('div');
-        cardElem.className = `card card-item ${isSelected ? 'selected' : ''}`;
+        const classList = ['card', 'card-item'];
+        if (isSelected) classList.push('selected');
+        if (cardPlay.isDisabled) classList.push('disabled');
+        if (cardPlay.isPulseDefuse) classList.push('defuse-pulse');
+        if (cardPlay.isPulseNope) classList.push('nope-pulse');
+
+        cardElem.className = classList.join(' ');
         cardElem.style.borderColor = isSelected ? '#f59e0b' : (card.badgeColor || '#e0e0e0');
+        if (cardPlay.reason) {
+          cardElem.title = cardPlay.reason;
+        }
         cardElem.innerHTML = renderComicCardHTML(card);
 
         cardElem.addEventListener('click', () => {
+          if (cardPlay.isPulseDefuse) {
+            showDefuseModal();
+            return;
+          }
+          if (cardPlay.isPulseNope) {
+            handlePlayNope();
+            return;
+          }
+          if (cardPlay.isDisabled) {
+            showToast(cardPlay.reason, '⚠️');
+            if (sounds && sounds.bubblePop) sounds.bubblePop();
+            return;
+          }
           toggleSelectCard(card);
         });
 
@@ -2884,7 +3931,13 @@
       updatePlayButton();
 
       // 9. Check for Defuse required or Favor prompted
-      if (state.turnState === 'AWAITING_DEFUSE' && state.turnStateData?.targetSocketId === socket.id) {
+      const isDefusing = state.turnState === 'DEFUSING' || state.turnState === 'AWAITING_DEFUSE';
+      const myId = state.myId || socket.id;
+      const defusingPlayerId = state.turnStateData?.defusingPlayerId;
+      const defusingSocketId = state.turnStateData?.defusingSocketId || state.turnStateData?.targetSocketId;
+      const isMyDefuse = isDefusing && (defusingPlayerId === myId || defusingSocketId === socket.id);
+
+      if (isMyDefuse) {
         showDefuseModal();
       } else {
         document.getElementById('modal-defuse').classList.add('hidden');
@@ -2952,9 +4005,27 @@
         return { valid: false, type: null, playLabel: 'PLAY CARD', desc: 'Select card(s) to play', bannerText: null };
       }
 
-      // Single card - STRICT: Cat cards cannot be played alone!
+      // Single card - STRICT: Cat cards cannot be played alone! Also Defuse and Nope cannot be played arbitrarily!
       if (cards.length === 1) {
         const c = cards[0];
+        if (c.type === 'COOLANT_FOAM' || c.type === 'DEFUSE') {
+          return {
+            valid: false,
+            type: 'DEFUSE_INVALID',
+            playLabel: 'CANNOT PLAY DEFUSE ARBITRARILY',
+            desc: 'Coolant Foam can only be deployed when a Combustion Cat is drawn!',
+            bannerText: null
+          };
+        }
+        if (c.type === 'NOPE') {
+          return {
+            valid: false,
+            type: 'NOPE_INVALID',
+            playLabel: 'NOPE CAN ONLY INTERRUPT',
+            desc: 'Nope cards can only be played to interrupt during a Nope window!',
+            bannerText: null
+          };
+        }
         if (c.category === 'cat') {
           return {
             valid: false,
@@ -3052,7 +4123,19 @@
 
     // --- CARD SELECTION & PLAY ---
     function toggleSelectCard(card) {
-      if (!localGameState || !localGameState.isMyTurn) return;
+      if (!localGameState) return;
+      const playability = getCardPlayability(card, localGameState);
+      if (playability.isDisabled) {
+        showToast(playability.reason, '⚠️');
+        if (sounds && sounds.bubblePop) sounds.bubblePop();
+        return;
+      }
+
+      if (!localGameState.isMyTurn) {
+        showToast("It is not your turn! Wait for your turn to play action cards.", '⚠️');
+        if (sounds && sounds.bubblePop) sounds.bubblePop();
+        return;
+      }
 
       const existingIdx = selectedCards.findIndex((c) => c.id === card.id);
       if (existingIdx !== -1) {
@@ -3083,9 +4166,15 @@
         clearBtn.classList.add('hidden');
       }
 
-      if (!localGameState || !localGameState.isMyTurn) {
+      if (!localGameState || !localGameState.isMyTurn || localGameState.turnState !== 'NORMAL') {
         btn.disabled = true;
-        btn.innerText = 'PLAY CARD';
+        if (localGameState?.turnState === 'DEFUSING' || localGameState?.turnState === 'AWAITING_DEFUSE') {
+          btn.innerText = 'EMERGENCY DEFUSE IN PROGRESS';
+        } else if (localGameState?.turnState === 'NOPE_WINDOW') {
+          btn.innerText = 'NOPE WINDOW ACTIVE';
+        } else {
+          btn.innerText = 'PLAY CARD';
+        }
         if (statusBar) statusBar.classList.add('hidden');
         updateComboBanner(null);
         return;
@@ -3260,6 +4349,7 @@
         const pos = btn.getAttribute('data-pos');
         socket.emit('defuse_kitten', { roomId: currentRoomId, position: pos });
         document.getElementById('modal-defuse').classList.add('hidden');
+        clearEmergencyDefuse();
       });
     });
 
@@ -3273,7 +4363,16 @@
       const val = parseInt(depthSlider.value);
       socket.emit('defuse_kitten', { roomId: currentRoomId, position: val });
       document.getElementById('modal-defuse').classList.add('hidden');
+      clearEmergencyDefuse();
     });
+
+    // Slap Nope floating button trigger
+    const btnSlapNopeEl = document.getElementById('btn-slap-nope');
+    if (btnSlapNopeEl) {
+      btnSlapNopeEl.addEventListener('click', () => {
+        handlePlayNope();
+      });
+    }
 
     // See Future Modal
     function showSeeFutureModal(cards) {
@@ -3845,12 +4944,11 @@
         const emote = btn.getAttribute('data-emote');
         if (emote) {
           if (socket && currentRoomId) {
-            socket.emit('send_chat', { roomId: currentRoomId, emote });
+            // Let the socket listener handle bubble creation exclusively
             socket.emit('send_reaction', { roomId: currentRoomId, reactionText: emote });
           } else {
-            // Local preview or fallback
+            // Local preview or fallback when disconnected
             showAvatarReaction(socket?.id || 'me', emote);
-            showSpeechBubble(socket?.id || 'me', emote, 'emote');
           }
         }
         const panel = document.getElementById('emote-popover-panel');
@@ -3898,10 +4996,9 @@
       const text = inputQuickChat.value.trim();
       if (!text) return;
       if (socket && currentRoomId) {
+        // Chat text emits send_chat, which triggers speech bubbles via chat_message
         socket.emit('send_chat', { roomId: currentRoomId, emote: text });
-        socket.emit('send_reaction', { roomId: currentRoomId, reactionText: text });
       } else {
-        showAvatarReaction(socket?.id || 'me', text);
         showSpeechBubble(socket?.id || 'me', text, 'emote');
       }
       inputQuickChat.value = '';
@@ -4063,7 +5160,11 @@
     function showAvatarReaction(playerId, reactionText) {
       if (!reactionText) return;
 
-      const targetElem = findPlayerVisualAnchor(playerId);
+      // Locate player visual anchor: strict data-player-id query first
+      let targetElem = document.querySelector(`[data-player-id="${playerId}"]`);
+      if (!targetElem) {
+        targetElem = findPlayerVisualAnchor(playerId);
+      }
       if (!targetElem) return;
 
       // Ensure relative positioning on target element
@@ -4071,18 +5172,31 @@
         targetElem.classList.add('relative');
       }
 
-      // Clean up previous reaction bubbles within this container
+      // Strict Deduplication Guard: remove any existing active reaction bubbles on this target
       const prevBubbles = targetElem.querySelectorAll('.reaction-bubble');
       prevBubbles.forEach((b) => b.remove());
 
       const bubble = document.createElement('div');
       bubble.className = 'reaction-bubble';
 
-      const isLobby = !document.getElementById('screen-lobby').classList.contains('hidden');
-      const rect = targetElem.getBoundingClientRect();
-      // In game mode top row (opponents), pop downward so it doesn't clip off screen
-      if (!isLobby && rect.top < 150) {
+      const isTopPlayer = targetElem.classList.contains('top-player') ||
+                          (targetElem.id && targetElem.id.startsWith('opp-box-')) ||
+                          (targetElem.closest && targetElem.closest('#game-opponents-row'));
+
+      if (isTopPlayer) {
         bubble.classList.add('bubble-down');
+        if (!targetElem.classList.contains('top-player')) {
+          targetElem.classList.add('top-player');
+        }
+      } else {
+        const isLobby = !document.getElementById('screen-lobby').classList.contains('hidden');
+        const rect = targetElem.getBoundingClientRect();
+        if (!isLobby && rect.top < 220) {
+          bubble.classList.add('bubble-down');
+          if (!targetElem.classList.contains('top-player')) {
+            targetElem.classList.add('top-player');
+          }
+        }
       }
 
       bubble.innerText = reactionText;
@@ -4091,28 +5205,209 @@
       // Play cartoon pop sound
       playSFX('bubblePop');
 
-      // Automatically remove bubble DOM element after 3-second animation ends
+      // Automatically remove bubble DOM element after 2.8-second animation ends
       setTimeout(() => {
         if (bubble.parentNode) {
           bubble.remove();
         }
-      }, 3000);
+      }, 2800);
     }
 
-    // Avatar Reaction Options (if present)
+    // Avatar Reaction Options: socket listener handles bubble creation exclusively
     document.querySelectorAll('.avatar-reaction-opt').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const reactionText = btn.getAttribute('data-reaction') || btn.innerText;
         if (socket && currentRoomId) {
+          // Do NOT spawn the bubble locally inside the click handler.
+          // Let the socket listener handle bubble creation exclusively.
           socket.emit('send_reaction', { roomId: currentRoomId, reactionText });
-          socket.emit('send_chat', { roomId: currentRoomId, emote: reactionText });
         } else {
-          // Preview or local fallback
+          // Preview or local fallback when disconnected
           showAvatarReaction(socket?.id || 'me', reactionText);
-          showSpeechBubble(socket?.id || 'me', reactionText, 'emote');
         }
       });
+    });
+
+    // ============================================================
+    // DISCARD PILE HISTORY VIEWER & SORT ENGINE
+    // ============================================================
+    let isDiscardSorted = false;
+
+    // Card Type Priority Ranking for Deterministic Sorting:
+    // Coolant Foam (Defuse) ➔ Thermal Blast (Attack) ➔ Emergency Evac (Skip) ➔
+    // Infrared Scan (See Future) ➔ Timeline Scramble ➔ Thermodynamic Vortex (Shuffle) ➔
+    // Feline Blackmail (Favor) ➔ Cat Cards ➔ Nope ➔ Explosions/Others
+    function getCardSortRank(type) {
+      const t = (type || '').toUpperCase();
+      if (t === 'COOLANT_FOAM' || t === 'DEFUSE') return 10;
+      if (t === 'THERMAL_BLAST' || t === 'ATTACK') return 20;
+      if (t === 'EMERGENCY_EVAC' || t === 'SKIP') return 30;
+      if (t === 'INFRARED_SCAN' || t === 'SEE_THE_FUTURE') return 40;
+      if (t === 'TIMELINE_SCRAMBLE' || t === 'ALTER_THE_FUTURE') return 50;
+      if (t === 'THERMODYNAMIC_VORTEX' || t === 'SHUFFLE') return 60;
+      if (t === 'FELINE_BLACKMAIL' || t === 'FAVOR') return 70;
+      if (t.startsWith('CAT_STATIC') || t === 'CAT_TACOCAT') return 80;
+      if (t.startsWith('CAT_NUCLEAR') || t === 'CAT_HAIRY_POTATO') return 81;
+      if (t.startsWith('CAT_PLASMA') || t === 'CAT_RAINBOW_RALPHING') return 82;
+      if (t.startsWith('CAT_VOLCANO') || t === 'CAT_BEARD') return 83;
+      if (t.startsWith('CAT_TICKING') || t === 'CAT_CATTERMELON') return 84;
+      if (t.startsWith('CAT_')) return 85;
+      if (t === 'NOPE') return 90;
+      if (t === 'COMBUSTION_CAT' || t === 'EXPLODING_KITTEN') return 100;
+      return 110;
+    }
+
+    function renderDiscardHistoryGrid() {
+      const modal = document.getElementById('discardHistoryModal');
+      const grid = document.getElementById('discard-history-grid');
+      const emptyState = document.getElementById('discard-history-empty');
+      const countLabel = document.getElementById('discard-history-count');
+      const sortBtn = document.getElementById('btn-toggle-discard-sort');
+      const sortBtnText = document.getElementById('discard-sort-btn-text');
+      const sortBtnIcon = document.getElementById('discard-sort-btn-icon');
+
+      if (!grid || !emptyState || !countLabel) return;
+
+      const rawDiscardPile = (localGameState && Array.isArray(localGameState.discardPile))
+        ? localGameState.discardPile
+        : [];
+
+      const totalCount = rawDiscardPile.length;
+      countLabel.innerText = `${totalCount} ${totalCount === 1 ? 'Card' : 'Cards'} Played`;
+
+      if (totalCount === 0) {
+        emptyState.classList.remove('hidden');
+        grid.classList.add('hidden');
+        if (sortBtn) sortBtn.classList.add('opacity-50', 'pointer-events-none');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      grid.classList.remove('hidden');
+      if (sortBtn) sortBtn.classList.remove('opacity-50', 'pointer-events-none');
+
+      // Update Sort Toggle Button Appearance
+      if (isDiscardSorted) {
+        sortBtnText.innerText = 'Show Chronological (Unsorted)';
+        sortBtnIcon.innerText = '🔀';
+        sortBtn.className = 'comic-btn px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 font-bangers text-xs sm:text-sm text-white flex items-center gap-1.5 shadow-md cursor-pointer transition-transform active:scale-95';
+      } else {
+        sortBtnText.innerText = 'Sort by Type';
+        sortBtnIcon.innerText = '📑';
+        sortBtn.className = 'comic-btn px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 font-bangers text-xs sm:text-sm text-stone-950 flex items-center gap-1.5 shadow-md cursor-pointer transition-transform active:scale-95';
+      }
+
+      // Prepare Cards
+      let displayCards = [];
+      if (isDiscardSorted) {
+        // Deterministically grouped by category priority
+        displayCards = rawDiscardPile.map((c, originalIdx) => ({ card: c, originalIndex: originalIdx }));
+        displayCards.sort((a, b) => {
+          const rankA = getCardSortRank(a.card.type);
+          const rankB = getCardSortRank(b.card.type);
+          if (rankA !== rankB) return rankA - rankB;
+          return (a.card.title || '').localeCompare(b.card.title || '');
+        });
+      } else {
+        // Chronological order: index 0 to N
+        displayCards = rawDiscardPile.map((c, idx) => ({ card: c, originalIndex: idx }));
+      }
+
+      grid.innerHTML = '';
+      displayCards.forEach((item, displayIdx) => {
+        const { card, originalIndex } = item;
+        const cardElem = document.createElement('div');
+        cardElem.className = 'w-full h-44 sm:h-52 rounded-2xl bg-white shadow-lg border-2 border-stone-950 overflow-hidden relative flex flex-col justify-between select-none hover:scale-102 hover:shadow-2xl transition-all duration-150';
+
+        // Render card comic HTML
+        cardElem.innerHTML = renderComicCardHTML(card);
+
+        // Sequence badge indicating play order
+        const seqBadge = document.createElement('div');
+        seqBadge.className = 'absolute top-1.5 right-1.5 z-20 font-bangers text-[10px] sm:text-xs bg-stone-950/85 text-yellow-300 border border-stone-800 px-1.5 py-0.5 rounded-md shadow-xs pointer-events-none';
+        if (originalIndex === totalCount - 1) {
+          seqBadge.className += ' bg-amber-900/90 text-amber-200 border-amber-500 ring-1 ring-amber-400';
+          seqBadge.innerText = `#${originalIndex + 1} (Latest)`;
+        } else if (originalIndex === 0) {
+          seqBadge.innerText = `#${originalIndex + 1} (First)`;
+        } else {
+          seqBadge.innerText = `#${originalIndex + 1}`;
+        }
+        cardElem.appendChild(seqBadge);
+
+        grid.appendChild(cardElem);
+      });
+    }
+
+    function openDiscardHistoryModal() {
+      const modal = document.getElementById('discardHistoryModal');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      renderDiscardHistoryGrid();
+      playSFX('buttonClick');
+    }
+
+    function closeDiscardHistoryModal() {
+      const modal = document.getElementById('discardHistoryModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function toggleDiscardSort() {
+      isDiscardSorted = !isDiscardSorted;
+      renderDiscardHistoryGrid();
+      playSFX('buttonClick');
+    }
+
+    // Bind Discard Pile Click Triggers
+    const discardPileWrapper = document.getElementById('discardPile');
+    if (discardPileWrapper) {
+      discardPileWrapper.addEventListener('click', () => {
+        openDiscardHistoryModal();
+      });
+    }
+
+    const discardCardSlot = document.getElementById('discard-card-slot');
+    if (discardCardSlot) {
+      discardCardSlot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openDiscardHistoryModal();
+      });
+    }
+
+    // Bind Discard History Modal Controls
+    const btnToggleDiscardSort = document.getElementById('btn-toggle-discard-sort');
+    if (btnToggleDiscardSort) {
+      btnToggleDiscardSort.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDiscardSort();
+      });
+    }
+
+    const btnCloseDiscardHistory = document.getElementById('btn-close-discard-history');
+    if (btnCloseDiscardHistory) {
+      btnCloseDiscardHistory.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeDiscardHistoryModal();
+      });
+    }
+
+    const discardHistoryModalEl = document.getElementById('discardHistoryModal');
+    if (discardHistoryModalEl) {
+      discardHistoryModalEl.addEventListener('click', (e) => {
+        if (e.target === discardHistoryModalEl) {
+          closeDiscardHistoryModal();
+        }
+      });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const histModal = document.getElementById('discardHistoryModal');
+        if (histModal && !histModal.classList.contains('hidden')) {
+          closeDiscardHistoryModal();
+        }
+      }
     });
 
     // --- DEEP LINKING SUPPORT (?room=KTN-789) ---
