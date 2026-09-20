@@ -41,12 +41,19 @@ export const TableTop: React.FC<TableTopProps> = ({
         {topOpponents.map((bot) => {
           const isActive = players[activePlayerIndex]?.id === bot.id;
           return (
-            <div key={bot.id} className="relative flex flex-col items-center group">
+            <div
+              key={bot.id}
+              className={`relative flex flex-col items-center group transition-all duration-300 ${
+                bot.isDead
+                  ? 'opacity-40 grayscale contrast-90 border-stone-900 bg-stone-950/80 rounded-2xl p-2 scale-95 pointer-events-none'
+                  : 'p-2'
+              }`}
+            >
               {/* Bot Name with Comic Outline */}
               <div className="relative mb-1">
                 <span
                   className={`font-bangers text-sm sm:text-base tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] ${
-                    bot.isDead ? 'text-stone-400 line-through' : 'text-amber-100'
+                    bot.isDead ? 'text-stone-500 line-through' : 'text-amber-100'
                   }`}
                 >
                   {bot.name.toUpperCase()}
@@ -69,8 +76,16 @@ export const TableTop: React.FC<TableTopProps> = ({
                   />
                 </div>
 
-                {/* Hand Cards Count Badge (matches screenshot red ribbon with cards fan) */}
-                {!bot.isDead && (
+                {/* Hand Cards Count or Eliminated Badge */}
+                {bot.isDead ? (
+                  <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-stone-900 border-2 border-stone-700 rounded-full px-2 py-0.5 flex items-center gap-1 shadow-md text-stone-400">
+                    <svg viewBox="0 0 24 28" className="w-2.5 h-3 text-stone-400 flex-shrink-0" fill="currentColor">
+                      <path d="M4 26h16v-14c0-4.42-3.58-8-8-8s-8 3.58-8 8v14z" fill="#44403c" stroke="#78716c" strokeWidth="1.2" />
+                      <path d="M12 7v7M9.5 10h5" stroke="#d6d3d1" strokeWidth="1.2" strokeLinecap="round" />
+                    </svg>
+                    <span className="font-bangers text-xs leading-none">R.I.P</span>
+                  </div>
+                ) : (
                   <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-red-600 border-2 border-stone-900 rounded-full px-2 py-0.5 flex items-center gap-1 shadow-md">
                     {/* Tiny card fan icon */}
                     <div className="w-3 h-3 flex items-center justify-center">

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Combustion Cats</title>
   <meta name="description" content="A browser-based real-time multiplayer card game featuring volatile felines, tactical coolant defusal, thermal attacks, combos, and procedural Web Audio SFX." />
   <meta property="og:title" content="Combustion Cats" />
@@ -49,6 +49,14 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <style>
+    /* Prevent bounce and text selection on touch devices */
+    body, html {
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+      overflow: hidden;
+    }
+
     /* Volcanic Laboratory Furnace Tabletop */
     .wood-tabletop {
       background-color: #1a0d08;
@@ -875,6 +883,433 @@
       white-space: nowrap;
       animation: opponentDrawnPopup 1.1s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
     }
+
+    /* ============================================================ */
+    /* ELIMINATED PLAYER VISUALS: GHOST OVERLAY, GRAVESTONE & DIMMING */
+    /* ============================================================ */
+    @keyframes ghostFloat {
+      0% {
+        transform: translateY(0px) scale(1);
+        opacity: 0.88;
+      }
+      50% {
+        transform: translateY(-4px) scale(1.08);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(0px) scale(1);
+        opacity: 0.88;
+      }
+    }
+
+    @keyframes spectralGlow {
+      0%, 100% {
+        box-shadow: 0 0 8px rgba(125, 211, 252, 0.45), inset 0 0 6px rgba(186, 230, 253, 0.5);
+      }
+      50% {
+        box-shadow: 0 0 16px rgba(56, 189, 248, 0.75), inset 0 0 12px rgba(186, 230, 253, 0.8);
+      }
+    }
+
+    /* Entire Pedestal UI Dimming */
+    .player-pedestal.eliminated {
+      opacity: 0.38 !important;
+      filter: grayscale(85%) contrast(85%) !important;
+      border-color: #292524 !important;
+      background: rgba(12, 10, 9, 0.85) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+      transform: scale(0.96);
+      transition: all 0.35s ease-in-out;
+      pointer-events: none !important;
+    }
+    .player-pedestal.eliminated:hover {
+      opacity: 0.55 !important;
+      filter: grayscale(45%) contrast(95%) !important;
+    }
+
+    /* Ghost effect overlay on avatar */
+    .avatar-ghost-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      background: radial-gradient(circle at center, rgba(186, 230, 253, 0.65) 0%, rgba(56, 189, 248, 0.38) 45%, rgba(15, 23, 42, 0.88) 100%);
+      backdrop-filter: blur(1.5px) saturate(40%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(186, 230, 253, 0.65);
+      animation: spectralGlow 3s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .avatar-ghost-overlay .ghost-symbol {
+      display: inline-block;
+      font-size: 1.4rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 8px rgba(165, 243, 252, 0.95));
+      animation: ghostFloat 2.6s ease-in-out infinite;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Small Gravestone Icon Badge */
+    .gravestone-badge {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      z-index: 25;
+      background: #1c1917;
+      border: 1.5px solid #78716c;
+      color: #d6d3d1;
+      border-radius: 6px;
+      padding: 1.5px 4px;
+      display: flex;
+      align-items: center;
+      gap: 2.5px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+      pointer-events: none;
+      font-family: 'Bangers', cursive, sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+
+    /* Mobile Inventory Trigger Button */
+    .inventory-btn {
+      display: none; /* Hidden on Desktop/Tablet by default */
+      width: 100%;
+      margin-top: 6px;
+      background: linear-gradient(135deg, #ff8c00, #ff5400);
+      color: #ffffff;
+      font-family: 'Bangers', cursive, sans-serif;
+      font-weight: 900;
+      font-size: 15px;
+      letter-spacing: 0.05em;
+      padding: 10px 14px;
+      border: 2.5px solid #1a0804;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 140, 0, 0.35);
+      cursor: pointer;
+      text-transform: uppercase;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-sizing: border-box;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .inventory-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 140, 0, 0.5);
+    }
+    .inventory-btn:active {
+      transform: translateY(1px);
+    }
+    .inventory-btn .badge {
+      background: #1c1917;
+      color: #fde047;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-family: 'Bangers', cursive, sans-serif;
+      font-size: 13px;
+      border: 1.5px solid #44403c;
+    }
+
+    /* Mobile Slide-Up Inventory Drawer / Sheet */
+    .inventory-drawer {
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+    .inventory-drawer.open {
+      transform: translateY(0%) !important;
+    }
+    #inventoryDrawerBackdrop.open {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    .drawer-cards-grid {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    /* Drawer Card Item Grid Overrides (prevents extreme hover lift clipping) */
+    .drawer-cards-grid .card,
+    .drawer-cards-grid .card-item {
+      width: 100% !important;
+      max-width: 160px !important;
+      min-width: 125px !important;
+      height: 220px !important;
+      min-height: 220px !important;
+      margin-left: 0 !important;
+      transform: none !important;
+      flex-shrink: 0;
+    }
+    .drawer-cards-grid .card:hover,
+    .drawer-cards-grid .card-item:hover {
+      transform: scale(1.03) !important;
+      z-index: 20 !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6) !important;
+    }
+    .drawer-cards-grid .card.selected,
+    .drawer-cards-grid .card-item.selected {
+      transform: scale(1.04) !important;
+      z-index: 30 !important;
+      border-color: #f59e0b !important;
+      outline: 3.5px solid #ffb703 !important;
+      box-shadow: 0 0 20px rgba(255, 183, 3, 0.85), 0 8px 18px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    /* ------------------------------------------------------------- */
+    /* 1. TABLET LAYOUT (601px - 1024px)                             */
+    /* ------------------------------------------------------------- */
+    @media (min-width: 601px) and (max-width: 1024px) {
+      /* Top Player Row: Centered with tight spacing */
+      #game-opponents-row,
+      .top-player-row {
+        justify-content: center !important;
+        gap: 8px !important;
+        padding: 4px 6px !important;
+      }
+
+      /* Scale down avatar circles to 48px x 48px */
+      #game-opponents-row .player-pedestal {
+        min-width: 88px !important;
+        max-width: 105px !important;
+        padding: 6px 4px !important;
+      }
+      #game-opponents-row .player-pedestal > div:first-child,
+      .avatar-wrapper,
+      .avatar-circle {
+        width: 48px !important;
+        height: 48px !important;
+        min-width: 48px !important;
+        min-height: 48px !important;
+        margin-bottom: 3px !important;
+      }
+      .avatar-ghost-overlay .ghost-symbol {
+        font-size: 1.15rem !important;
+      }
+      .gravestone-badge {
+        padding: 1px 3px !important;
+        font-size: 8px !important;
+        bottom: -3px !important;
+        right: -3px !important;
+      }
+      .gravestone-badge svg {
+        width: 10px !important;
+        height: 12px !important;
+      }
+      /* Smaller player name labels: 11px */
+      #game-opponents-row .player-pedestal .font-bangers {
+        font-size: 11px !important;
+        max-width: 90px !important;
+      }
+
+      /* Reaction bubbles scaled down to 85% */
+      .top-player .reaction-bubble,
+      .reaction-bubble.bubble-down,
+      .reaction-bubble {
+        transform: translateX(-50%) scale(0.85) !important;
+      }
+
+      /* Center Table Area: Scaled ~15% down */
+      main {
+        padding: 8px 12px !important;
+        gap: 16px !important;
+      }
+      main > div:nth-child(2) {
+        gap: 16px !important;
+      }
+
+      #deck-card,
+      #discard-card-slot {
+        width: 120px !important;
+        height: 180px !important;
+        min-width: 120px !important;
+        min-height: 180px !important;
+      }
+
+      /* Bottom Hand: Base width 130px, height 195px */
+      #player-hand-container .card,
+      #handContainer .card {
+        width: 130px !important;
+        min-width: 130px !important;
+        height: 195px !important;
+        min-height: 195px !important;
+        padding: 6px 7px !important;
+      }
+      #player-hand-container .card .card-art-frame,
+      #handContainer .card .card-art-frame {
+        height: 62px !important;
+      }
+      #player-hand-container .card .card-action-box,
+      #handContainer .card .card-action-box {
+        font-size: 9px !important;
+        line-height: 1.2 !important;
+        padding: 3px 5px !important;
+      }
+
+      /* Touch-swipe scrolling */
+      #handContainer,
+      #player-hand-container {
+        -webkit-overflow-scrolling: touch !important;
+        overflow-x: auto !important;
+      }
+    }
+
+    /* ------------------------------------------------------------- */
+    /* 2. MOBILE SMARTPHONE LAYOUT (<= 600px)                        */
+    /* ------------------------------------------------------------- */
+    @media (max-width: 600px) {
+      /* Centered top player row */
+      .top-player-row,
+      #game-opponents-row {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 5px !important;
+        padding: 4px 4px !important;
+        width: 100% !important;
+      }
+      .player-pedestal {
+        min-width: 50px !important;
+        max-width: 62px !important;
+        padding: 4px 2px !important;
+        border-radius: 10px !important;
+      }
+      .avatar-wrapper,
+      .avatar-circle,
+      #game-opponents-row .player-pedestal > div:first-child {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        margin-bottom: 2px !important;
+      }
+      .avatar-ghost-overlay .ghost-symbol {
+        font-size: 1rem !important;
+      }
+      .gravestone-badge {
+        padding: 0.5px 2.5px !important;
+        font-size: 7px !important;
+        bottom: -2px !important;
+        right: -2px !important;
+      }
+      .gravestone-badge svg {
+        width: 8.5px !important;
+        height: 10px !important;
+      }
+      .player-name,
+      #game-opponents-row .player-pedestal .line-clamp-2 {
+        font-size: 9.5px !important;
+        max-width: 48px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        line-clamp: 1 !important;
+      }
+      #game-opponents-row .player-pedestal div:last-child {
+        font-size: 8px !important;
+        padding: 1px 3px !important;
+        margin-top: 1px !important;
+      }
+
+      /* Reaction bubbles scaled to 72% */
+      .reaction-bubble,
+      .top-player .reaction-bubble,
+      .reaction-bubble.bubble-down {
+        transform: translateX(-50%) scale(0.72) !important;
+        font-size: 12px !important;
+        padding: 2px 6px !important;
+      }
+
+      /* Header compact */
+      header {
+        min-height: 58px !important;
+        padding: 3px 6px !important;
+      }
+
+      /* Main play area stacked and compact */
+      main {
+        padding: 4px 8px !important;
+        gap: 8px !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        overflow-y: auto !important;
+      }
+
+      /* Danger Gauge compact */
+      main > div:first-child {
+        min-width: auto !important;
+      }
+      main > div:first-child > div:first-child {
+        width: 130px !important;
+        height: 72px !important;
+        padding: 3px !important;
+      }
+
+      /* Deck and Discard center area */
+      main > div:nth-child(2) {
+        gap: 12px !important;
+      }
+      #deck-card,
+      #discard-card-slot {
+        width: 95px !important;
+        height: 140px !important;
+        min-width: 95px !important;
+        min-height: 140px !important;
+        padding: 6px !important;
+      }
+      #deck-card svg,
+      #deck-card .w-18 {
+        width: 38px !important;
+        height: 38px !important;
+      }
+
+      /* Table Chronicles streamlined panel */
+      .chronicles-container {
+        width: 100% !important;
+      }
+      #tableChronicles,
+      .chronicles-box {
+        height: 95px !important;
+        min-height: 95px !important;
+        padding: 6px 8px !important;
+      }
+      #action-log-list {
+        font-size: 11px !important;
+      }
+
+      /* Show Inventory Button on Mobile */
+      .inventory-btn {
+        display: flex !important;
+      }
+
+      /* Emote reactions bar compact */
+      main > div:last-child > div:last-child {
+        padding: 3px 6px !important;
+      }
+
+      /* Hide bottom hand tray and desktop card controls on mobile */
+      #player-hand-container,
+      #handContainer,
+      .hand-tray,
+      #btn-toggle-autosort,
+      #btn-manual-sort,
+      #btn-clear-selection,
+      #btn-play-card,
+      #combo-status-bar {
+        display: none !important;
+      }
+
+      /* Compact footer */
+      footer {
+        padding-top: 2px !important;
+        padding-bottom: 4px !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    }
   </style>
 </head>
 <body class="bg-stone-950 text-stone-100 font-fredoka overflow-hidden select-none m-0 p-0">
@@ -1330,15 +1765,21 @@
 
       <!-- Right: Parchment Action Scroll & Quick Emotes -->
       <div class="flex flex-col items-end gap-2.5 w-full md:w-80 lg:w-88">
-        <!-- Parchment Log -->
-        <div class="w-full parchment rounded-2xl border-3 border-amber-900 p-3 shadow-xl flex flex-col h-44 sm:h-52 overflow-hidden">
-          <div class="flex items-center justify-between border-b border-amber-900/30 pb-1.5 mb-1.5">
-            <span class="font-bangers text-xs sm:text-sm text-amber-950 tracking-wider">📜 TABLE CHRONICLES</span>
-            <span id="turns-stacked-tag" class="font-bangers text-xs text-red-700 bg-red-200/70 px-2 py-0.5 rounded-md font-bold">1 TURN</span>
+        <!-- Parchment Log & Mobile Inventory -->
+        <div class="chronicles-container w-full flex flex-col">
+          <div id="tableChronicles" class="chronicles-box w-full parchment rounded-2xl border-3 border-amber-900 p-3 shadow-xl flex flex-col h-44 sm:h-52 overflow-hidden">
+            <div class="flex items-center justify-between border-b border-amber-900/30 pb-1.5 mb-1.5">
+              <span class="font-bangers text-xs sm:text-sm text-amber-950 tracking-wider">📜 TABLE CHRONICLES</span>
+              <span id="turns-stacked-tag" class="font-bangers text-xs text-red-700 bg-red-200/70 px-2 py-0.5 rounded-md font-bold">1 TURN</span>
+            </div>
+            <div id="action-log-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1 font-fredoka text-xs text-amber-950">
+              <div>Match started. Good luck!</div>
+            </div>
           </div>
-          <div id="action-log-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1 font-fredoka text-xs text-amber-950">
-            <div>Match started. Good luck!</div>
-          </div>
+          <!-- Mobile Inventory Trigger Button -->
+          <button id="mobileInventoryBtn" class="inventory-btn">
+            🎒 INVENTORY <span id="inventoryBadge" class="badge">0</span>
+          </button>
         </div>
 
         <!-- In-Game Emote Reactions & Phrase Drawer (Under the Table) -->
@@ -1414,12 +1855,16 @@
             <!-- My Avatar Container (anchor for reaction bubble) -->
             <div class="avatar-container relative flex items-center">
               <div id="my-avatar-box" class="player-pedestal local-player flex items-center gap-2.5 bg-stone-900/90 border-2 border-yellow-500/70 hover:border-yellow-400 px-3 py-1.5 rounded-2xl shadow-md transition-colors relative">
-                <div id="my-avatar-icon" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-yellow-400 bg-stone-800 relative flex items-center justify-center flex-shrink-0">
-                  <!-- SVG Avatar -->
+                <div id="my-avatar-wrapper" class="avatar-wrapper relative flex-shrink-0 flex items-center justify-center">
+                  <div id="my-avatar-icon" class="avatar-circle w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-yellow-400 bg-stone-800 relative flex items-center justify-center flex-shrink-0">
+                    <!-- SVG Avatar -->
+                  </div>
+                  <!-- Gravestone badge injected if eliminated -->
+                  <div id="my-gravestone-badge" class="hidden"></div>
                 </div>
                 <div class="flex flex-col text-left leading-none">
                   <div class="flex items-center gap-1">
-                    <span id="my-avatar-name" class="font-bangers text-xs sm:text-sm text-yellow-300 break-words max-w-[120px]">You</span>
+                    <span id="my-avatar-name" class="player-name font-bangers text-xs sm:text-sm text-yellow-300 break-words max-w-[120px]">You</span>
                     <span class="font-bangers text-[10px] text-lime-400">(YOU)</span>
                   </div>
                   <span id="my-avatar-cards-count" class="font-fredoka text-[10px] text-stone-400 mt-1">0 cards</span>
@@ -1474,6 +1919,35 @@
   <!-- ============================================================ -->
   <!-- MODALS OVERLAYS                                              -->
   <!-- ============================================================ -->
+
+  <!-- 0. MOBILE SLIDE-UP INVENTORY DRAWER / SHEET -->
+  <div id="inventoryDrawerBackdrop" class="fixed inset-0 bg-black/75 backdrop-blur-xs z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  <div id="inventoryDrawer" class="inventory-drawer fixed bottom-0 left-0 right-0 max-h-[85vh] bg-stone-900 border-t-4 border-amber-500 rounded-t-3xl shadow-2xl z-50 flex flex-col transform translate-y-full transition-transform duration-300 ease-out">
+    <div class="drawer-header px-4 py-3 bg-stone-950 border-b-2 border-stone-800 rounded-t-3xl flex items-center justify-between flex-shrink-0">
+      <span class="drawer-title font-bangers text-lg sm:text-xl text-yellow-300 tracking-wider flex items-center gap-2">
+        🎒 YOUR CARDS (<span id="drawerCount">0</span>)
+      </span>
+      <button id="closeDrawerBtn" class="drawer-close-btn px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bangers text-sm rounded-xl border border-stone-700 cursor-pointer transition-colors">
+        ✕ CLOSE
+      </button>
+    </div>
+    <div id="drawerCardsContainer" class="drawer-cards-grid flex-1 overflow-y-auto p-3 grid grid-cols-2 sm:grid-cols-3 gap-2.5 justify-items-center">
+      <!-- Player cards rendered dynamically here -->
+    </div>
+    <div class="drawer-footer p-3 bg-stone-950 border-t-2 border-stone-800 flex flex-col gap-2 flex-shrink-0">
+      <div id="drawerComboText" class="drawer-combo-preview text-center font-bangers text-sm text-yellow-400 min-h-[22px] flex items-center justify-center">
+        Tap cards to select actions or combos
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="drawerClearBtn" class="comic-btn px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-bangers text-sm border border-stone-700 cursor-pointer">
+          CLEAR
+        </button>
+        <button id="drawerPlayBtn" class="drawer-play-btn flex-1 comic-btn px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 font-bangers text-stone-950 text-base tracking-wider disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-lg" disabled>
+          SELECT A CARD
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- 1. DEFUSE / COOLANT FOAM PLACEMENT MODAL -->
   <div id="modal-defuse" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
@@ -2028,6 +2502,25 @@
           this.playTone(190, 'sine', 0.15, 0.35);
         } catch (e) {}
       }
+      ghostChime() {
+        if (!this.enabled) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, now); // D5
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.35); // A5
+          osc.frequency.exponentialRampToValueAtTime(440, now + 0.9); // A4
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 1.15);
+        } catch (e) {}
+      }
     }
     const sounds = new SoundEngine();
 
@@ -2120,6 +2613,26 @@
             alpha: 0.9,
             decay: 0.015,
             type: 'vortex'
+          });
+        }
+      }
+      ghostAscend(cx, cy) {
+        if (!this.ctx) return;
+        this.shockwaves.push({ x: cx, y: cy, radius: 6, maxRadius: 90, alpha: 0.85, color: '#38bdf8' });
+        for (let i = 0; i < 30; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 0.8 + Math.random() * 2.5;
+          this.particles.push({
+            x: cx + (Math.random() - 0.5) * 24,
+            y: cy + (Math.random() - 0.5) * 24,
+            vx: Math.cos(angle) * speed * 0.4,
+            vy: -1.2 - Math.random() * 3.2,
+            size: 3 + Math.random() * 6,
+            color: ['#38bdf8', '#bae6fd', '#e0f2fe', '#ffffff', '#7dd3fc'][Math.floor(Math.random() * 5)],
+            alpha: 0.9,
+            decay: 0.012 + Math.random() * 0.015,
+            gravity: -0.05,
+            type: 'coolant'
           });
         }
       }
@@ -3712,9 +4225,15 @@
       socket.on('player_exploded', (data) => {
         clearEmergencyDefuse();
         triggerExplosionVisual();
+        if (sounds && sounds.ghostChime) sounds.ghostChime();
         showComboNotification('💥 DETONATION!', `${data.playerName || 'Technician'} drew a Combustion Cat and suffered vaporisation!`, '💥');
         if (data.playerId) {
           showSpeechBubble(data.playerId, '💥 ME-OWCH! Meltdown!', 'explosion');
+          const pElem = document.getElementById(`opp-box-${data.playerId}`) || (data.playerId === localGameState?.myId ? document.getElementById('my-avatar-box') : null);
+          if (pElem && vfx) {
+            const r = pElem.getBoundingClientRect();
+            vfx.ghostAscend(r.left + r.width / 2, r.top + r.height / 2);
+          }
         }
       });
 
@@ -4482,25 +5001,55 @@
         opp.setAttribute('data-player-id', p.id);
         opp.className = `player-pedestal top-player avatar-container flex flex-col items-center justify-between p-2 sm:p-2.5 rounded-2xl border-3 transition-all ${
           p.isDead
-            ? 'opacity-40 border-stone-900 bg-stone-950/70'
+            ? 'eliminated opacity-38 border-stone-900 bg-stone-950/85 scale-95'
             : isActive
             ? 'border-yellow-400 bg-amber-950/90 shadow-[0_0_20px_rgba(251,191,36,0.7)] scale-105'
             : 'border-stone-800 bg-black/60 hover:border-stone-700'
         } relative min-w-[105px] sm:min-w-[130px] max-w-[150px] flex-shrink-0 text-center`;
 
         opp.innerHTML = `
-          <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full overflow-hidden border-3 ${
-            isActive ? 'border-yellow-400' : 'border-stone-700'
-          } bg-stone-900 mb-1.5 relative shadow-md">
-            ${getAvatarSVG(p.avatarId)}
-            ${p.isDead ? '<span class="absolute inset-0 flex items-center justify-center text-2xl bg-black/80">💀</span>' : ''}
+          <div class="avatar-wrapper relative mb-1.5 flex items-center justify-center">
+            <div class="avatar-circle w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full overflow-hidden border-3 ${
+              p.isDead ? 'border-cyan-500/40 bg-stone-950' : isActive ? 'border-yellow-400 bg-stone-900' : 'border-stone-700 bg-stone-900'
+            } relative shadow-md">
+              <div class="w-full h-full ${p.isDead ? 'opacity-40 grayscale contrast-125' : ''}">
+                ${getAvatarSVG(p.avatarId)}
+              </div>
+              ${p.isDead ? `
+                <!-- Ghost effect overlay on avatar -->
+                <div class="avatar-ghost-overlay" title="Ghost of ${displayName}">
+                  <span class="ghost-symbol select-none">👻</span>
+                </div>
+              ` : ''}
+            </div>
+            ${p.isDead ? `
+              <!-- Small gravestone icon badge -->
+              <div class="gravestone-badge" title="R.I.P. Eliminated">
+                <svg viewBox="0 0 24 28" class="w-3 h-3.5 text-stone-300 flex-shrink-0" fill="currentColor">
+                  <path d="M4 26h16v-14c0-4.42-3.58-8-8-8s-8 3.58-8 8v14z" fill="#44403c" stroke="#a8a29e" stroke-width="1.5"/>
+                  <path d="M12 7v7M9.5 10h5" stroke="#e7e5e4" stroke-width="1.5" stroke-linecap="round"/>
+                  <rect x="2" y="24" width="20" height="3" rx="1" fill="#292524" stroke="#78716c" stroke-width="1"/>
+                </svg>
+                <span>R.I.P</span>
+              </div>
+            ` : ''}
           </div>
-          <div class="font-bangers text-xs sm:text-sm text-amber-100 leading-tight break-words max-w-[125px] w-full px-0.5 my-0.5 line-clamp-2">
+          <div class="player-name font-bangers text-xs sm:text-sm ${p.isDead ? 'text-stone-500 line-through' : 'text-amber-100'} leading-tight break-words max-w-[125px] w-full px-0.5 my-0.5 line-clamp-2">
             ${displayName}
           </div>
-          <div class="flex items-center justify-center gap-1 font-bangers text-[11px] sm:text-xs text-yellow-300 bg-black/60 px-2.5 py-0.5 rounded-full border border-stone-800 mt-1 shadow-xs">
-            <span>🃏 ${p.cardCount} ${p.cardCount === 1 ? 'CARD' : 'CARDS'}</span>
-          </div>
+          ${p.isDead ? `
+            <div class="flex items-center justify-center gap-1 font-bangers text-[10px] sm:text-xs text-stone-400 bg-stone-900/90 px-2.5 py-0.5 rounded-full border border-stone-800 mt-1 shadow-xs">
+              <svg viewBox="0 0 24 28" class="w-2.5 h-3 text-stone-400 flex-shrink-0" fill="currentColor">
+                <path d="M4 26h16v-14c0-4.42-3.58-8-8-8s-8 3.58-8 8v14z" fill="#44403c" stroke="#78716c" stroke-width="1.2"/>
+                <path d="M12 7v7M9.5 10h5" stroke="#d6d3d1" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              <span>ELIMINATED</span>
+            </div>
+          ` : `
+            <div class="flex items-center justify-center gap-1 font-bangers text-[11px] sm:text-xs text-yellow-300 bg-black/60 px-2.5 py-0.5 rounded-full border border-stone-800 mt-1 shadow-xs">
+              <span>🃏 ${p.cardCount} ${p.cardCount === 1 ? 'CARD' : 'CARDS'}</span>
+            </div>
+          `}
         `;
         opponentsRow.appendChild(opp);
       });
@@ -4512,15 +5061,57 @@
         myAvatarBox.setAttribute('data-player-id', myP.id);
         if (!myAvatarBox.classList.contains('player-pedestal')) myAvatarBox.classList.add('player-pedestal');
         if (!myAvatarBox.classList.contains('local-player')) myAvatarBox.classList.add('local-player');
-        document.getElementById('my-avatar-icon').innerHTML = getAvatarSVG(myP.avatarId);
-        document.getElementById('my-avatar-name').innerText = myP.name || 'You';
-        document.getElementById('my-avatar-cards-count').innerText = `${(state.myHand || []).length} cards`;
+        
+        const myIconContainer = document.getElementById('my-avatar-icon');
+        const myGravBadge = document.getElementById('my-gravestone-badge');
+        
+        if (myP.isDead) {
+          myAvatarBox.classList.add('eliminated');
+          myAvatarBox.classList.remove('border-yellow-500/70', 'hover:border-yellow-400');
+          myAvatarBox.classList.add('border-stone-900');
+          myIconContainer.className = 'avatar-circle w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-cyan-500/40 bg-stone-950 relative flex items-center justify-center flex-shrink-0';
+          myIconContainer.innerHTML = `
+            <div class="w-full h-full opacity-40 grayscale contrast-125">
+              ${getAvatarSVG(myP.avatarId)}
+            </div>
+            <div class="avatar-ghost-overlay" title="Ghost">
+              <span class="ghost-symbol text-base select-none">👻</span>
+            </div>
+          `;
+          if (myGravBadge) {
+            myGravBadge.className = 'gravestone-badge';
+            myGravBadge.innerHTML = `
+              <svg viewBox="0 0 24 28" class="w-3 h-3.5 text-stone-300 flex-shrink-0" fill="currentColor">
+                <path d="M4 26h16v-14c0-4.42-3.58-8-8-8s-8 3.58-8 8v14z" fill="#44403c" stroke="#a8a29e" stroke-width="1.5"/>
+                <path d="M12 7v7M9.5 10h5" stroke="#e7e5e4" stroke-width="1.5" stroke-linecap="round"/>
+                <rect x="2" y="24" width="20" height="3" rx="1" fill="#292524" stroke="#78716c" stroke-width="1"/>
+              </svg>
+              <span>R.I.P</span>
+            `;
+          }
+          document.getElementById('my-avatar-name').className = 'player-name font-bangers text-xs sm:text-sm text-stone-500 line-through break-words max-w-[120px]';
+          document.getElementById('my-avatar-cards-count').innerHTML = `<span class="text-stone-400 font-bangers flex items-center gap-1">🪦 ELIMINATED</span>`;
+        } else {
+          myAvatarBox.classList.remove('eliminated', 'border-stone-900');
+          myAvatarBox.classList.add('border-yellow-500/70');
+          myIconContainer.className = 'avatar-circle w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-yellow-400 bg-stone-800 relative flex items-center justify-center flex-shrink-0';
+          myIconContainer.innerHTML = getAvatarSVG(myP.avatarId);
+          if (myGravBadge) {
+            myGravBadge.className = 'hidden';
+            myGravBadge.innerHTML = '';
+          }
+          document.getElementById('my-avatar-name').className = 'player-name font-bangers text-xs sm:text-sm text-yellow-300 break-words max-w-[120px]';
+          document.getElementById('my-avatar-name').innerText = myP.name || 'You';
+          document.getElementById('my-avatar-cards-count').innerText = `${(state.myHand || []).length} cards`;
+        }
       }
 
       // 6. Active turn status badge
       const activeP = state.players[state.activePlayerIndex];
       const statusBadge = document.getElementById('player-status-badge');
-      if (state.isMyTurn) {
+      if (myP && myP.isDead) {
+        statusBadge.innerHTML = `<span class="text-stone-400 font-bold">🪦 SPECTATING (YOU WERE ELIMINATED)</span>`;
+      } else if (state.isMyTurn) {
         statusBadge.innerHTML = `<span class="text-lime-400 font-bold animate-pulse">YOUR TURN!</span> (${state.turnsRemaining} turn${state.turnsRemaining > 1 ? 's' : ''} left)`;
       } else {
         statusBadge.innerHTML = `<span>${activeP ? activeP.name : 'OPPONENT'}'S TURN</span> (${state.turnsRemaining} left)`;
@@ -4556,7 +5147,8 @@
         stackMap.get(key).cards.push(card);
       });
 
-      cardStacks.forEach((stack) => {
+      // Helper to generate a card element for Hand Tray or Mobile Drawer
+      function createCardElement(stack, isDrawer = false) {
         const totalInStack = stack.cards.length;
         const selectedInStack = stack.cards.filter((c) => selectedCards.some((sc) => sc.id === c.id));
         const selectedCount = selectedInStack.length;
@@ -4579,14 +5171,14 @@
         }
 
         const isJustDrawn = stack.cards.some((c) => c.id === justDrawnCardId);
-        if (isJustDrawn) classList.push('card-just-drawn');
+        if (isJustDrawn && !isDrawer) classList.push('card-just-drawn');
 
         cardElem.className = classList.join(' ');
         cardElem.setAttribute('data-card-id', card.id);
         cardElem.setAttribute('data-stack-ids', stack.cards.map((c) => c.id).join(','));
         cardElem.style.borderColor = isSelected ? '#f59e0b' : (card.badgeColor || '#e0e0e0');
 
-        if (currentlyFlyingCardId && stack.cards.every((c) => c.id === currentlyFlyingCardId)) {
+        if (!isDrawer && currentlyFlyingCardId && stack.cards.every((c) => c.id === currentlyFlyingCardId)) {
           cardElem.style.opacity = '0';
         }
         if (cardPlay.reason) {
@@ -4610,14 +5202,16 @@
         cardElem.addEventListener('click', () => {
           if (cardPlay.isPulseDefuse) {
             showDefuseModal();
+            if (isDrawer) closeInventoryDrawer();
             return;
           }
           if (cardPlay.isPulseNope) {
             handlePlayNope();
+            if (isDrawer) closeInventoryDrawer();
             return;
           }
           if (cardPlay.isDisabled) {
-            showToast(cardPlay.reason, '⚠️');
+            showToast(cardPlay.reason || "You can't play this card right now.", '⚠️');
             if (sounds && sounds.bubblePop) sounds.bubblePop();
             return;
           }
@@ -4630,8 +5224,28 @@
           handleStackCardClick(stack);
         });
 
-        handContainer.appendChild(cardElem);
+        return cardElem;
+      }
+
+      cardStacks.forEach((stack) => {
+        handContainer.appendChild(createCardElement(stack, false));
       });
+
+      // Populate Mobile Slide-Up Inventory Drawer
+      const drawerContainer = document.getElementById('drawerCardsContainer');
+      if (drawerContainer) {
+        drawerContainer.innerHTML = '';
+        cardStacks.forEach((stack) => {
+          drawerContainer.appendChild(createCardElement(stack, true));
+        });
+      }
+
+      // Sync Inventory Card Count Badges
+      const myCardCount = (state.myHand || []).length;
+      const invBadge = document.getElementById('inventoryBadge');
+      if (invBadge) invBadge.innerText = myCardCount;
+      const drawerCount = document.getElementById('drawerCount');
+      if (drawerCount) drawerCount.innerText = myCardCount;
 
       // 7b. Apply Adaptive Scaling & Dynamic Overlap layout
       updateHandLayout();
@@ -4919,7 +5533,7 @@
       if (total === 0) return;
 
       const containerWidth = (handEl.parentElement ? handEl.parentElement.clientWidth : window.innerWidth) * 0.85; // 85% of viewport
-      const baseCardWidth = window.innerWidth <= 640 ? 145 : 175; // standard width
+      const baseCardWidth = window.innerWidth <= 600 ? 145 : (window.innerWidth <= 1024 ? 130 : 175); // standard width
 
       // If cards exceed available width, compress them with negative margins & scale
       if (total * baseCardWidth > containerWidth) {
@@ -4942,7 +5556,7 @@
           card.style.transform = 'scale(1)';
           card.style.transformOrigin = 'bottom center';
           if (i > 0) {
-            card.style.marginLeft = window.innerWidth <= 640 ? '6px' : '12px';
+            card.style.marginLeft = window.innerWidth <= 600 ? '4px' : (window.innerWidth <= 1024 ? '8px' : '12px');
           } else {
             card.style.marginLeft = '0px';
           }
@@ -5010,6 +5624,13 @@
       const statusBar = document.getElementById('combo-status-bar');
       const statusText = document.getElementById('combo-status-text');
       const hintText = document.getElementById('combo-hint-text');
+      const drawerPlayBtn = document.getElementById('drawerPlayBtn');
+      const drawerComboText = document.getElementById('drawerComboText');
+      const drawerClearBtn = document.getElementById('drawerClearBtn');
+
+      if (drawerClearBtn) {
+        drawerClearBtn.innerText = selectedCards.length > 0 ? `CLEAR (${selectedCards.length})` : 'CLEAR';
+      }
 
       if (!clearBtn || !btn) return;
 
@@ -5031,6 +5652,20 @@
         }
         if (statusBar) statusBar.classList.add('hidden');
         updateComboBanner(null);
+
+        if (drawerPlayBtn && drawerComboText) {
+          drawerPlayBtn.disabled = true;
+          if (localGameState?.turnState === 'DEFUSING' || localGameState?.turnState === 'AWAITING_DEFUSE') {
+            drawerPlayBtn.innerText = 'DEFUSE IN PROGRESS';
+            drawerComboText.innerHTML = '<span class="text-emerald-400 font-bold animate-pulse">DEFUSE IN PROGRESS</span>';
+          } else if (localGameState?.turnState === 'NOPE_WINDOW') {
+            drawerPlayBtn.innerText = 'NOPE ACTIVE';
+            drawerComboText.innerHTML = '<span class="text-red-400 font-bold animate-pulse">NOPE WINDOW ACTIVE</span>';
+          } else {
+            drawerPlayBtn.innerText = 'WAITING...';
+            drawerComboText.innerHTML = '<span class="text-stone-400">Waiting for your turn...</span>';
+          }
+        }
         return;
       }
 
@@ -5039,6 +5674,12 @@
         btn.innerText = 'PLAY CARD';
         if (statusBar) statusBar.classList.add('hidden');
         updateComboBanner(null);
+
+        if (drawerPlayBtn && drawerComboText) {
+          drawerPlayBtn.disabled = true;
+          drawerPlayBtn.innerText = 'SELECT A CARD';
+          drawerComboText.innerHTML = '<span class="text-stone-400">Tap cards to select actions or combos</span>';
+        }
         return;
       }
 
@@ -5062,6 +5703,21 @@
 
       btn.disabled = !combo.valid;
       btn.innerText = combo.playLabel;
+
+      if (drawerPlayBtn && drawerComboText) {
+        drawerPlayBtn.disabled = !combo.valid;
+        drawerPlayBtn.innerText = combo.playLabel;
+        if (combo.valid) {
+          let comboBadge = '';
+          if (combo.type === 'PAIR') comboBadge = '🔥 2 OF A KIND!';
+          else if (combo.type === 'THREE_OF_A_KIND') comboBadge = '⚡ 3 OF A KIND!';
+          else if (combo.type === 'FIVE_DIFFERENT') comboBadge = '✨ 5 OF A KIND!';
+          else comboBadge = '🎯 READY TO PLAY';
+          drawerComboText.innerHTML = `<span class="text-lime-400 font-bold">${comboBadge}</span> <span class="text-stone-300 text-xs">— ${combo.desc}</span>`;
+        } else {
+          drawerComboText.innerHTML = `<span class="text-amber-400 font-bold">⚠️ INCOMPLETE</span> <span class="text-stone-300 text-xs">— ${combo.desc}</span>`;
+        }
+      }
     }
 
     // Clear Selection Button
@@ -5186,8 +5842,65 @@
       }
     });
 
+    // --- MOBILE SLIDE-UP INVENTORY DRAWER CONTROLS ---
+    function openInventoryDrawer() {
+      const drawer = document.getElementById('inventoryDrawer');
+      const backdrop = document.getElementById('inventoryDrawerBackdrop');
+      if (drawer) drawer.classList.add('open');
+      if (backdrop) backdrop.classList.add('open');
+      if (sounds && sounds.cardLanding) sounds.cardLanding();
+    }
+
+    function closeInventoryDrawer() {
+      const drawer = document.getElementById('inventoryDrawer');
+      const backdrop = document.getElementById('inventoryDrawerBackdrop');
+      if (drawer) drawer.classList.remove('open');
+      if (backdrop) backdrop.classList.remove('open');
+    }
+
+    const mobileInvBtn = document.getElementById('mobileInventoryBtn');
+    if (mobileInvBtn) {
+      mobileInvBtn.addEventListener('click', () => {
+        openInventoryDrawer();
+      });
+    }
+
+    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+    if (closeDrawerBtn) {
+      closeDrawerBtn.addEventListener('click', () => {
+        closeInventoryDrawer();
+      });
+    }
+
+    const drawerBackdrop = document.getElementById('inventoryDrawerBackdrop');
+    if (drawerBackdrop) {
+      drawerBackdrop.addEventListener('click', () => {
+        closeInventoryDrawer();
+      });
+    }
+
+    const drawerClearBtn = document.getElementById('drawerClearBtn');
+    if (drawerClearBtn) {
+      drawerClearBtn.addEventListener('click', () => {
+        selectedCards = [];
+        if (localGameState) renderGameTable(localGameState);
+      });
+    }
+
+    const drawerPlayBtn = document.getElementById('drawerPlayBtn');
+    if (drawerPlayBtn) {
+      drawerPlayBtn.addEventListener('click', () => {
+        const desktopPlayBtn = document.getElementById('btn-play-card');
+        if (desktopPlayBtn) {
+          desktopPlayBtn.click();
+        }
+        closeInventoryDrawer();
+      });
+    }
+
     // Draw Deck Click Handler
     document.getElementById('deck-container').addEventListener('click', () => {
+      closeInventoryDrawer();
       if (!localGameState || !localGameState.isMyTurn || localGameState.turnState !== 'NORMAL') return;
       const deckCard = document.getElementById('deck-card');
       if (deckCard) {
@@ -5201,6 +5914,7 @@
     // --- MODAL HANDLERS ---
     // Defuse Modal
     function showDefuseModal() {
+      closeInventoryDrawer();
       document.getElementById('modal-defuse').classList.remove('hidden');
     }
 

@@ -1174,25 +1174,48 @@
         opp.id = `opp-box-${p.id}`;
         opp.className = `flex flex-col items-center p-1.5 rounded-xl border-2 transition-all ${
           p.isDead
-            ? 'opacity-40 border-stone-900 bg-stone-950/70'
+            ? 'opacity-38 border-stone-900 bg-stone-950/85 grayscale contrast-90 scale-95 pointer-events-none'
             : isActive
             ? 'border-yellow-400 bg-amber-950/80 shadow-[0_0_15px_rgba(251,191,36,0.6)] scale-105'
             : 'border-stone-800 bg-black/50'
         } relative min-w-[70px] sm:min-w-[85px]`;
 
         opp.innerHTML = `
-          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${
-            isActive ? 'border-yellow-400' : 'border-stone-700'
-          } bg-stone-900 mb-1 relative">
-            ${getAvatarSVG(p.avatarId)}
-            ${p.isDead ? '<span class="absolute inset-0 flex items-center justify-center text-xl bg-black/70">💀</span>' : ''}
+          <div class="relative mb-1">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${
+              p.isDead ? 'border-cyan-500/40 bg-stone-950' : isActive ? 'border-yellow-400' : 'border-stone-700'
+            } bg-stone-900 relative">
+              <div class="w-full h-full ${p.isDead ? 'opacity-40 grayscale contrast-125' : ''}">
+                ${getAvatarSVG(p.avatarId)}
+              </div>
+              ${p.isDead ? `
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none" style="background: radial-gradient(circle, rgba(186,230,253,0.6) 0%, rgba(15,23,42,0.85) 100%);">
+                  <span class="text-sm select-none" style="filter: drop-shadow(0 0 6px rgba(165,243,252,0.9));">👻</span>
+                </div>
+              ` : ''}
+            </div>
+            ${p.isDead ? `
+              <div class="absolute -bottom-1 -right-1 bg-stone-900 border border-stone-600 rounded px-1 py-0.2 flex items-center gap-0.5 text-stone-300 font-bangers text-[8px]">
+                <svg viewBox="0 0 24 28" class="w-2 h-2.5 text-stone-300" fill="currentColor">
+                  <path d="M4 26h16v-14c0-4.42-3.58-8-8-8s-8 3.58-8 8v14z" fill="#44403c" stroke="#a8a29e" stroke-width="1.5"/>
+                  <path d="M12 7v7M9.5 10h5" stroke="#e7e5e4" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>R.I.P</span>
+              </div>
+            ` : ''}
           </div>
-          <div class="font-bangers text-xs sm:text-sm text-amber-100 truncate max-w-[80px]">
+          <div class="font-bangers text-xs sm:text-sm ${p.isDead ? 'text-stone-500 line-through' : 'text-amber-100'} truncate max-w-[80px]">
             ${p.name}
           </div>
-          <div class="flex items-center gap-1 font-bangers text-[10px] text-amber-300">
-            <span>🃏 ${p.cardCount}</span>
-          </div>
+          ${p.isDead ? `
+            <div class="flex items-center gap-1 font-bangers text-[9px] text-stone-400">
+              <span>🪦 ELIMINATED</span>
+            </div>
+          ` : `
+            <div class="flex items-center gap-1 font-bangers text-[10px] text-amber-300">
+              <span>🃏 ${p.cardCount}</span>
+            </div>
+          `}
         `;
         opponentsRow.appendChild(opp);
       });
