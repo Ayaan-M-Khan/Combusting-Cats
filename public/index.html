@@ -86,15 +86,22 @@
       transform: translateY(6px);
     }
 
-    /* 1. Remove Restrictive Overflow across all hand wrappers */
-    .hand-container, .hand-wrapper, #playerHand, #player-hand-container, .hand-tray, footer, #screen-game {
-      overflow: visible !important;
+    /* 1. Hand Tray: smooth horizontal scrolling with hidden scrollbar and generous headroom */
+    #handContainer, #player-hand-container, .hand-tray {
+      display: flex;
+      justify-content: center; /* Centered when few cards, updates dynamically to flex-start when overflowing */
+      align-items: flex-end;
+      overflow-x: auto !important;
+      overflow-y: visible !important;
+      scroll-behavior: smooth;
+      scrollbar-width: none; /* Hide default scrollbar in Firefox */
+      -ms-overflow-style: none; /* Hide default scrollbar in IE/Edge */
+      padding: 75px 40px 18px 40px !important;
     }
-
-    /* Clear top headroom so enlarged cards never clip on hover */
-    .hand-tray, #handContainer, #player-hand-container {
-      padding-top: 75px !important;
-      overflow: visible !important;
+    #handContainer::-webkit-scrollbar,
+    #player-hand-container::-webkit-scrollbar,
+    .hand-tray::-webkit-scrollbar {
+      display: none;
     }
 
     /* 2. Generous card sizing with complete text visibility */
@@ -138,11 +145,12 @@
       }
     }
 
-    /* Lift cleanly on hover without clipping */
+    /* Lift cleanly on hover without clipping - pop out to full size above neighbors */
     .card:hover, .card-item:hover {
-      transform: translateY(-60px) scale(1.15) !important;
+      transform: translateY(-65px) scale(1.18) !important;
       z-index: 1000 !important;
-      box-shadow: 0 24px 40px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 140, 0, 0.45) !important;
+      margin-left: inherit; /* Preserves layout position */
+      box-shadow: 0 24px 40px rgba(0, 0, 0, 0.75), 0 0 24px rgba(255, 140, 0, 0.55) !important;
     }
 
     /* Selected state: elevated and highlighted with glowing border */
@@ -152,6 +160,106 @@
       border-color: #f59e0b !important;
       outline: 3.5px solid #ffb703 !important;
       box-shadow: 0 0 26px rgba(255, 183, 3, 0.95), 0 16px 30px rgba(0, 0, 0, 0.75) !important;
+    }
+    .card.selected:hover, .card-item.selected:hover {
+      transform: translateY(-70px) scale(1.2) !important;
+      z-index: 1000 !important;
+    }
+
+    /* Duplicate Card Multiplier Badge (2x, 3x) */
+    .card-multiplier-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ffb703;
+      color: #111111;
+      font-family: 'Bangers', cursive, sans-serif;
+      font-weight: 900;
+      font-size: 13px;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      border: 2px solid #000000;
+      border-radius: 12px;
+      padding: 2px 7px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4), 0 0 10px rgba(255, 183, 3, 0.6);
+      z-index: 25;
+      pointer-events: none;
+      animation: popInBadge 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popInBadge {
+      0% { transform: scale(0.4) rotate(-10deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* Stack Selection Live Indicator Badge (Selected: 2/3) */
+    .card-stack-selection-badge {
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      background: #16a34a;
+      color: #ffffff;
+      font-family: 'Bangers', cursive, sans-serif;
+      font-weight: 900;
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      border: 2px solid #000000;
+      border-radius: 12px;
+      padding: 2px 7px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4), 0 0 12px rgba(34, 197, 94, 0.8);
+      z-index: 25;
+      pointer-events: none;
+      animation: popInBadge 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Layered Deck Visual Effect for Stacks */
+    .card.is-stacked-2::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 3px solid #cbd5e1;
+      transform: translate(5px, -5px) rotate(1.8deg);
+      z-index: -1;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card.is-stacked-3::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background: #f1f5f9;
+      border: 3px solid #cbd5e1;
+      transform: translate(8px, -8px) rotate(3deg);
+      z-index: -2;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card.is-stacked-3::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background: #ffffff;
+      border: 3px solid #cbd5e1;
+      transform: translate(4px, -4px) rotate(1.5deg);
+      z-index: -1;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card.is-stacked-2.selected::before,
+    .card.is-stacked-3.selected::before,
+    .card.is-stacked-3.selected::after {
+      border-color: #fbbf24;
     }
 
     /* Situation-Specific Card Restrictions & Visual Highlights */
@@ -3325,8 +3433,8 @@
       if (isMe) {
         const handContainer = document.getElementById('player-hand-container');
         if (handContainer) {
-          // Check if newly drawn card already exists in the hand DOM
-          const existingSlot = data.card?.id ? handContainer.querySelector(`[data-card-id="${data.card.id}"]`) : null;
+          // Check if newly drawn card already exists in the hand DOM (or as part of a consolidated stack)
+          const existingSlot = data.card?.id ? (handContainer.querySelector(`[data-card-id="${data.card.id}"]`) || handContainer.querySelector(`[data-stack-ids*="${data.card.id}"]`)) : null;
           if (existingSlot) {
             const slotRect = existingSlot.getBoundingClientRect();
             targetX = slotRect.left;
@@ -4418,12 +4526,42 @@
         statusBadge.innerHTML = `<span>${activeP ? activeP.name : 'OPPONENT'}'S TURN</span> (${state.turnsRemaining} left)`;
       }
 
-      // 7. Player Hand Cards Tray
+      // 7. Player Hand Cards Tray - Group duplicate cards into visual stacks with multiplier badges
       const handContainer = document.getElementById('player-hand-container');
       handContainer.innerHTML = '';
 
-      (state.myHand || []).forEach((card) => {
-        const isSelected = selectedCards.some((c) => c.id === card.id);
+      // Auto-sort hand if enabled
+      let displayHand = state.myHand || [];
+      if (autoSortEnabled) {
+        displayHand = sortHand(displayHand);
+      }
+
+      // Group identical cards into consolidated stacks
+      const cardStacks = [];
+      const stackMap = new Map();
+
+      displayHand.forEach((card) => {
+        const key = card.type;
+        if (!stackMap.has(key)) {
+          const stack = {
+            key: key,
+            type: card.type,
+            title: card.title,
+            cards: [],
+            card: card
+          };
+          stackMap.set(key, stack);
+          cardStacks.push(stack);
+        }
+        stackMap.get(key).cards.push(card);
+      });
+
+      cardStacks.forEach((stack) => {
+        const totalInStack = stack.cards.length;
+        const selectedInStack = stack.cards.filter((c) => selectedCards.some((sc) => sc.id === c.id));
+        const selectedCount = selectedInStack.length;
+        const isSelected = selectedCount > 0;
+        const card = stack.card;
         const cardPlay = getCardPlayability(card, state);
 
         const cardElem = document.createElement('div');
@@ -4432,19 +4570,42 @@
         if (cardPlay.isDisabled) classList.push('disabled');
         if (cardPlay.isPulseDefuse) classList.push('defuse-pulse');
         if (cardPlay.isPulseNope) classList.push('nope-pulse');
-        if (card.id === justDrawnCardId) classList.push('card-just-drawn');
+
+        // Multiplier & stack layering classes
+        if (totalInStack === 2) {
+          classList.push('is-stacked-2');
+        } else if (totalInStack >= 3) {
+          classList.push('is-stacked-3');
+        }
+
+        const isJustDrawn = stack.cards.some((c) => c.id === justDrawnCardId);
+        if (isJustDrawn) classList.push('card-just-drawn');
 
         cardElem.className = classList.join(' ');
         cardElem.setAttribute('data-card-id', card.id);
+        cardElem.setAttribute('data-stack-ids', stack.cards.map((c) => c.id).join(','));
         cardElem.style.borderColor = isSelected ? '#f59e0b' : (card.badgeColor || '#e0e0e0');
 
-        if (currentlyFlyingCardId && card.id === currentlyFlyingCardId) {
+        if (currentlyFlyingCardId && stack.cards.every((c) => c.id === currentlyFlyingCardId)) {
           cardElem.style.opacity = '0';
         }
         if (cardPlay.reason) {
           cardElem.title = cardPlay.reason;
         }
-        cardElem.innerHTML = renderComicCardHTML(card);
+
+        let innerCardHTML = renderComicCardHTML(card);
+
+        // Multiplier badge (2x, 3x) at top-right
+        if (totalInStack >= 2) {
+          innerCardHTML += `<div class="card-multiplier-badge font-bangers">${totalInStack}x</div>`;
+        }
+
+        // Live selection indicator badge (e.g. Selected: 2/3)
+        if (totalInStack >= 2 && selectedCount > 0) {
+          innerCardHTML += `<div class="card-stack-selection-badge font-bangers">Selected: ${selectedCount}/${totalInStack}</div>`;
+        }
+
+        cardElem.innerHTML = innerCardHTML;
 
         cardElem.addEventListener('click', () => {
           if (cardPlay.isPulseDefuse) {
@@ -4460,11 +4621,23 @@
             if (sounds && sounds.bubblePop) sounds.bubblePop();
             return;
           }
-          toggleSelectCard(card);
+          if (!localGameState.isMyTurn) {
+            showToast("It is not your turn! Wait for your turn to play action cards.", '⚠️');
+            if (sounds && sounds.bubblePop) sounds.bubblePop();
+            return;
+          }
+
+          handleStackCardClick(stack);
         });
 
         handContainer.appendChild(cardElem);
       });
+
+      // 7b. Apply Adaptive Scaling & Dynamic Overlap layout
+      updateHandLayout();
+
+      // 7c. Ensure mouse wheel and edge scrolling listeners are active
+      initHandScrolling();
 
       // 8. Update Play Button state
       updatePlayButton();
@@ -4661,6 +4834,54 @@
     }
 
     // --- CARD SELECTION & PLAY ---
+    function handleStackCardClick(stack) {
+      if (!localGameState || !stack) return;
+      const total = stack.cards.length;
+
+      // Single card behavior
+      if (total === 1) {
+        toggleSelectCard(stack.cards[0]);
+        return;
+      }
+
+      // Check how many copies from this stack are currently selected
+      const currentlySelected = stack.cards.filter((c) => selectedCards.some((sc) => sc.id === c.id));
+      const count = currentlySelected.length;
+
+      // Cycle selection:
+      // If 2x: 0 -> 1 -> 2 -> 0
+      // If 3x: 0 -> 1 -> 2 -> 3 -> 0
+      // If Nx: (count + 1) % (total + 1)
+      const nextCount = (count + 1) % (total + 1);
+
+      // Remove any copies of this stack from selectedCards
+      selectedCards = selectedCards.filter((sc) => !stack.cards.some((c) => c.id === sc.id));
+
+      if (nextCount > 0) {
+        const toAdd = stack.cards.slice(0, nextCount);
+        // Ensure not exceeding 5 cards in total
+        const space = 5 - selectedCards.length;
+        if (toAdd.length > space) {
+          selectedCards.splice(0, toAdd.length - space);
+        }
+        selectedCards.push(...toAdd);
+
+        if (sounds) {
+          if (nextCount >= 2 && sounds.spark) {
+            sounds.spark();
+          } else if (sounds.cardLanding) {
+            sounds.cardLanding();
+          }
+        }
+      } else {
+        if (sounds && sounds.cardLanding) {
+          sounds.cardLanding();
+        }
+      }
+
+      renderGameTable(localGameState);
+    }
+
     function toggleSelectCard(card) {
       if (!localGameState) return;
       const playability = getCardPlayability(card, localGameState);
@@ -4688,6 +4909,100 @@
 
       renderGameTable(localGameState);
     }
+
+    // --- ADAPTIVE HAND SIZING & DYNAMIC OVERLAP ---
+    function updateHandLayout() {
+      const handEl = document.getElementById('player-hand-container') || document.getElementById('playerHand') || document.getElementById('handContainer');
+      if (!handEl) return;
+      const cards = handEl.querySelectorAll('.card');
+      const total = cards.length;
+      if (total === 0) return;
+
+      const containerWidth = (handEl.parentElement ? handEl.parentElement.clientWidth : window.innerWidth) * 0.85; // 85% of viewport
+      const baseCardWidth = window.innerWidth <= 640 ? 145 : 175; // standard width
+
+      // If cards exceed available width, compress them with negative margins & scale
+      if (total * baseCardWidth > containerWidth) {
+        const scaleFactor = Math.max(0.72, 1 - (total - 6) * 0.035); // scale down smoothly to min 0.72
+        const overlapOffset = Math.min(85, Math.max(25, (total * (baseCardWidth * scaleFactor) - containerWidth) / (total - 1)));
+
+        cards.forEach((card, i) => {
+          card.style.transform = `scale(${scaleFactor})`;
+          card.style.transformOrigin = 'bottom center';
+          if (i > 0) {
+            card.style.marginLeft = `-${overlapOffset}px`;
+          } else {
+            card.style.marginLeft = '0px';
+          }
+        });
+        handEl.style.justifyContent = 'flex-start';
+      } else {
+        // Reset to normal when hand is small
+        cards.forEach((card, i) => {
+          card.style.transform = 'scale(1)';
+          card.style.transformOrigin = 'bottom center';
+          if (i > 0) {
+            card.style.marginLeft = window.innerWidth <= 640 ? '6px' : '12px';
+          } else {
+            card.style.marginLeft = '0px';
+          }
+        });
+        handEl.style.justifyContent = 'center';
+      }
+    }
+
+    // --- MOUSE-DIRECTIONAL EDGE SCROLLING & WHEEL SUPPORT ---
+    let handScrollInitialized = false;
+    let handScrollInterval = null;
+
+    function initHandScrolling() {
+      const handTray = document.getElementById('player-hand-container') || document.getElementById('handContainer') || document.getElementById('playerHand');
+      if (!handTray || handScrollInitialized) return;
+      handScrollInitialized = true;
+
+      // A. Horizontal mouse-wheel translation
+      handTray.addEventListener('wheel', (e) => {
+        if (e.deltaY !== 0) {
+          e.preventDefault();
+          handTray.scrollLeft += e.deltaY * 0.9;
+        }
+      }, { passive: false });
+
+      // B. Mouse-proximity edge scrolling
+      handTray.addEventListener('mousemove', (e) => {
+        const rect = handTray.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const edgeZone = 120; // 120px edge threshold
+        const maxScrollSpeed = 16;
+
+        clearInterval(handScrollInterval);
+        handScrollInterval = null;
+
+        if (x < edgeZone) {
+          // Scroll Left
+          const intensity = (edgeZone - x) / edgeZone;
+          handScrollInterval = setInterval(() => {
+            handTray.scrollLeft -= maxScrollSpeed * intensity;
+          }, 16);
+        } else if (x > rect.width - edgeZone) {
+          // Scroll Right
+          const intensity = (x - (rect.width - edgeZone)) / edgeZone;
+          handScrollInterval = setInterval(() => {
+            handTray.scrollLeft += maxScrollSpeed * intensity;
+          }, 16);
+        }
+      });
+
+      handTray.addEventListener('mouseleave', () => {
+        clearInterval(handScrollInterval);
+        handScrollInterval = null;
+      });
+    }
+
+    // Automatically recalculate hand layout on window resize
+    window.addEventListener('resize', () => {
+      updateHandLayout();
+    });
 
     function updatePlayButton() {
       const btn = document.getElementById('btn-play-card');
