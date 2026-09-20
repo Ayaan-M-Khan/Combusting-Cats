@@ -36,8 +36,8 @@ const CARD_TEMPLATES = {
     title: 'COMBUSTION CAT',
     subTitle: 'CRITICAL DETONATION',
     actionText: 'VAPORIZE IMMEDIATELY',
-    funnySetup: 'A FELINE REACTOR CORE APPROACHING MAXIMUM VOLATILITY',
-    bracketRule: '[ { EXPLODE: SHOW IMMEDIATELY. UNLESS YOU HAVE COOLANT FOAM, YOU ARE VAPORIZED. } ]',
+    funnySetup: 'Volatile feline near critical meltdown',
+    bracketRule: '[ EXPLODE: SHOW IMMEDIATELY. UNLESS YOU HAVE COOLANT FOAM, YOU ARE VAPORIZED. ]',
     flavorText: 'Spontaneous feline detonation imminent! Defuse immediately or face catastrophic vaporisation.',
     category: 'danger',
     badgeColor: '#f97316',
@@ -50,8 +50,8 @@ const CARD_TEMPLATES = {
     title: 'COOLANT FOAM',
     subTitle: 'CRYOGENIC EXTINGUISHER',
     actionText: 'NEUTRALIZE MELTDOWN',
-    funnySetup: 'A SQUIRT GUN FILLED WITH CRYO-NITROGEN',
-    bracketRule: '[ { DEFUSE: PLAY WHEN YOU DRAW A COMBUSTION CAT. SECRETLY RE-INSERT IT ANYWHERE IN THE DECK. } ]',
+    funnySetup: 'Squirt gun of cryo-nitrogen',
+    bracketRule: '[ DEFUSE: PLAY WHEN YOU DRAW A COMBUSTION CAT. SECRETLY RE-INSERT IT ANYWHERE IN THE DECK. ]',
     flavorText: 'Douses the fiery feline with liquid nitrogen or catnip spray, allowing you to secretly replace the Combustion Cat anywhere in the deck.',
     category: 'defuse',
     badgeColor: '#10b981',
@@ -64,8 +64,8 @@ const CARD_TEMPLATES = {
     title: 'THERMAL BLAST',
     subTitle: 'REACTOR OVERHEAT',
     actionText: 'FORCE 2 TURNS',
-    funnySetup: 'OVERHEAT THE REACTOR WITH 1,000 MICROWAVED BURRITOS',
-    bracketRule: '[ { ATTACK: END TURN WITHOUT DRAWING. FORCES NEXT PLAYER TO TAKE 2 TURNS. } ]',
+    funnySetup: 'Microwave 1,000 spicy burritos',
+    bracketRule: '[ ATTACK: END TURN WITHOUT DRAWING. FORCES NEXT PLAYER TO TAKE 2 TURNS. ]',
     flavorText: 'Unload thermal energy onto the next operator, forcing them to take 2 consecutive turns immediately.',
     category: 'action',
     badgeColor: '#ef4444',
@@ -77,8 +77,8 @@ const CARD_TEMPLATES = {
     title: 'EMERGENCY EVAC',
     subTitle: 'CRYO SHIELD VENT',
     actionText: 'ESCAPE TURN SAFELY',
-    funnySetup: 'LAUNCH YOURSELF THROUGH THE VENTILATION DUCT',
-    bracketRule: '[ { SKIP: IMMEDIATELY END 1 TURN WITHOUT DRAWING A CARD. } ]',
+    funnySetup: 'Dive through ventilation hatch',
+    bracketRule: '[ SKIP: IMMEDIATELY END 1 TURN WITHOUT DRAWING A CARD. ]',
     flavorText: 'Trigger instant emergency cooling and escape your turn without drawing a card.',
     category: 'action',
     badgeColor: '#06b6d4',
@@ -90,8 +90,8 @@ const CARD_TEMPLATES = {
     title: 'INFRARED SCAN',
     subTitle: 'THERMAL SURVEILLANCE',
     actionText: 'SCAN TOP 3 CORE CARDS',
-    funnySetup: 'A THERMAL SATELLITE PEERS INTO THE FUEL CHAMBER',
-    bracketRule: '[ { SEE THE FUTURE: PRIVATELY VIEW THE TOP 3 CARDS OF THE DECK. } ]',
+    funnySetup: 'Thermal spy cameras on the core',
+    bracketRule: '[ SEE THE FUTURE: PRIVATELY VIEW THE TOP 3 CARDS OF THE DECK. ]',
     flavorText: 'Scan the top 3 cards of the reactor draw core with thermal cameras.',
     category: 'action',
     badgeColor: '#8b5cf6',
@@ -103,8 +103,8 @@ const CARD_TEMPLATES = {
     title: 'TIMELINE SCRAMBLE',
     subTitle: 'REACTOR OVERHAUL',
     actionText: 'REORDER TOP 3 CARDS',
-    funnySetup: 'BEND QUANTUM SPACE-TIME WITH A RUBBER BAND',
-    bracketRule: '[ { ALTER THE FUTURE: VIEW AND REARRANGE THE TOP 3 CARDS IN ANY ORDER. } ]',
+    funnySetup: 'Rubber band bends quantum spacetime',
+    bracketRule: '[ ALTER THE FUTURE: VIEW AND REARRANGE THE TOP 3 CARDS IN ANY ORDER. ]',
     flavorText: 'Peer into the top 3 cards and manipulate their containment sequence.',
     category: 'action',
     badgeColor: '#d946ef',
@@ -116,8 +116,8 @@ const CARD_TEMPLATES = {
     title: 'THERMODYNAMIC VORTEX',
     subTitle: 'CENTRIFUGE AGITATION',
     actionText: 'RANDOMIZE DRAW CORE',
-    funnySetup: 'AN AGITATED CAT RUNS ON THE CENTRIFUGE WHEEL',
-    bracketRule: '[ { SHUFFLE: THOROUGHLY RANDOMIZE THE ENTIRE FUEL DECK. } ]',
+    funnySetup: 'Cat sprint on centrifuge wheel',
+    bracketRule: '[ SHUFFLE: THOROUGHLY RANDOMIZE THE ENTIRE FUEL DECK. ]',
     flavorText: 'Activate the magnetic centrifuge to completely randomize the draw pile.',
     category: 'action',
     badgeColor: '#64748b',
@@ -129,8 +129,8 @@ const CARD_TEMPLATES = {
     title: 'FELINE BLACKMAIL',
     subTitle: 'HAZARD EXTORTION',
     actionText: 'FORCE 1 CARD BRIBE',
-    funnySetup: 'THREATEN RIVALS WITH AN UNCOMFORTABLY LONG STARE',
-    bracketRule: '[ { FAVOR: FORCE ANY RIVAL PLAYER TO GIVE YOU 1 CARD OF THEIR CHOICE. } ]',
+    funnySetup: 'Uncomfortably long intimidation stare',
+    bracketRule: '[ FAVOR: FORCE ANY RIVAL PLAYER TO GIVE YOU 1 CARD OF THEIR CHOICE. ]',
     flavorText: 'Threaten another lab technician with a meltdown to extort 1 card from their hand.',
     category: 'action',
     badgeColor: '#eab308',
@@ -142,8 +142,8 @@ const CARD_TEMPLATES = {
     title: 'NOPE',
     subTitle: 'STOP ACTION',
     actionText: 'CANCEL OPPONENT ACTION',
-    funnySetup: 'A JACKANOPE BOUNDS INTO THE ROOM',
-    bracketRule: '[ { NOPE: STOP THE ACTION OF ANOTHER PLAYER. CAN BE PLAYED AT ANY TIME. } ]',
+    funnySetup: 'A jackanope bounds into the lab',
+    bracketRule: '[ NOPE: STOP THE ACTION OF ANOTHER PLAYER. CAN BE PLAYED AT ANY TIME. ]',
     flavorText: 'Stop the action of another player. Can be played at any time.',
     category: 'action',
     badgeColor: '#dc2626',
@@ -156,8 +156,8 @@ const CARD_TEMPLATES = {
     title: 'STATIC SPARK CAT',
     subTitle: 'TESLA COIL FUR',
     actionText: 'PAIR TO STEAL',
-    funnySetup: 'RUBBED AGAINST 500 WOOL SWEATERS IN DRY WEATHER',
-    bracketRule: '[ { COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. } ]',
+    funnySetup: 'Rubbed on 500 dry wool sweaters',
+    bracketRule: '[ COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. ]',
     flavorText: 'High-voltage friction crackling from its paws. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#f59e0b',
@@ -169,8 +169,8 @@ const CARD_TEMPLATES = {
     title: 'NUCLEAR NACHO CAT',
     subTitle: 'RADIOACTIVE SNACK',
     actionText: 'PAIR TO STEAL',
-    funnySetup: 'CRUNCHING ON GLOWING ISOTOPE-DIPPED TORTILLA CHIPS',
-    bracketRule: '[ { COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. } ]',
+    funnySetup: 'Irradiated radioactive tortilla chips',
+    bracketRule: '[ COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. ]',
     flavorText: 'Irradiated cheese dust radiating lethal gamma warmth. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#84cc16',
@@ -182,8 +182,8 @@ const CARD_TEMPLATES = {
     title: 'PLASMA PURR CAT',
     subTitle: 'SUPERHEATED ION BEAM',
     actionText: 'PAIR TO STEAL',
-    funnySetup: 'PURRING AT 40,000 KELVIN WITH VIOLET ION DISCHARGE',
-    bracketRule: '[ { COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. } ]',
+    funnySetup: '40,000K violet plasma purr',
+    bracketRule: '[ COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. ]',
     flavorText: 'Vibrates at 40,000 kelvin with luminous violet discharge. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#ec4899',
@@ -195,8 +195,8 @@ const CARD_TEMPLATES = {
     title: 'VOLCANO WHISKER CAT',
     subTitle: 'MAGMA PLUME SNOUT',
     actionText: 'PAIR TO STEAL',
-    funnySetup: 'SNEEZING MOLTEN BASALT AND BUBBLING OBSIDIAN',
-    bracketRule: '[ { COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. } ]',
+    funnySetup: 'Sneezing molten basalt and lava',
+    bracketRule: '[ COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. ]',
     flavorText: 'Bristles with molten obsidian and bubbling basalt. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#ea580c',
@@ -208,8 +208,8 @@ const CARD_TEMPLATES = {
     title: 'TICKING TABBY',
     subTitle: 'CHRONO CLOCKWORK',
     actionText: 'PAIR TO STEAL',
-    funnySetup: 'AN INTRICATE CLOCKWORK MECHANISM COUNTING DOWN TO BOOM',
-    bracketRule: '[ { COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. } ]',
+    funnySetup: 'Clockwork feline counting to boom',
+    bracketRule: '[ COMBO ONLY: NO EFFECT ALONE. PLAY 2 TO STEAL, 3 TO DEMAND A CARD, OR 5 TO LOOT DISCARD. ]',
     flavorText: 'Gears grinding and counting down to spontaneous ignition. Pair 2 to steal a random card.',
     category: 'cat',
     badgeColor: '#10b981',
@@ -289,7 +289,7 @@ class GameRoom {
       {
         id: hostSocketId,
         socketId: hostSocketId,
-        name: hostName || 'Captain Kitten',
+        name: String(hostName || 'Captain Kitten').trim().slice(0, 30) || 'Captain Kitten',
         avatarId: hostAvatar || 'player',
         isHost: true,
         isReady: true,
@@ -307,8 +307,11 @@ class GameRoom {
     this.turnsRemaining = 1;
     this.turnCountTotal = 0;
     this.actionLog = [];
-    this.turnState = 'NORMAL'; // 'NORMAL' | 'AWAITING_DEFUSE' | 'AWAITING_FAVOR' | 'ALTERING_FUTURE' | 'SELECTING_DISCARD'
+    this.turnState = 'NORMAL'; // 'NORMAL' | 'DEFUSING' | 'NOPE_WINDOW' | 'AWAITING_FAVOR' | 'ALTERING_FUTURE' | 'SELECTING_DISCARD'
     this.turnStateData = null;
+    this.defuseTimer = null;
+    this.nopeTimer = null;
+    this.pendingAction = null;
     this.botTimer = null;
     this.botKnownTopCards = {};
     this.matchStats = {
@@ -391,10 +394,23 @@ class GameRoom {
         actionLog: this.actionLog,
         turnState: this.turnState,
         turnStateData:
-          this.turnStateData?.targetSocketId === player.socketId ||
-          this.turnStateData?.requesterSocketId === player.socketId
+          this.turnState === 'DEFUSING'
             ? this.turnStateData
-            : null,
+            : (this.turnStateData?.targetSocketId === player.socketId ||
+               this.turnStateData?.requesterSocketId === player.socketId
+                ? this.turnStateData
+                : null),
+        pendingAction: this.pendingAction ? {
+          id: this.pendingAction.id,
+          actionCategory: this.pendingAction.actionCategory,
+          cardTitle: this.pendingAction.card?.title || 'Action',
+          sourcePlayerId: this.pendingAction.sourcePlayerId,
+          sourcePlayerName: this.pendingAction.sourcePlayerName,
+          targetPlayerId: this.pendingAction.targetPlayerId,
+          nopeCount: this.pendingAction.nopeCount,
+          expiresAt: this.pendingAction.expiresAt,
+          history: this.pendingAction.history || [],
+        } : null,
         players: publicPlayers,
         myHand: player.hand,
         myId: player.id,
@@ -409,12 +425,15 @@ class GameRoom {
     this.gameStarted = true;
     this.turnState = 'NORMAL';
     this.turnStateData = null;
+    this.pendingAction = null;
     this.activePlayerIndex = 0;
     this.turnsRemaining = 1;
     this.turnCountTotal = 0;
     this.discardPile = [];
     this.botKnownTopCards = {};
     clearTimeout(this.botTimer);
+    clearTimeout(this.defuseTimer);
+    clearTimeout(this.nopeTimer);
 
     // 1. Build standard pool
     const pool = [];
@@ -482,6 +501,9 @@ class GameRoom {
 
   advanceTurn(newTurns = 1) {
     clearTimeout(this.botTimer);
+    clearTimeout(this.defuseTimer);
+    clearTimeout(this.nopeTimer);
+    this.pendingAction = null;
     const alive = this.players.filter((p) => !p.isDead);
     if (alive.length <= 1) {
       this.checkGameOver();
@@ -678,7 +700,7 @@ class GameRoom {
     this.drawCard(bot.id);
   }
 
-  // DRAW CARD ACTION
+  // DRAW CARD ACTION (with Emergency Combustion Cat Defuse State)
   drawCard(playerId) {
     const currentP = this.players[this.activePlayerIndex];
     if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL') return;
@@ -687,80 +709,61 @@ class GameRoom {
 
     const drawnCard = this.drawPile.shift();
 
+    // COMBUSTION CAT DRAWN: Trigger Emergency Defuse Window
     if (drawnCard.type === 'COMBUSTION_CAT' || drawnCard.type === 'EXPLODING_KITTEN') {
-      const defuseIdx = currentP.hand.findIndex((c) => c.type === 'COOLANT_FOAM' || c.type === 'DEFUSE');
+      this.turnState = 'DEFUSING';
+      this.turnStateData = {
+        defusingPlayerId: currentP.id,
+        defusingPlayerName: currentP.name,
+        defusingSocketId: currentP.socketId,
+        kittenCard: drawnCard,
+        expiresAt: Date.now() + 7000,
+      };
 
-      if (defuseIdx !== -1) {
-        // Player has Coolant Foam / Defuse!
-        const defuseCard = currentP.hand.splice(defuseIdx, 1)[0];
-        this.discardPile.push(defuseCard);
-        this.matchStats.kittensDefused++;
+      const hasDefuse = currentP.hand.some((c) => c.type === 'COOLANT_FOAM' || c.type === 'DEFUSE');
 
-        this.log(
-          currentP.name,
-          currentP.avatarId,
-          `DREW A COMBUSTION CAT but doused the core with ${defuseCard.title}!`
-        );
+      this.log(
+        currentP.name,
+        currentP.avatarId,
+        `⚠️ DREW A COMBUSTION CAT! 7 seconds to deploy Coolant Foam or MELTDOWN!`
+      );
 
-        io.to(this.id).emit('kitten_defused', {
-          playerId: currentP.id,
-          playerName: currentP.name,
-          card: defuseCard,
-        });
+      io.to(this.id).emit('bomb_drawn', {
+        playerId: currentP.id,
+        playerName: currentP.name,
+        durationMs: 7000,
+        hasDefuse,
+      });
 
-        if (currentP.isBot) {
-          // Bot places cat secretly (35% top, 50% random, 15% bottom)
-          const roll = Math.random();
-          if (roll < 0.35) {
-            this.drawPile.unshift(drawnCard);
-          } else if (roll < 0.85) {
-            const randPos = Math.floor(Math.random() * (this.drawPile.length + 1));
-            this.drawPile.splice(randPos, 0, drawnCard);
-          } else {
-            this.drawPile.push(drawnCard);
-          }
+      this.broadcastGameState();
 
-          if (this.turnsRemaining > 1) {
-            this.turnsRemaining--;
-            this.broadcastGameState();
-            this.checkBotTurn();
-          } else {
-            this.advanceTurn(1);
-          }
+      clearTimeout(this.defuseTimer);
+
+      if (currentP.isBot) {
+        if (hasDefuse) {
+          // Bot waits ~1.8 seconds then defuses secretly
+          this.defuseTimer = setTimeout(() => {
+            if (this.turnState === 'DEFUSING' && this.turnStateData?.defusingPlayerId === currentP.id) {
+              const roll = Math.random();
+              const pos = roll < 0.35 ? 'top' : (roll < 0.85 ? 'random' : 'bottom');
+              this.defuseKitten(currentP.id, pos);
+            }
+          }, 1800);
         } else {
-          // Human player must choose where to put the cat
-          this.turnState = 'AWAITING_DEFUSE';
-          this.turnStateData = {
-            kittenCard: drawnCard,
-            targetSocketId: currentP.socketId,
-          };
-          this.broadcastGameState();
+          // Bot has no defuse -> explodes after 2.8s
+          this.defuseTimer = setTimeout(() => {
+            if (this.turnState === 'DEFUSING' && this.turnStateData?.defusingPlayerId === currentP.id) {
+              this.detonatePlayer(currentP.id);
+            }
+          }, 2800);
         }
       } else {
-        // NO COOLANT -> MELTDOWN!
-        this.log(
-          currentP.name,
-          currentP.avatarId,
-          `💥 MELTDOWN! ${currentP.name} drew a Combustion Cat with NO COOLANT and vaporised!`
-        );
-
-        currentP.isDead = true;
-        this.discardPile.push(drawnCard, ...currentP.hand);
-        currentP.hand = [];
-
-        io.to(this.id).emit('player_exploded', {
-          playerId: currentP.id,
-          playerName: currentP.name,
-        });
-
-        this.checkGameOver();
-
-        const alive = this.players.filter((p) => !p.isDead);
-        if (alive.length > 1) {
-          this.advanceTurn(1);
-        } else {
-          this.broadcastGameState();
-        }
+        // Human player: 7000ms authoritative timer
+        this.defuseTimer = setTimeout(() => {
+          if (this.turnState === 'DEFUSING' && this.turnStateData?.defusingPlayerId === currentP.id) {
+            this.detonatePlayer(currentP.id);
+          }
+        }, 7000);
       }
       return;
     }
@@ -775,7 +778,7 @@ class GameRoom {
       playerName: currentP.name,
     });
 
-    // Bot occasional banter if drawing safely under high tension
+    // Bot banter if drawing safely under high tension
     const kittenCount = this.drawPile.filter((c) => c.type === 'COMBUSTION_CAT' || c.type === 'EXPLODING_KITTEN').length;
     const chance = this.drawPile.length > 0 ? (kittenCount / this.drawPile.length) * 100 : 0;
     if (currentP.isBot && chance > 22 && Math.random() < 0.4) {
@@ -806,11 +809,58 @@ class GameRoom {
     }
   }
 
-  // DEFUSE REINSERTION
+  // DETONATE PLAYER (Timer Expiry or No Defuse)
+  detonatePlayer(playerId) {
+    if (this.turnState !== 'DEFUSING') return;
+    clearTimeout(this.defuseTimer);
+
+    const currentP = this.players.find((p) => p.id === playerId);
+    if (!currentP || currentP.isDead) return;
+
+    const kittenCard = this.turnStateData?.kittenCard || createCard('COMBUSTION_CAT');
+
+    this.log(
+      currentP.name,
+      currentP.avatarId,
+      `💥 MELTDOWN! ${currentP.name} drew a Combustion Cat with NO COOLANT and vaporised!`
+    );
+
+    currentP.isDead = true;
+    this.discardPile.push(kittenCard, ...currentP.hand);
+    currentP.hand = [];
+
+    io.to(this.id).emit('player_exploded', {
+      playerId: currentP.id,
+      playerName: currentP.name,
+    });
+
+    this.turnState = 'NORMAL';
+    this.turnStateData = null;
+
+    this.checkGameOver();
+
+    const alive = this.players.filter((p) => !p.isDead);
+    if (alive.length > 1) {
+      this.advanceTurn(1);
+    } else {
+      this.broadcastGameState();
+    }
+  }
+
+  // DEFUSE REINSERTION (Coolant Foam Deployed)
   defuseKitten(playerId, position) {
-    if (this.turnState !== 'AWAITING_DEFUSE') return;
+    if (this.turnState !== 'DEFUSING') return;
     const currentP = this.players[this.activePlayerIndex];
     if (!currentP || currentP.id !== playerId) return;
+
+    const defuseIdx = currentP.hand.findIndex((c) => c.type === 'COOLANT_FOAM' || c.type === 'DEFUSE');
+    if (defuseIdx === -1) return; // Cannot defuse without defuse card!
+
+    clearTimeout(this.defuseTimer);
+
+    const defuseCard = currentP.hand.splice(defuseIdx, 1)[0];
+    this.discardPile.push(defuseCard);
+    this.matchStats.kittensDefused++;
 
     const kittenCard = this.turnStateData?.kittenCard || createCard('COMBUSTION_CAT');
 
@@ -828,7 +878,17 @@ class GameRoom {
       const clamped = Math.max(0, Math.min(this.drawPile.length, position));
       this.drawPile.splice(clamped, 0, kittenCard);
       this.log(currentP.name, currentP.avatarId, `secretly placed the Combustion Cat at chamber #${clamped + 1}.`);
+    } else {
+      const pos = Math.floor(Math.random() * (this.drawPile.length + 1));
+      this.drawPile.splice(pos, 0, kittenCard);
+      this.log(currentP.name, currentP.avatarId, 'secretly reinserted the Combustion Cat into the reactor core.');
     }
+
+    io.to(this.id).emit('kitten_defused', {
+      playerId: currentP.id,
+      playerName: currentP.name,
+      card: defuseCard,
+    });
 
     this.turnState = 'NORMAL';
     this.turnStateData = null;
@@ -842,22 +902,187 @@ class GameRoom {
     }
   }
 
-  // PLAY REGULAR CARD
-  playCard(playerId, cardId) {
-    const currentP = this.players[this.activePlayerIndex];
-    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL') return;
+  // --- NOPE INTERRUPTION ENGINE & ACTION QUEUE ---
+  queuePendingAction(action) {
+    clearTimeout(this.botTimer);
+    clearTimeout(this.nopeTimer);
 
-    const cardIdx = currentP.hand.findIndex((c) => c.id === cardId);
-    if (cardIdx === -1) return;
+    this.pendingAction = {
+      ...action,
+      nopeCount: 0,
+      expiresAt: Date.now() + 3500,
+    };
 
-    const card = currentP.hand.splice(cardIdx, 1)[0];
-    this.discardPile.push(card);
+    this.turnState = 'NOPE_WINDOW';
 
-    io.to(this.id).emit('card_played', {
-      playerId: currentP.id,
-      playerName: currentP.name,
-      card,
+    io.to(this.id).emit('nope_window_started', {
+      pendingAction: {
+        id: this.pendingAction.id,
+        actionCategory: this.pendingAction.actionCategory,
+        cardTitle: this.pendingAction.card?.title || 'Action',
+        sourcePlayerId: this.pendingAction.sourcePlayerId,
+        sourcePlayerName: this.pendingAction.sourcePlayerName,
+        targetPlayerId: this.pendingAction.targetPlayerId,
+        nopeCount: 0,
+        history: this.pendingAction.history || [],
+      },
+      durationMs: 3500,
     });
+
+    this.broadcastGameState();
+
+    this.nopeTimer = setTimeout(() => {
+      this.resolvePendingAction();
+    }, 3500);
+
+    this.scheduleBotNopes();
+  }
+
+  // PLAY NOPE (Can be played by ANY player holding a NOPE during NOPE_WINDOW)
+  playNope(playerId) {
+    if (this.turnState !== 'NOPE_WINDOW' || !this.pendingAction) return;
+
+    const player = this.players.find((p) => p.id === playerId);
+    if (!player || player.isDead) return;
+
+    const nopeIdx = player.hand.findIndex((c) => c.type === 'NOPE');
+    if (nopeIdx === -1) return;
+
+    const nopeCard = player.hand.splice(nopeIdx, 1)[0];
+    this.discardPile.push(nopeCard);
+    this.pendingAction.nopeCount++;
+
+    clearTimeout(this.nopeTimer);
+    const durationMs = 2500;
+    this.pendingAction.expiresAt = Date.now() + durationMs;
+
+    const isNoped = this.pendingAction.nopeCount % 2 === 1;
+    const logMsg = isNoped
+      ? `${player.name} slapped a NOPE! ${this.pendingAction.card?.title || 'Action'} is paused.`
+      : `${player.name} played a NOPE to cancel the previous Nope!`;
+
+    this.log(player.name, player.avatarId, logMsg, 'NOPE');
+
+    io.to(this.id).emit('nope_played', {
+      noperId: player.id,
+      noperName: player.name,
+      nopeCard,
+      nopeCount: this.pendingAction.nopeCount,
+      durationMs,
+      isNoped,
+      actionTitle: this.pendingAction.card?.title || 'Action',
+      historyText: logMsg,
+    });
+
+    this.broadcastGameState();
+
+    this.nopeTimer = setTimeout(() => {
+      this.resolvePendingAction();
+    }, durationMs);
+
+    this.scheduleBotNopes();
+  }
+
+  // BOT NOPE EVALUATOR
+  scheduleBotNopes() {
+    if (this.turnState !== 'NOPE_WINDOW' || !this.pendingAction) return;
+
+    const aliveBots = this.players.filter(
+      (p) => p.isBot && !p.isDead && p.hand.some((c) => c.type === 'NOPE')
+    );
+
+    for (const bot of aliveBots) {
+      const isTarget = this.pendingAction.targetPlayerId === bot.id;
+      const isSource = this.pendingAction.sourcePlayerId === bot.id;
+      const isCurrentlyNoped = this.pendingAction.nopeCount % 2 === 1;
+
+      let shouldNope = false;
+      if (isTarget && !isCurrentlyNoped) {
+        // High urgency if bot is victim of Attack or Steal/Demand
+        shouldNope = Math.random() < 0.75;
+      } else if (isSource && isCurrentlyNoped) {
+        // Original player bot countering a Nope!
+        shouldNope = Math.random() < 0.8;
+      } else if (!isSource && !isCurrentlyNoped) {
+        // General disruptive Nope
+        shouldNope = Math.random() < 0.35;
+      }
+
+      if (shouldNope) {
+        const delay = 900 + Math.floor(Math.random() * 1000);
+        setTimeout(() => {
+          if (this.turnState === 'NOPE_WINDOW' && this.pendingAction) {
+            this.playNope(bot.id);
+          }
+        }, delay);
+        break; // One bot reaction per tick
+      }
+    }
+  }
+
+  // RESOLVE PENDING ACTION
+  resolvePendingAction() {
+    clearTimeout(this.nopeTimer);
+    if (!this.pendingAction) return;
+
+    const action = this.pendingAction;
+    this.pendingAction = null;
+    this.turnState = 'NORMAL';
+
+    const isNoped = action.nopeCount % 2 === 1;
+
+    if (isNoped) {
+      this.log(
+        action.sourcePlayerName,
+        'player',
+        `🚫 NOPED! ${action.card?.title || 'Action'} was cancelled!`,
+        'NOPE'
+      );
+
+      io.to(this.id).emit('action_noped', {
+        actionTitle: action.card?.title || 'Action',
+        sourcePlayerName: action.sourcePlayerName,
+        sourcePlayerId: action.sourcePlayerId,
+        nopeCount: action.nopeCount,
+      });
+
+      this.broadcastGameState();
+      this.checkBotTurn();
+      return;
+    }
+
+    // Action executed!
+    const currentP = this.players.find((p) => p.id === action.sourcePlayerId) || this.players[this.activePlayerIndex];
+
+    switch (action.actionCategory) {
+      case 'SINGLE':
+        this.executeSingleCardAction(currentP, action.card);
+        break;
+      case 'FAVOR':
+        this.executeFavorAction(currentP, action.targetPlayerId);
+        break;
+      case 'PAIR':
+        this.executePairAction(currentP, action.cards, action.targetPlayerId);
+        break;
+      case 'THREE_OF_A_KIND':
+        this.executeThreeOfAKindAction(currentP, action.cards, action.targetPlayerId, action.demandedCardType);
+        break;
+      case 'FIVE_DIFFERENT':
+        this.executeFiveDifferentAction(currentP, action.cards);
+        break;
+      default:
+        this.broadcastGameState();
+        this.checkBotTurn();
+        break;
+    }
+  }
+
+  // EXECUTE SINGLE CARD ACTION
+  executeSingleCardAction(currentP, card) {
+    if (!currentP || currentP.isDead) {
+      this.broadcastGameState();
+      return;
+    }
 
     switch (card.type) {
       case 'THERMAL_BLAST':
@@ -962,6 +1187,53 @@ class GameRoom {
     }
   }
 
+  // PLAY REGULAR CARD (Validates turn & initiates Nope Window)
+  playCard(playerId, cardId) {
+    const currentP = this.players[this.activePlayerIndex];
+    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL') return;
+
+    const cardIdx = currentP.hand.findIndex((c) => c.id === cardId);
+    if (cardIdx === -1) return;
+
+    const card = currentP.hand[cardIdx];
+
+    // RESTRICTION: Defuse (Coolant Foam) cannot be played arbitrarily during normal turn
+    if (card.type === 'COOLANT_FOAM' || card.type === 'DEFUSE') {
+      return;
+    }
+
+    // RESTRICTION: Nope cannot be played outside of an active Nope window
+    if (card.type === 'NOPE') {
+      return;
+    }
+
+    // RESTRICTION: Cat cards cannot be played alone
+    if (card.category === 'cat') {
+      return;
+    }
+
+    currentP.hand.splice(cardIdx, 1);
+    this.discardPile.push(card);
+
+    io.to(this.id).emit('card_played', {
+      playerId: currentP.id,
+      playerName: currentP.name,
+      card,
+    });
+
+    // Queue action for Nope interruption window
+    this.queuePendingAction({
+      id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      actionCategory: 'SINGLE',
+      cardType: card.type,
+      card,
+      sourcePlayerId: currentP.id,
+      sourcePlayerName: currentP.name,
+      targetPlayerId: null,
+      history: [`${currentP.name} played ${card.title}`],
+    });
+  }
+
   // ALTER FUTURE CONFIRMATION
   reorderFuture(playerId, reorderedCardIds) {
     if (this.turnState !== 'ALTERING_FUTURE') return;
@@ -972,7 +1244,6 @@ class GameRoom {
     const topIds = topCards.map((c) => c.id).sort();
     const incomingIds = [...reorderedCardIds].sort();
 
-    // Authoritative security check: ensure incoming array matches top cards
     if (JSON.stringify(topIds) === JSON.stringify(incomingIds)) {
       const cardMap = new Map(topCards.map((c) => [c.id, c]));
       const newTop = reorderedCardIds.map((id) => cardMap.get(id)).filter(Boolean);
@@ -986,11 +1257,11 @@ class GameRoom {
     this.checkBotTurn();
   }
 
-  // FAVOR CARD
+  // FAVOR CARD (Initiates Nope Window)
   playFavor(playerId, cardId, targetPlayerId) {
     const currentP = this.players[this.activePlayerIndex];
     const victim = this.players.find((p) => p.id === targetPlayerId);
-    if (!currentP || currentP.id !== playerId || !victim || victim.isDead || victim.hand.length === 0)
+    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL' || !victim || victim.isDead || victim.hand.length === 0)
       return;
 
     const cardIdx = currentP.hand.findIndex((c) => c.id === cardId);
@@ -1005,15 +1276,35 @@ class GameRoom {
       card,
     });
 
+    this.queuePendingAction({
+      id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      actionCategory: 'FAVOR',
+      cardType: 'FELINE_BLACKMAIL',
+      card,
+      sourcePlayerId: currentP.id,
+      sourcePlayerName: currentP.name,
+      targetPlayerId: victim.id,
+      history: [`${currentP.name} demanded a Favor from ${victim.name}`],
+    });
+  }
+
+  // EXECUTE FAVOR ACTION (After surviving Nope window)
+  executeFavorAction(currentP, targetPlayerId) {
+    const victim = this.players.find((p) => p.id === targetPlayerId);
+    if (!victim || victim.isDead || victim.hand.length === 0) {
+      this.broadcastGameState();
+      this.checkBotTurn();
+      return;
+    }
+
     this.log(
       currentP.name,
       currentP.avatarId,
-      `played Favor and demanded a tribute from ${victim.name}!`
+      `demanded a tribute from ${victim.name}!`
     );
 
     if (victim.isBot) {
-      // Bot chooses non-defuse card if available
-      const nonDefuse = victim.hand.filter((c) => c.type !== 'DEFUSE');
+      const nonDefuse = victim.hand.filter((c) => c.type !== 'DEFUSE' && c.type !== 'COOLANT_FOAM');
       const given =
         nonDefuse.length > 0
           ? nonDefuse[Math.floor(Math.random() * nonDefuse.length)]
@@ -1025,7 +1316,6 @@ class GameRoom {
       this.broadcastGameState();
       this.checkBotTurn();
     } else {
-      // Prompt human victim
       this.turnState = 'AWAITING_FAVOR';
       this.turnStateData = {
         requesterId: currentP.id,
@@ -1057,7 +1347,7 @@ class GameRoom {
     this.checkBotTurn();
   }
 
-  // 2-OF-A-KIND (PAIR) COMBO: Steal random card
+  // 2-OF-A-KIND (PAIR) COMBO: Steal random card (Initiates Nope Window)
   playPair(playerId, pairCardIds, targetPlayerId) {
     const currentP = this.players[this.activePlayerIndex];
     const victim = this.players.find((p) => p.id === targetPlayerId);
@@ -1070,7 +1360,27 @@ class GameRoom {
     currentP.hand = currentP.hand.filter((c) => !pairCardIds.includes(c.id));
     this.discardPile.push(...cardsToPlay);
 
-    // Steal random card from victim
+    this.queuePendingAction({
+      id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      actionCategory: 'PAIR',
+      cardType: 'PAIR',
+      card: cardsToPlay[0],
+      cards: cardsToPlay,
+      sourcePlayerId: currentP.id,
+      sourcePlayerName: currentP.name,
+      targetPlayerId: victim.id,
+      history: [`${currentP.name} played a Pair of ${cardsToPlay[0].title}s against ${victim.name}`],
+    });
+  }
+
+  executePairAction(currentP, cardsToPlay, targetPlayerId) {
+    const victim = this.players.find((p) => p.id === targetPlayerId);
+    if (!victim || victim.isDead || victim.hand.length === 0) {
+      this.broadcastGameState();
+      this.checkBotTurn();
+      return;
+    }
+
     const randIdx = Math.floor(Math.random() * victim.hand.length);
     const stolenCard = victim.hand.splice(randIdx, 1)[0];
     currentP.hand.push(stolenCard);
@@ -1097,12 +1407,11 @@ class GameRoom {
     this.checkBotTurn();
   }
 
-  // Backwards compatibility alias
   playCatPair(playerId, pairCardIds, targetPlayerId) {
     return this.playPair(playerId, pairCardIds, targetPlayerId);
   }
 
-  // 3-OF-A-KIND COMBO: Targeted Card Demand
+  // 3-OF-A-KIND COMBO: Targeted Card Demand (Initiates Nope Window)
   playThreeOfAKind(playerId, cardIds, targetPlayerId, demandedCardType) {
     const currentP = this.players[this.activePlayerIndex];
     const victim = this.players.find((p) => p.id === targetPlayerId);
@@ -1115,6 +1424,30 @@ class GameRoom {
 
     currentP.hand = currentP.hand.filter((c) => !cardIds.includes(c.id));
     this.discardPile.push(...cardsToPlay);
+
+    const demandedTemplate = CARD_TEMPLATES[demandedCardType] || { title: demandedCardType };
+
+    this.queuePendingAction({
+      id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      actionCategory: 'THREE_OF_A_KIND',
+      cardType: 'THREE_OF_A_KIND',
+      card: cardsToPlay[0],
+      cards: cardsToPlay,
+      sourcePlayerId: currentP.id,
+      sourcePlayerName: currentP.name,
+      targetPlayerId: victim.id,
+      demandedCardType,
+      history: [`${currentP.name} played 3-of-a-Kind (${cardsToPlay[0].title}s) targeting ${victim.name} for ${demandedTemplate.title}`],
+    });
+  }
+
+  executeThreeOfAKindAction(currentP, cardsToPlay, targetPlayerId, demandedCardType) {
+    const victim = this.players.find((p) => p.id === targetPlayerId);
+    if (!victim || victim.isDead) {
+      this.broadcastGameState();
+      this.checkBotTurn();
+      return;
+    }
 
     const demandedIndex = victim.hand.findIndex((c) => c.type === demandedCardType);
     const demandedTemplate = CARD_TEMPLATES[demandedCardType] || { title: demandedCardType };
@@ -1165,7 +1498,7 @@ class GameRoom {
     this.checkBotTurn();
   }
 
-  // 5-DIFFERENT COMBO: Discard Pile Retrieval
+  // 5-DIFFERENT COMBO: Discard Pile Retrieval (Initiates Nope Window)
   playFiveDifferent(playerId, cardIds) {
     const currentP = this.players[this.activePlayerIndex];
     if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL') return;
@@ -1176,10 +1509,22 @@ class GameRoom {
     const types = new Set(cardsToPlay.map((c) => c.type));
     if (types.size !== 5) return;
 
-    // Discard the 5 played cards
     currentP.hand = currentP.hand.filter((c) => !cardIds.includes(c.id));
     this.discardPile.push(...cardsToPlay);
 
+    this.queuePendingAction({
+      id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      actionCategory: 'FIVE_DIFFERENT',
+      cardType: 'FIVE_DIFFERENT',
+      card: { title: '5-Card Lab Combo', type: 'FIVE_DIFFERENT' },
+      cards: cardsToPlay,
+      sourcePlayerId: currentP.id,
+      sourcePlayerName: currentP.name,
+      history: [`${currentP.name} played a 5-Card Combo to scavenge Discard`],
+    });
+  }
+
+  executeFiveDifferentAction(currentP, cardsToPlay) {
     this.log(
       currentP.name,
       currentP.avatarId,
@@ -1318,11 +1663,13 @@ io.on('connection', (socket) => {
       return;
     }
 
+    const cleanName = String(playerName || `Player ${targetRoom.players.length + 1}`).trim().slice(0, 30) || `Player ${targetRoom.players.length + 1}`;
+
     // Add player
     const newPlayer = {
       id: socket.id,
       socketId: socket.id,
-      name: playerName || `Player ${targetRoom.players.length + 1}`,
+      name: cleanName,
       avatarId: avatarId || 'player',
       isHost: false,
       isReady: false,
@@ -1361,12 +1708,14 @@ io.on('connection', (socket) => {
       }
     }
 
+    const cleanName = String(playerName || '').trim().slice(0, 30);
+
     if (availableRoom) {
       // Join existing public room
       const newPlayer = {
         id: socket.id,
         socketId: socket.id,
-        name: playerName || `Guest ${availableRoom.players.length + 1}`,
+        name: cleanName || `Guest ${availableRoom.players.length + 1}`,
         avatarId: avatarId || 'player',
         isHost: false,
         isReady: false,
@@ -1394,7 +1743,7 @@ io.on('connection', (socket) => {
       // Spawn new public room
       const roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
       const roomCode = generateRoomCode();
-      const room = new GameRoom(roomId, roomCode, false, socket.id, playerName, avatarId);
+      const room = new GameRoom(roomId, roomCode, false, socket.id, cleanName || 'Guest 1', avatarId);
 
       rooms.set(roomId, room);
       socketToRoom.set(socket.id, roomId);

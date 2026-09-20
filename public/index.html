@@ -191,19 +191,22 @@
 
     .card-header .card-flavor {
       font-family: 'Fredoka', cursive, sans-serif;
-      font-size: 9.5px;
-      color: #666666;
+      font-size: 8.5px;
+      color: #555555;
       font-style: italic;
-      line-height: 1.2;
-      margin-top: 2px;
+      line-height: 1.15;
+      margin-top: 1px;
       text-transform: uppercase;
-      white-space: nowrap;
+      white-space: normal;
+      word-break: break-word;
       overflow: hidden;
-      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
     }
 
     .card-art-frame {
-      height: 90px;
+      height: 84px;
       width: 100%;
       border-radius: 8px;
       overflow: hidden;
@@ -212,16 +215,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 4px 0;
+      margin: 3px 0;
       pointer-events: none;
       flex-shrink: 0;
-      padding: 4px;
+      padding: 3px;
     }
 
     .card-art-frame svg {
       width: 100%;
       height: 100%;
-      max-height: 82px;
+      max-height: 78px;
     }
 
     .card-action-box {
@@ -763,9 +766,9 @@
     </div>
 
     <!-- Top Bar: Game status, Opponents, and Menu -->
-    <header class="w-full px-3 py-1.5 bg-black/50 backdrop-blur-xs border-b border-black/40 z-30 flex items-center justify-between">
+    <header class="w-full px-4 py-2 sm:py-2.5 bg-black/60 backdrop-blur-xs border-b border-black/40 z-30 flex items-center justify-between gap-3 min-h-[90px]">
       <div class="flex items-center gap-2">
-        <button id="btn-game-menu" class="px-3 py-1 rounded-xl bg-[#4a2414] hover:bg-[#61301b] border-2 border-stone-900 font-bangers text-amber-200 text-xs tracking-wider cursor-pointer">
+        <button id="btn-game-menu" class="px-3 py-1.5 rounded-xl bg-[#4a2414] hover:bg-[#61301b] border-2 border-stone-900 font-bangers text-amber-200 text-xs tracking-wider cursor-pointer shadow-md">
           MENU / RULES
         </button>
         <span id="game-room-tag" class="hidden sm:inline-block font-bangers text-xs text-stone-400">
@@ -774,22 +777,22 @@
       </div>
 
       <!-- Live Opponents Row across top -->
-      <div id="game-opponents-row" class="flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto px-2">
+      <div id="game-opponents-row" class="flex-1 flex items-center justify-center gap-3 sm:gap-5 overflow-x-auto px-2 py-1">
         <!-- Rendered dynamically -->
       </div>
 
       <!-- Right Sound Toggle -->
-      <button id="btn-game-sound" class="w-8 h-8 rounded-full bg-[#4a2414] hover:bg-[#61301b] border-2 border-stone-900 text-amber-200 text-xs flex items-center justify-center cursor-pointer">
+      <button id="btn-game-sound" class="w-9 h-9 rounded-full bg-[#4a2414] hover:bg-[#61301b] border-2 border-stone-900 text-amber-200 text-sm flex items-center justify-center cursor-pointer shadow-md">
         🔊
       </button>
     </header>
 
     <!-- Center Play Area: Speedometer Gauge, Deck, Discard, Parchment Log -->
-    <main class="flex-1 w-full max-w-7xl mx-auto px-3 py-2 flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 relative z-10">
       
       <!-- Left: Speedometer Chance-of-Kitten Gauge -->
-      <div class="flex flex-col items-center">
-        <div class="relative w-36 h-24 sm:w-44 sm:h-28 bg-[#201008] border-4 border-amber-600 rounded-t-full p-2 flex flex-col items-center justify-end shadow-2xl">
+      <div class="flex flex-col items-center justify-center min-w-[180px]">
+        <div class="relative w-44 h-28 sm:w-52 sm:h-34 bg-[#201008] border-4 border-amber-600 rounded-t-full p-2.5 flex flex-col items-center justify-end shadow-2xl">
           <!-- Dial Arch -->
           <svg class="w-full h-full" viewBox="0 0 100 60">
             <!-- Green zone (0 - 15%) -->
@@ -807,18 +810,18 @@
           </svg>
 
           <!-- Digital readout pill -->
-          <div class="absolute -bottom-2 bg-stone-900 border-2 border-stone-950 px-2 py-0.5 rounded-full font-bangers text-xs sm:text-sm text-yellow-300 shadow">
+          <div class="absolute -bottom-2.5 bg-stone-900 border-2 border-stone-950 px-3 py-0.5 rounded-full font-bangers text-sm sm:text-base text-yellow-300 shadow-md">
             <span id="gauge-percentage-text">0%</span> DANGER
           </div>
         </div>
-        <span class="font-bangers text-[10px] text-amber-200/80 tracking-wider mt-3">CHANCE OF KITTEN</span>
+        <span class="font-bangers text-xs text-amber-200 tracking-wider mt-3">CHANCE OF KITTEN</span>
       </div>
 
       <!-- Middle: Draw Deck & Discard Pile -->
-      <div class="relative flex items-center gap-6 sm:gap-10">
+      <div class="relative flex items-center justify-center gap-8 sm:gap-14 flex-1">
         <!-- Center-Table Animated Combo Announcement Banner -->
         <div id="comboBanner" class="combo-announcement">
-          <div class="px-5 py-2 sm:px-7 sm:py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-400 border-3 border-stone-950 shadow-[0_8px_25px_rgba(245,158,11,0.7),0_0_15px_rgba(255,255,255,0.4)] flex flex-col items-center justify-center text-center whitespace-nowrap">
+          <div class="px-6 py-2.5 sm:px-8 sm:py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-400 border-3 border-stone-950 shadow-[0_8px_25px_rgba(245,158,11,0.7),0_0_15px_rgba(255,255,255,0.4)] flex flex-col items-center justify-center text-center whitespace-nowrap">
             <div class="font-bangers text-xl sm:text-2xl text-stone-950 tracking-wider drop-shadow-sm leading-none flex items-center gap-2">
               <span id="combo-banner-icon-left">🔥</span>
               <span id="combo-banner-title">2 OF A KIND!</span>
@@ -832,13 +835,13 @@
 
         <!-- Draw Pile (Clickable to Draw Card on your turn) -->
         <div id="deck-container" class="flex flex-col items-center cursor-pointer group">
-          <div id="deck-card" class="relative w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-gradient-to-br from-[#801818] to-[#450a0a] border-4 border-stone-950 shadow-[0_10px_0_#1c0f08] flex flex-col items-center justify-center p-3 text-center transition-all group-hover:scale-103 group-hover:-translate-y-1">
+          <div id="deck-card" class="relative w-32 h-48 sm:w-40 sm:h-58 rounded-2xl bg-gradient-to-br from-[#801818] to-[#450a0a] border-4 border-stone-950 shadow-[0_12px_0_#1c0f08] flex flex-col items-center justify-center p-3 text-center transition-all group-hover:scale-103 group-hover:-translate-y-1">
             <!-- Decorative Deck Stack lines -->
             <div class="absolute -top-1.5 -left-1.5 w-full h-full rounded-2xl border-2 border-stone-900/60 pointer-events-none -z-10 bg-[#591212]"></div>
             <div class="absolute -top-3 -left-3 w-full h-full rounded-2xl border-2 border-stone-900/40 pointer-events-none -z-20 bg-[#3d0c0c]"></div>
 
             <!-- Kitten silhouette badge -->
-            <div class="w-16 h-16 sm:w-20 sm:h-20 text-yellow-400 fill-current drop-shadow">
+            <div class="w-18 h-18 sm:w-22 sm:h-22 text-yellow-400 fill-current drop-shadow">
               <svg viewBox="0 0 100 100" class="w-full h-full">
                 <path d="M20,70 Q15,40 25,25 Q35,35 45,30 Q55,30 65,25 Q75,40 70,70 Q45,85 20,70 Z" />
                 <polygon points="25,32 15,10 40,25" />
@@ -856,7 +859,7 @@
             </div>
 
             <!-- Pulse Draw Badge when it's your turn -->
-            <div id="draw-pulse-badge" class="absolute -bottom-3 bg-lime-500 border-2 border-stone-950 text-stone-950 font-bangers text-xs px-2.5 py-0.5 rounded-full shadow-lg animate-bounce hidden">
+            <div id="draw-pulse-badge" class="absolute -bottom-3 bg-lime-500 border-2 border-stone-950 text-stone-950 font-bangers text-xs sm:text-sm px-3 py-0.5 rounded-full shadow-lg animate-bounce hidden">
               CLICK TO DRAW!
             </div>
           </div>
@@ -864,40 +867,42 @@
 
         <!-- Discard Pile -->
         <div class="flex flex-col items-center">
-          <div id="discard-card-slot" class="w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-black/40 border-3 border-dashed border-stone-700 flex flex-col items-center justify-center p-2 text-center relative rotate-2">
-            <span class="font-bangers text-stone-500 text-sm">DISCARD PILE (EMPTY)</span>
+          <div id="discard-card-slot" class="w-32 h-48 sm:w-40 sm:h-58 rounded-2xl bg-black/40 border-3 border-dashed border-stone-700 flex flex-col items-center justify-center p-2 text-center relative rotate-2 shadow-inner">
+            <span class="font-bangers text-stone-500 text-sm sm:text-base">DISCARD PILE (EMPTY)</span>
           </div>
-          <span class="font-bangers text-[10px] text-amber-200/80 tracking-wider mt-2">LAST PLAYED</span>
+          <span class="font-bangers text-xs text-amber-200 tracking-wider mt-2">LAST PLAYED</span>
         </div>
       </div>
 
       <!-- Right: Parchment Action Scroll & Quick Emotes -->
-      <div class="flex flex-col items-end gap-2 w-full md:w-64">
+      <div class="flex flex-col items-end gap-2.5 w-full md:w-80 lg:w-88">
         <!-- Parchment Log -->
-        <div class="w-full parchment rounded-xl border-3 border-amber-900 p-2.5 shadow-lg flex flex-col h-40 overflow-hidden">
-          <div class="flex items-center justify-between border-b border-amber-900/30 pb-1 mb-1.5">
-            <span class="font-bangers text-xs text-amber-950 tracking-wider">📜 TABLE CHRONICLES</span>
-            <span id="turns-stacked-tag" class="font-bangers text-[11px] text-red-700 bg-red-200/60 px-1.5 rounded">1 TURN</span>
+        <div class="w-full parchment rounded-2xl border-3 border-amber-900 p-3 shadow-xl flex flex-col h-44 sm:h-52 overflow-hidden">
+          <div class="flex items-center justify-between border-b border-amber-900/30 pb-1.5 mb-1.5">
+            <span class="font-bangers text-xs sm:text-sm text-amber-950 tracking-wider">📜 TABLE CHRONICLES</span>
+            <span id="turns-stacked-tag" class="font-bangers text-xs text-red-700 bg-red-200/70 px-2 py-0.5 rounded-md font-bold">1 TURN</span>
           </div>
           <div id="action-log-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1 font-fredoka text-xs text-amber-950">
             <div>Match started. Good luck!</div>
           </div>
         </div>
 
-        <!-- In-Game Emote Reactions & Phrase Drawer -->
-        <div class="relative flex items-center gap-1.5 bg-black/60 p-1.5 rounded-xl border border-stone-800">
-          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="😼 Meow!">😼</button>
-          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="💣 Help!">💣</button>
-          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="🛡️ Defused!">🛡️</button>
-          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="🔥 GG!">🔥</button>
-          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="😱 Eek!">😱</button>
-          <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer" data-emote="😈 Hehe">😈</button>
-          <button id="btn-toggle-emote-panel" title="More Emotes & Tactical Phrases" class="comic-btn px-2 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 font-bangers text-[11px] text-white flex items-center gap-1 cursor-pointer">
+        <!-- In-Game Emote Reactions & Phrase Drawer (Under the Table) -->
+        <div class="relative w-full flex items-center justify-between gap-1.5 bg-black/70 p-2 rounded-2xl border-2 border-stone-800 shadow-md">
+          <div class="flex items-center gap-1.5 overflow-x-auto">
+            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="😼 Meow!" title="Meow!">😼</button>
+            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="💣 Help!" title="Help!">💣</button>
+            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="🛡️ Defused!" title="Defused!">🛡️</button>
+            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="🔥 GG!" title="GG!">🔥</button>
+            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="😱 Eek!" title="Eek!">😱</button>
+            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="😈 Hehe" title="Hehe">😈</button>
+          </div>
+          <button id="btn-toggle-emote-panel" title="More Emotes & Tactical Phrases" class="comic-btn px-2.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 font-bangers text-xs text-white flex items-center gap-1 cursor-pointer whitespace-nowrap shadow-sm">
             <span>💬 MORE</span>
           </button>
 
           <!-- Floating Emote Popover Drawer -->
-          <div id="emote-popover-panel" class="hidden absolute bottom-full right-0 mb-2 w-64 sm:w-72 bg-stone-900 border-2 border-amber-500 rounded-2xl p-3 shadow-2xl z-50 flex flex-col gap-2.5">
+          <div id="emote-popover-panel" class="hidden absolute bottom-full right-0 mb-2 w-72 sm:w-80 bg-stone-900 border-2 border-amber-500 rounded-2xl p-3 shadow-2xl z-50 flex flex-col gap-2.5">
             <div class="flex items-center justify-between border-b border-stone-800 pb-1.5">
               <span class="font-bangers text-xs text-yellow-400 tracking-wider">💬 TACTICAL SPEECH & EMOTES</span>
               <button id="btn-close-emote-panel" class="text-stone-400 hover:text-white text-xs cursor-pointer font-bold px-1">✕</button>
@@ -954,33 +959,17 @@
           <div class="flex items-center gap-2">
             <!-- My Avatar Container (anchor for reaction bubble) -->
             <div class="avatar-container relative flex items-center">
-              <div id="my-avatar-box" class="flex items-center gap-2 bg-stone-900/90 border-2 border-yellow-500/70 hover:border-yellow-400 px-2.5 py-1 rounded-xl shadow-md transition-colors">
-                <div id="my-avatar-icon" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-yellow-400 bg-stone-800 relative flex items-center justify-center">
+              <div id="my-avatar-box" class="flex items-center gap-2.5 bg-stone-900/90 border-2 border-yellow-500/70 hover:border-yellow-400 px-3 py-1.5 rounded-2xl shadow-md transition-colors relative">
+                <div id="my-avatar-icon" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-yellow-400 bg-stone-800 relative flex items-center justify-center flex-shrink-0">
                   <!-- SVG Avatar -->
                 </div>
                 <div class="flex flex-col text-left leading-none">
                   <div class="flex items-center gap-1">
-                    <span id="my-avatar-name" class="font-bangers text-xs sm:text-sm text-yellow-300 truncate max-w-[85px]">You</span>
+                    <span id="my-avatar-name" class="font-bangers text-xs sm:text-sm text-yellow-300 break-words max-w-[120px]">You</span>
                     <span class="font-bangers text-[10px] text-lime-400">(YOU)</span>
                   </div>
-                  <span id="my-avatar-cards-count" class="font-fredoka text-[10px] text-stone-400 mt-0.5">0 cards</span>
+                  <span id="my-avatar-cards-count" class="font-fredoka text-[10px] text-stone-400 mt-1">0 cards</span>
                 </div>
-              </div>
-
-              <!-- Clickable speech bubble emote button (💬) immediately beside the bottom-left player avatar icon (YOU) -->
-              <button id="btn-avatar-emote-trigger" title="Quick Reaction" class="comic-btn ml-1.5 w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500 hover:bg-amber-400 border-2 border-stone-950 flex items-center justify-center text-stone-950 font-bangers text-base sm:text-lg shadow-md hover:scale-105 active:scale-95 transition-transform cursor-pointer">
-                💬
-              </button>
-
-              <!-- Quick Reaction Bar Popover (opens above the avatar) -->
-              <div id="avatar-reaction-picker" class="hidden absolute bottom-[115%] left-0 z-50 bg-stone-900/95 border-2 border-amber-500/80 rounded-2xl p-2 shadow-[0_10px_30px_rgba(0,0,0,0.9)] flex items-center gap-1.5 whitespace-nowrap animate-fade-in backdrop-blur-md">
-                <button class="avatar-reaction-opt px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-600/40 text-base sm:text-lg hover:scale-115 transition-transform cursor-pointer" data-reaction="🔥" title="Combustion">🔥</button>
-                <button class="avatar-reaction-opt px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-600/40 text-base sm:text-lg hover:scale-115 transition-transform cursor-pointer" data-reaction="🙀" title="Panic">🙀</button>
-                <button class="avatar-reaction-opt px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-600/40 text-base sm:text-lg hover:scale-115 transition-transform cursor-pointer" data-reaction="💨" title="Evac">💨</button>
-                <button class="avatar-reaction-opt px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-600/40 text-base sm:text-lg hover:scale-115 transition-transform cursor-pointer" data-reaction="🧊" title="Coolant">🧊</button>
-                <button class="avatar-reaction-opt px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-amber-500 hover:text-stone-950 text-amber-200 font-bangers text-xs tracking-wider hover:scale-105 transition-transform cursor-pointer" data-reaction="Help!">Help!</button>
-                <button class="avatar-reaction-opt px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-amber-500 hover:text-stone-950 text-amber-200 font-bangers text-xs tracking-wider hover:scale-105 transition-transform cursor-pointer" data-reaction="GG">GG</button>
-                <button class="avatar-reaction-opt px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-amber-500 hover:text-stone-950 text-amber-200 font-bangers text-xs tracking-wider hover:scale-105 transition-transform cursor-pointer" data-reaction="Boom!">Boom!</button>
               </div>
             </div>
 
@@ -2152,85 +2141,103 @@
       }
     }
 
-    // Explicit Rule Mechanics for Bottom of Reference Card Anatomy (No text clipping)
+    // Explicit Rule Mechanics for Bottom of Reference Card Anatomy (No text clipping, single brackets)
     function getCardRuleText(card) {
-      if (card.bracketRule) return card.bracketRule;
+      let rawRule = card.bracketRule;
+      if (rawRule) {
+        // Normalize any bracket/brace mixes like [{ or {[ or { to clean single brackets [ ... ]
+        rawRule = rawRule.replace(/\[\s*\{\s*/g, '[ ')
+                         .replace(/\s*\}\s*\]/g, ' ]')
+                         .replace(/\[\s*\{/g, '[')
+                         .replace(/\}\s*\]/g, ']')
+                         .replace(/\{/g, '')
+                         .replace(/\}/g, '')
+                         .replace(/\[\s*\[/g, '[')
+                         .replace(/\]\s*\]/g, ']');
+        return rawRule;
+      }
       const t = (card.type || '').toUpperCase();
       switch (t) {
         case 'COOLANT_FOAM':
         case 'DEFUSE':
-          return '<span class="font-extrabold text-sky-800">[ DEFUSE ]</span> Immediately extinguishes a Combustion Cat. Secretly re-insert it anywhere into the fuel deck.';
+          return '<span class="font-extrabold text-sky-800">[ DEFUSE ]</span> Extinguish a Combustion Cat. Secretly re-insert it anywhere in the deck.';
         case 'THERMAL_BLAST':
         case 'ATTACK':
-          return '<span class="font-extrabold text-orange-800">[ ATTACK ]</span> End your turn without drawing. Forces the next player to immediately take 2 turns.';
+          return '<span class="font-extrabold text-orange-800">[ ATTACK ]</span> End turn without drawing. Force next player to take 2 turns.';
         case 'EMERGENCY_EVAC':
         case 'SKIP':
-          return '<span class="font-extrabold text-emerald-800">[ SKIP ]</span> Immediately ends 1 of your pending turns without drawing a card.';
+          return '<span class="font-extrabold text-emerald-800">[ SKIP ]</span> End 1 of your pending turns without drawing.';
         case 'INFRARED_SCAN':
         case 'SEE_THE_FUTURE':
-          return '<span class="font-extrabold text-pink-800">[ SEE THE FUTURE ]</span> Privately peek at the top 3 cards of the fuel deck without altering them.';
+          return '<span class="font-extrabold text-pink-800">[ SEE THE FUTURE ]</span> Privately peek at the top 3 cards of the deck.';
         case 'TIMELINE_SCRAMBLE':
         case 'ALTER_THE_FUTURE':
-          return '<span class="font-extrabold text-purple-800">[ ALTER THE FUTURE ]</span> Privately view and rearrange the top 3 cards of the fuel deck in any order.';
+          return '<span class="font-extrabold text-purple-800">[ ALTER THE FUTURE ]</span> Privately view and rearrange top 3 cards.';
         case 'THERMODYNAMIC_VORTEX':
         case 'SHUFFLE':
-          return '<span class="font-extrabold text-amber-800">[ SHUFFLE ]</span> Thoroughly randomize the entire draw deck.';
+          return '<span class="font-extrabold text-amber-800">[ SHUFFLE ]</span> Thoroughly randomize the draw deck.';
         case 'FELINE_BLACKMAIL':
         case 'FAVOR':
-          return '<span class="font-extrabold text-indigo-800">[ FAVOR ]</span> Force an opponent to give you 1 card of their choice.';
+          return '<span class="font-extrabold text-indigo-800">[ FAVOR ]</span> Force target player to give you 1 card.';
         case 'NOPE':
-          return '<span class="font-extrabold text-red-800">[ NOPE ]</span> Stop the action of any player at any time.';
+          return '<span class="font-extrabold text-red-800">[ NOPE ]</span> Cancel any played action card instantly.';
         case 'COMBUSTION_CAT':
         case 'BOMB':
-          return '<span class="font-extrabold text-red-800">[ EXPLODE ]</span> Show immediately. Unless you have Coolant Foam, you are vaporized.';
+          return '<span class="font-extrabold text-red-800">[ EXPLODE ]</span> Show instantly. Discard Coolant or get eliminated.';
         default:
-          return '<span class="font-extrabold text-stone-800">[ COMBO ONLY ]</span> Powerless alone. Match 2 to steal random, 3 to demand a card, or 5 to search discard.';
+          return '<span class="font-extrabold text-stone-800">[ COMBO ONLY ]</span> Powerless alone. Match 2, 3, or 5 to steal cards.';
       }
     }
 
-    // Flavor text / funny setup at top of card
+    // Flavor text / funny setup at top of card (punchy, fits card header)
     function getCardFunnySetup(card) {
-      if (card.funnySetup) return card.funnySetup;
+      if (card.funnySetup) {
+        let s = String(card.funnySetup).trim();
+        if (s.length > 38) {
+          s = s.slice(0, 36) + '...';
+        }
+        return s;
+      }
       const t = (card.type || '').toUpperCase();
       switch (t) {
         case 'COOLANT_FOAM':
         case 'DEFUSE':
-          return 'A squirt gun filled with cryo-nitrogen';
+          return 'Cryogenic squirt gun';
         case 'THERMAL_BLAST':
         case 'ATTACK':
-          return 'Release containment valves onto the next sector';
+          return '1,000 microwaved burritos';
         case 'EMERGENCY_EVAC':
         case 'SKIP':
-          return 'Sprint through the emergency decontamination hatch';
+          return 'Decontamination slide escape';
         case 'INFRARED_SCAN':
         case 'SEE_THE_FUTURE':
-          return 'Consult high-res thermal imaging feeds';
+          return 'Thermal spy satellite feed';
         case 'TIMELINE_SCRAMBLE':
         case 'ALTER_THE_FUTURE':
-          return 'Tinker recklessly with quantum feline chronology';
+          return 'Quantum chronometer rewind';
         case 'THERMODYNAMIC_VORTEX':
         case 'SHUFFLE':
-          return 'Fire the centrifuge to scramble the fuel stacks';
+          return 'High-speed cat centrifuge';
         case 'FELINE_BLACKMAIL':
         case 'FAVOR':
-          return 'Blackmail a technician with camera feeds';
+          return 'Unblinking intimidation stare';
         case 'NOPE':
-          return 'A jackanope bounds into the room to ruin your hopes';
+          return 'Jackanope ruining all hopes';
         case 'COMBUSTION_CAT':
         case 'BOMB':
-          return 'Volatile feline with enough energy to level the lab';
+          return 'Purring volatile reactor core';
         case 'CAT_STATIC_SPARK':
-          return 'Rub against synthetic carpet to charge 50,000 volts';
+          return '50,000 volt rug friction';
         case 'CAT_NUCLEAR_NACHO':
-          return 'Fed exclusively on irradiated breakroom cheese dip';
+          return 'Irradiated radioactive queso';
         case 'CAT_PLASMA_PURR':
-          return 'Purrs at vibrational frequencies that ionize the room';
+          return 'Ionizing violet plasma purr';
         case 'CAT_VOLCANO_WHISKER':
-          return 'Whiskers dipped in molten cooling pipe magma';
+          return 'Sneezing molten basalt';
         case 'CAT_TICKING_TABBY':
-          return 'Swallowed an experimental atomic chronometer';
+          return 'Clockwork feline ticking';
         default:
-          return card.subTitle || 'Lab Reactor Volatile Specimen';
+          return card.subTitle || 'Lab Reactor Specimen';
       }
     }
 
@@ -2674,21 +2681,22 @@
       // Render joined players
       data.players.forEach((p) => {
         const isMe = p.id === socket.id;
+        const displayName = String(p.name || 'Technician').slice(0, 30);
         const card = document.createElement('div');
         card.id = `lobby-player-${p.id}`;
-        card.className = `flex flex-col items-center justify-between p-4 rounded-2xl bg-stone-900/90 border-3 ${
+        card.className = `avatar-container flex flex-col items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-stone-900/90 border-3 ${
           p.isReady ? 'border-lime-500 shadow-[0_0_15px_rgba(132,204,22,0.3)]' : 'border-stone-800'
         } relative`;
 
         card.innerHTML = `
           ${p.isHost ? '<span class="absolute -top-3 bg-amber-500 text-stone-950 font-bangers text-[10px] px-2 py-0.5 rounded-full border border-stone-950 shadow">👑 HOST</span>' : ''}
-          <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-stone-700 bg-stone-800 mb-2">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-stone-700 bg-stone-800 mb-2 relative">
             ${getAvatarSVG(p.avatarId)}
           </div>
-          <div class="font-bangers text-base text-yellow-300 text-center leading-tight">
-            ${p.name} ${isMe ? '<span class="text-xs text-stone-400">(YOU)</span>' : ''}
+          <div class="font-bangers text-sm sm:text-base text-yellow-300 text-center leading-tight break-words max-w-[140px] px-1">
+            ${displayName} ${isMe ? '<br><span class="text-xs text-lime-400 font-bold">(YOU)</span>' : ''}
           </div>
-          <div class="font-bangers text-xs mt-1 ${p.isReady ? 'text-lime-400' : 'text-stone-400'}">
+          <div class="font-bangers text-xs mt-1.5 ${p.isReady ? 'text-lime-400' : 'text-stone-400'}">
             ${p.isBot ? '🤖 BOT' : p.isReady ? 'READY!' : 'WAITING...'}
           </div>
           ${
@@ -2808,28 +2816,29 @@
         if (p.id === state.myId) return; // exclude self from top row
 
         const isActive = state.activePlayerIndex === idx;
+        const displayName = String(p.name || 'Technician').slice(0, 30);
         const opp = document.createElement('div');
         opp.id = `opp-box-${p.id}`;
-        opp.className = `avatar-container flex flex-col items-center p-1.5 rounded-xl border-2 transition-all ${
+        opp.className = `avatar-container flex flex-col items-center justify-between p-2 sm:p-2.5 rounded-2xl border-3 transition-all ${
           p.isDead
             ? 'opacity-40 border-stone-900 bg-stone-950/70'
             : isActive
-            ? 'border-yellow-400 bg-amber-950/80 shadow-[0_0_15px_rgba(251,191,36,0.6)] scale-105'
-            : 'border-stone-800 bg-black/50'
-        } relative min-w-[70px] sm:min-w-[85px]`;
+            ? 'border-yellow-400 bg-amber-950/90 shadow-[0_0_20px_rgba(251,191,36,0.7)] scale-105'
+            : 'border-stone-800 bg-black/60 hover:border-stone-700'
+        } relative min-w-[105px] sm:min-w-[130px] max-w-[150px] flex-shrink-0 text-center`;
 
         opp.innerHTML = `
-          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${
+          <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full overflow-hidden border-3 ${
             isActive ? 'border-yellow-400' : 'border-stone-700'
-          } bg-stone-900 mb-1 relative">
+          } bg-stone-900 mb-1.5 relative shadow-md">
             ${getAvatarSVG(p.avatarId)}
-            ${p.isDead ? '<span class="absolute inset-0 flex items-center justify-center text-xl bg-black/70">💀</span>' : ''}
+            ${p.isDead ? '<span class="absolute inset-0 flex items-center justify-center text-2xl bg-black/80">💀</span>' : ''}
           </div>
-          <div class="font-bangers text-xs sm:text-sm text-amber-100 truncate max-w-[80px]">
-            ${p.name}
+          <div class="font-bangers text-xs sm:text-sm text-amber-100 leading-tight break-words max-w-[125px] w-full px-0.5 my-0.5 line-clamp-2">
+            ${displayName}
           </div>
-          <div class="flex items-center gap-1 font-bangers text-[10px] text-amber-300">
-            <span>🃏 ${p.cardCount}</span>
+          <div class="flex items-center justify-center gap-1 font-bangers text-[11px] sm:text-xs text-yellow-300 bg-black/60 px-2.5 py-0.5 rounded-full border border-stone-800 mt-1 shadow-xs">
+            <span>🃏 ${p.cardCount} ${p.cardCount === 1 ? 'CARD' : 'CARDS'}</span>
           </div>
         `;
         opponentsRow.appendChild(opp);
@@ -3639,30 +3648,59 @@
       ]
     };
 
+    // Helper to find the active, rendered DOM element for a player avatar across Lobby and Game Table
+    function findPlayerVisualAnchor(playerId) {
+      const isLobby = !document.getElementById('screen-lobby').classList.contains('hidden');
+      const myId = (localGameState && localGameState.myId) || (socket && socket.id);
+
+      if (isLobby) {
+        // In Lobby view: prioritize lobby-player cards
+        if (playerId) {
+          const card = document.getElementById(`lobby-player-${playerId}`);
+          if (card && card.offsetParent !== null) return card;
+        }
+        // If it's me or playerId matches self, find self card in lobby
+        if (playerId === myId || !playerId) {
+          const allCards = document.querySelectorAll('#lobby-members-grid > div[id^="lobby-player-"]');
+          for (const c of allCards) {
+            if (c.innerText.includes('(YOU)')) return c;
+          }
+          if (allCards.length > 0) return allCards[0];
+        }
+        const anyCard = document.getElementById(`lobby-player-${playerId}`);
+        if (anyCard) return anyCard;
+      }
+
+      // In Game table view
+      if (playerId === myId || !playerId) {
+        const myBox = document.getElementById('my-avatar-box');
+        if (myBox && myBox.offsetParent !== null) return myBox;
+      } else {
+        const opp = document.getElementById(`opp-box-${playerId}`);
+        if (opp && opp.offsetParent !== null) return opp;
+      }
+
+      // Fallbacks
+      const oppFallback = document.getElementById(`opp-box-${playerId}`);
+      if (oppFallback && oppFallback.offsetParent !== null) return oppFallback;
+
+      const myBoxFallback = document.getElementById('my-avatar-box');
+      if (myBoxFallback && myBoxFallback.offsetParent !== null) return myBoxFallback;
+
+      const lobbyFallback = document.getElementById(`lobby-player-${playerId}`);
+      if (lobbyFallback && lobbyFallback.offsetParent !== null) return lobbyFallback;
+
+      return document.getElementById('player-status-badge');
+    }
+
     function showSpeechBubble(senderId, text, kind = 'emote') {
       if (!senderId || !text) return;
 
-      // Find target avatar element
-      let targetElem = null;
-      const myId = (localGameState && localGameState.myId) || (socket && socket.id);
-
-      if (senderId === myId) {
-        targetElem = document.getElementById('my-avatar-box') || document.getElementById('player-status-badge');
-      } else {
-        targetElem = document.getElementById(`opp-box-${senderId}`);
-      }
-
-      // If in lobby, check lobby member card
-      if (!targetElem) {
-        targetElem = document.getElementById(`lobby-player-${senderId}`);
-      }
-
-      // Fallback to active status badge if in game
-      if (!targetElem) {
-        targetElem = document.getElementById('player-status-badge');
-      }
-
+      const targetElem = findPlayerVisualAnchor(senderId);
       if (!targetElem) return;
+
+      const rect = targetElem.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return; // ignore non-rendered elements
 
       const layer = document.getElementById('speech-bubbles-layer');
       if (!layer) return;
@@ -3676,7 +3714,6 @@
         activeSpeechBubbles.delete(senderId);
       }
 
-      const rect = targetElem.getBoundingClientRect();
       const centerX = Math.max(90, Math.min(window.innerWidth - 90, rect.left + rect.width / 2));
       const isTopHalf = rect.top < 220;
 
@@ -3806,8 +3843,15 @@
       const btn = e.target.closest('.btn-emote');
       if (btn) {
         const emote = btn.getAttribute('data-emote');
-        if (emote && socket && currentRoomId) {
-          socket.emit('send_chat', { roomId: currentRoomId, emote });
+        if (emote) {
+          if (socket && currentRoomId) {
+            socket.emit('send_chat', { roomId: currentRoomId, emote });
+            socket.emit('send_reaction', { roomId: currentRoomId, reactionText: emote });
+          } else {
+            // Local preview or fallback
+            showAvatarReaction(socket?.id || 'me', emote);
+            showSpeechBubble(socket?.id || 'me', emote, 'emote');
+          }
         }
         const panel = document.getElementById('emote-popover-panel');
         if (panel && !panel.classList.contains('hidden')) {
@@ -3850,10 +3894,16 @@
     });
 
     function sendCustomQuickChat() {
-      if (!inputQuickChat || !socket || !currentRoomId) return;
+      if (!inputQuickChat) return;
       const text = inputQuickChat.value.trim();
       if (!text) return;
-      socket.emit('send_chat', { roomId: currentRoomId, emote: text });
+      if (socket && currentRoomId) {
+        socket.emit('send_chat', { roomId: currentRoomId, emote: text });
+        socket.emit('send_reaction', { roomId: currentRoomId, reactionText: text });
+      } else {
+        showAvatarReaction(socket?.id || 'me', text);
+        showSpeechBubble(socket?.id || 'me', text, 'emote');
+      }
       inputQuickChat.value = '';
       if (emotePopoverPanel) emotePopoverPanel.classList.add('hidden');
     }
@@ -4013,24 +4063,13 @@
     function showAvatarReaction(playerId, reactionText) {
       if (!reactionText) return;
 
-      const myId = (localGameState && localGameState.myId) || (socket && socket.id);
-      let targetElem = null;
-
-      if (playerId === myId || !playerId) {
-        targetElem = document.getElementById('my-avatar-box') || document.querySelector('.avatar-container');
-      } else {
-        targetElem = document.getElementById(`opp-box-${playerId}`);
-      }
-
-      if (!targetElem) {
-        targetElem = document.getElementById(`lobby-player-${playerId}`);
-      }
-
-      if (!targetElem) {
-        targetElem = document.getElementById('my-avatar-box') || document.getElementById('player-status-badge');
-      }
-
+      const targetElem = findPlayerVisualAnchor(playerId);
       if (!targetElem) return;
+
+      // Ensure relative positioning on target element
+      if (!targetElem.classList.contains('relative')) {
+        targetElem.classList.add('relative');
+      }
 
       // Clean up previous reaction bubbles within this container
       const prevBubbles = targetElem.querySelectorAll('.reaction-bubble');
@@ -4039,9 +4078,10 @@
       const bubble = document.createElement('div');
       bubble.className = 'reaction-bubble';
 
-      // Check if target element is near the top of the viewport (e.g. top opponents row)
+      const isLobby = !document.getElementById('screen-lobby').classList.contains('hidden');
       const rect = targetElem.getBoundingClientRect();
-      if (rect.top < 130) {
+      // In game mode top row (opponents), pop downward so it doesn't clip off screen
+      if (!isLobby && rect.top < 150) {
         bubble.classList.add('bubble-down');
       }
 
@@ -4059,37 +4099,20 @@
       }, 3000);
     }
 
-    // Avatar Reaction Bar & Emote Button Controls
-    const btnAvatarEmoteTrigger = document.getElementById('btn-avatar-emote-trigger');
-    const avatarReactionPicker = document.getElementById('avatar-reaction-picker');
-
-    if (btnAvatarEmoteTrigger && avatarReactionPicker) {
-      btnAvatarEmoteTrigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        avatarReactionPicker.classList.toggle('hidden');
-      });
-    }
-
+    // Avatar Reaction Options (if present)
     document.querySelectorAll('.avatar-reaction-opt').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const reactionText = btn.getAttribute('data-reaction') || btn.innerText;
         if (socket && currentRoomId) {
           socket.emit('send_reaction', { roomId: currentRoomId, reactionText });
+          socket.emit('send_chat', { roomId: currentRoomId, emote: reactionText });
         } else {
           // Preview or local fallback
           showAvatarReaction(socket?.id || 'me', reactionText);
+          showSpeechBubble(socket?.id || 'me', reactionText, 'emote');
         }
-        if (avatarReactionPicker) avatarReactionPicker.classList.add('hidden');
       });
-    });
-
-    document.addEventListener('click', (e) => {
-      if (avatarReactionPicker && !avatarReactionPicker.classList.contains('hidden')) {
-        if (!avatarReactionPicker.contains(e.target) && !btnAvatarEmoteTrigger?.contains(e.target)) {
-          avatarReactionPicker.classList.add('hidden');
-        }
-      }
     });
 
     // --- DEEP LINKING SUPPORT (?room=KTN-789) ---
