@@ -323,94 +323,400 @@
       pointer-events: none;
     }
 
-    /* Internal Card Layout (No Text Clipping) */
+    /* ============================================================== */
+    /* 1. UNIVERSAL SOLID WHITE PLAYING CARDS                         */
+    /* ============================================================== */
+    /* Force the entire card container to be pure solid white */
+    .game-card,
+    .modal-game-card,
+    .card,
+    .card-item,
+    .hand-card,
+    .modal-card-item,
+    .drawer-card-item,
+    [data-card-id] {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      color: #111111 !important;
+      border: 2px solid #222222 !important;
+      border-radius: 12px !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+      box-sizing: border-box !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      padding: 8px !important;
+      width: 140px !important;
+      height: 210px !important;
+      min-width: 140px !important;
+      min-height: 210px !important;
+      position: relative !important;
+      overflow: hidden !important;
+    }
+
+    button.game-card,
+    button.modal-game-card,
+    button.card,
+    button.card-item,
+    button.modal-card-item,
+    button.drawer-card-item {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      color: #111111 !important;
+      border: 2px solid #222222 !important;
+      text-align: left !important;
+      cursor: pointer !important;
+    }
+
+    /* Card Top: Black text on white */
+    .game-card-top,
     .card-header {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      line-height: 1.2;
-      width: 100%;
-      flex-shrink: 0;
+      display: flex !important;
+      align-items: flex-start !important;
+      gap: 6px !important;
+      width: 100% !important;
+      background: transparent !important;
+      background-color: transparent !important;
+      flex-shrink: 0 !important;
     }
 
-    .card-header .card-badge {
-      width: 22px;
-      height: 22px;
-      min-width: 22px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
+    .game-card-icon-badge,
+    .card-badge {
+      width: 22px !important;
+      height: 22px !important;
+      min-width: 22px !important;
+      border-radius: 6px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 12px !important;
+      flex-shrink: 0 !important;
+      border: 1px solid #222222 !important;
     }
 
+    .game-card-title-wrap,
+    .card-title-group {
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+      background: transparent !important;
+      background-color: transparent !important;
+      flex: 1 1 0% !important;
+      min-width: 0 !important;
+    }
+
+    .game-card-name,
+    .card-title,
     .card-header .card-title {
-      font-family: 'Bangers', cursive;
-      font-size: 13px;
-      font-weight: 800;
-      color: #0c0a09;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      line-height: 1.15;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-family: 'Bangers', cursive, sans-serif !important;
+      font-size: 11.5px !important;
+      font-weight: 900 !important;
+      color: #111111 !important;
+      text-transform: uppercase !important;
+      line-height: 1.15 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
     }
 
+    .game-card-flavor,
+    .card-flavor,
+    .card-flavor-text,
     .card-header .card-flavor {
-      font-family: 'Fredoka', cursive, sans-serif;
-      font-size: 8.5px;
-      color: #555555;
-      font-style: italic;
-      line-height: 1.15;
-      margin-top: 1px;
-      text-transform: uppercase;
-      white-space: normal;
-      word-break: break-word;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
+      font-family: 'Fredoka', cursive, sans-serif !important;
+      font-size: 8px !important;
+      font-style: italic !important;
+      color: #555555 !important;
+      line-height: 1.1 !important;
+      margin-top: 1px !important;
+      text-transform: uppercase !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow: hidden !important;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important;
+      -webkit-box-orient: vertical !important;
     }
 
+    /* Center Art Frame */
+    .game-card-art,
+    .card-art-box,
     .card-art-frame {
-      height: 84px;
+      width: 100% !important;
+      height: 75px !important;
+      background: #f4f4f6 !important; /* Neutral light-gray display window */
+      background-color: #f4f4f6 !important;
+      border: 1px solid #e0e0e0 !important;
+      border-radius: 8px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 4px 0 !important;
+      overflow: hidden !important;
+      flex-shrink: 0 !important;
+      padding: 3px !important;
+    }
+
+    .game-card-art svg,
+    .card-art-box svg,
+    .card-art-frame svg {
+      max-width: 85% !important;
+      max-height: 65px !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* Bottom Action Box: Light-gray frame with dark bold text */
+    .game-card-bottom,
+    .card-action-box {
+      width: 100% !important;
+      background: #f0f0f3 !important;
+      background-color: #f0f0f3 !important;
+      border: 1px solid #d5d5db !important;
+      border-radius: 6px !important;
+      padding: 4px 6px !important;
+      box-sizing: border-box !important;
+      text-align: center !important;
+      flex-shrink: 0 !important;
+    }
+
+    .game-card-action-text,
+    .card-rule-text {
+      font-family: 'Fredoka', cursive, sans-serif !important;
+      font-size: 9.5px !important;
+      font-weight: 800 !important;
+      color: #111111 !important;
+      line-height: 1.25 !important;
+      white-space: normal !important;
+      word-wrap: break-word !important;
+      display: block !important;
+    }
+
+    /* Desktop Hand Tray specific override for generous fanning */
+    #player-hand-container .game-card,
+    #player-hand-container .card,
+    #handContainer .game-card,
+    #handContainer .card {
+      width: 165px !important;
+      min-width: 165px !important;
+      height: 250px !important;
+      min-height: 250px !important;
+      padding: 8px 10px !important;
+    }
+    #player-hand-container .card-art-box,
+    #player-hand-container .card-art-frame,
+    #player-hand-container .game-card-art,
+    #handContainer .card-art-box,
+    #handContainer .card-art-frame,
+    #handContainer .game-card-art {
+      height: 84px !important;
+    }
+
+    /* ============================================================== */
+    /* 2. MODAL CARD SELECTION GRID OVERHAUL                          */
+    /* ============================================================== */
+    .modal-cards-grid {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+      gap: 14px !important;
+      max-height: 60vh !important;
+      overflow-y: auto !important;
+      padding: 16px 8px !important;
+      box-sizing: border-box !important;
+    }
+
+    .modal-cards-grid .modal-card-item,
+    .modal-cards-grid .game-card,
+    .modal-cards-grid .card {
+      width: 140px !important;
+      max-width: 155px !important;
+      min-width: 130px !important;
+      height: 210px !important;
+      min-height: 200px !important;
+      margin: 0 !important;
+      transform: none !important;
+      flex-shrink: 0 !important;
+    }
+
+    /* Hover & Selected Feedback */
+    .game-card:hover,
+    .card:hover,
+    .modal-card-item:hover {
+      transform: translateY(-4px) scale(1.02) !important;
+      border-color: #ff8c00 !important;
+      cursor: pointer;
+      z-index: 10 !important;
+    }
+
+    .game-card.selected,
+    .card.selected,
+    .modal-card-item.selected {
+      outline: 3px solid #ff8c00 !important;
+      box-shadow: 0 0 16px rgba(255, 140, 0, 0.8) !important;
+    }
+
+    /* Ensure modal containers do not invert card backgrounds */
+    .modal-overlay .game-card,
+    .modal-overlay .modal-card-item,
+    .modal-overlay .card,
+    #felineBlackmailModal .game-card,
+    #felineBlackmailModal .card,
+    #felineBlackmailModal .modal-card-item,
+    #modal-favor-give .game-card,
+    #modal-favor-give .card,
+    #modal-favor-give .modal-card-item,
+    #discardHistoryModal .game-card,
+    #discardHistoryModal .card,
+    #modal-discard-browser .game-card,
+    #modal-discard-browser .card,
+    #modal-see-future .game-card,
+    #modal-see-future .card,
+    #modal-alter-future .game-card,
+    #modal-alter-future .card,
+    #drawerCardsContainer .game-card,
+    #drawerCardsContainer .card {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      color: #111111 !important;
+    }
+
+    /* ============================================================== */
+    /* 3. BOTTOM HUD BAR & DEDICATED AVATAR CORNER                    */
+    /* ============================================================== */
+    .bottom-hud-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 16px;
+      padding: 8px 16px;
+      background: rgba(18, 14, 12, 0.92);
+      border-top: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px 16px 0 0;
       width: 100%;
-      border-radius: 8px;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 100;
+    }
+
+    /* Dedicated, isolated left corner for player avatar */
+    .hud-player-corner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0; /* Never collapse or overlap */
+      background: rgba(255, 255, 255, 0.06);
+      padding: 6px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-sizing: border-box;
+    }
+
+    .hud-avatar-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid #ffb703;
       overflow: hidden;
-      background: #f4f4f6;
-      border: 1px solid rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 3px 0;
-      pointer-events: none;
+      background: #1e1e24;
       flex-shrink: 0;
-      padding: 3px;
     }
 
-    .card-art-frame svg {
-      width: 100%;
-      height: 100%;
-      max-height: 78px;
+    .hud-player-meta {
+      display: flex;
+      flex-direction: column;
     }
 
-    .card-action-box {
-      margin-top: 6px;
-      padding: 5px 6px;
-      background: rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(0, 0, 0, 0.12);
-      border-radius: 6px;
-      font-size: 10.5px;
-      line-height: 1.35;
-      color: #1a1a1a;
-      font-weight: 600;
-      text-align: center;
-      white-space: normal;
-      word-wrap: break-word;
-      overflow: visible;
+    .hud-player-name {
+      font-family: 'Bangers', cursive, sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      color: #ffb703;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      line-height: 1.1;
+    }
+
+    .hud-player-cards {
+      font-family: 'Fredoka', cursive, sans-serif;
+      font-size: 10px;
+      color: #aaaaaa;
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+
+    /* Turn status sits cleanly to the right with its own space */
+    .hud-turn-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 200, 83, 0.15);
+      border: 1px solid #00c853;
+      border-radius: 10px;
+      padding: 6px 12px;
+      white-space: nowrap;
       flex-shrink: 0;
+    }
+
+    .turn-highlight {
+      font-family: 'Bangers', cursive, sans-serif;
+      font-size: 13px;
+      font-weight: 900;
+      color: #00e676;
+      letter-spacing: 0.04em;
+    }
+
+    .turn-subtext {
+      font-family: 'Fredoka', cursive, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: #b9f6ca;
+    }
+
+    .hud-player-corner.eliminated {
+      opacity: 0.65 !important;
+      filter: grayscale(75%) brightness(0.8) !important;
+      border-color: #44403c !important;
+      background: rgba(28, 25, 23, 0.7) !important;
+    }
+
+    @media (max-width: 640px) {
+      .bottom-hud-bar {
+        padding: 6px 8px !important;
+        gap: 8px !important;
+        border-radius: 12px 12px 0 0 !important;
+      }
+      .hud-player-corner {
+        padding: 4px 8px !important;
+        gap: 6px !important;
+      }
+      .hud-avatar-circle {
+        width: 36px !important;
+        height: 36px !important;
+      }
+      .hud-player-name {
+        font-size: 9.5px !important;
+        max-width: 80px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+      }
+      .hud-player-cards {
+        font-size: 8.5px !important;
+      }
+      .hud-turn-status {
+        padding: 4px 8px !important;
+        gap: 4px !important;
+      }
+      .turn-highlight {
+        font-size: 11px !important;
+      }
+      .turn-subtext {
+        font-size: 9.5px !important;
+      }
     }
 
     /* Avatar Container & Comic Reaction Bubbles */
@@ -1846,50 +2152,47 @@
     </main>
 
     <!-- Bottom Player Area: Hand, Avatar, Controls -->
-    <footer class="w-full bg-gradient-to-t from-black via-black/80 to-transparent pt-3 pb-2 px-4 z-30 select-none">
+    <footer class="w-full bg-gradient-to-t from-black via-black/80 to-transparent pt-3 pb-2 px-2 sm:px-4 z-30 select-none">
       <div class="max-w-7xl mx-auto flex flex-col gap-2">
         
-        <!-- Controls row: Status, Auto-Sort, Selection, Play Button -->
-        <div class="flex flex-wrap items-center justify-between gap-2 px-2">
-          <div class="flex items-center gap-2">
-            <!-- My Avatar Container (anchor for reaction bubble) -->
-            <div class="avatar-container relative flex items-center">
-              <div id="my-avatar-box" class="player-pedestal local-player flex items-center gap-2.5 bg-stone-900/90 border-2 border-yellow-500/70 hover:border-yellow-400 px-3 py-1.5 rounded-2xl shadow-md transition-colors relative">
-                <div id="my-avatar-wrapper" class="avatar-wrapper relative flex-shrink-0 flex items-center justify-center">
-                  <div id="my-avatar-icon" class="avatar-circle w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-yellow-400 bg-stone-800 relative flex items-center justify-center flex-shrink-0">
-                    <!-- SVG Avatar -->
-                  </div>
-                  <!-- Gravestone badge injected if eliminated -->
-                  <div id="my-gravestone-badge" class="hidden"></div>
+        <!-- Bottom HUD Bar -->
+        <div class="bottom-hud-bar">
+          <!-- Dedicated Left Corner: Player Identity -->
+          <div class="avatar-container relative flex items-center flex-shrink-0">
+            <div class="hud-player-corner player-pedestal local-player" id="my-avatar-box" data-player-id="me">
+              <div id="my-avatar-wrapper" class="avatar-wrapper relative flex-shrink-0 flex items-center justify-center">
+                <div class="hud-avatar-circle avatar-circle" id="hudPlayerAvatar">
+                  <!-- Player Avatar SVG / Icon -->
                 </div>
-                <div class="flex flex-col text-left leading-none">
-                  <div class="flex items-center gap-1">
-                    <span id="my-avatar-name" class="player-name font-bangers text-xs sm:text-sm text-yellow-300 break-words max-w-[120px]">You</span>
-                    <span class="font-bangers text-[10px] text-lime-400">(YOU)</span>
-                  </div>
-                  <span id="my-avatar-cards-count" class="font-fredoka text-[10px] text-stone-400 mt-1">0 cards</span>
-                </div>
+                <!-- Gravestone badge injected if eliminated -->
+                <div id="my-gravestone-badge" class="hidden"></div>
               </div>
-            </div>
-
-            <div id="player-status-badge" class="font-bangers text-base sm:text-lg text-yellow-300 flex items-center gap-2 bg-stone-900/80 px-3 py-1 rounded-xl border border-stone-800">
-              <span>WAITING FOR OPPONENT...</span>
-            </div>
-
-            <!-- Hand Sorting Controls -->
-            <div class="flex items-center gap-1.5 bg-stone-900/90 px-2.5 py-1 rounded-xl border border-stone-800 text-xs font-fredoka">
-              <button id="btn-toggle-autosort" title="Toggle Automatic Hand Sorting" class="comic-btn px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-yellow-300 flex items-center gap-1.5 text-xs">
-                <span>⚡ Auto-Sort:</span>
-                <span id="autosort-status-badge" class="text-lime-400 font-bold">ON</span>
-              </button>
-              <button id="btn-manual-sort" title="Sort Hand Now" class="comic-btn px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white text-xs">
-                ↕ Sort
-              </button>
+              <div class="hud-player-meta">
+                <span class="hud-player-name player-name" id="hudPlayerName">OPERATOR (YOU)</span>
+                <span class="hud-player-cards" id="hudPlayerCardCount">0 cards</span>
+              </div>
             </div>
           </div>
 
+          <!-- Distinct Center/Right: Turn Indicator Banner -->
+          <div class="hud-turn-status" id="hudTurnStatus">
+            <span class="turn-highlight">WAITING...</span>
+            <span class="turn-subtext">FOR OPPONENT</span>
+          </div>
+
+          <!-- Hand Sorting Controls -->
+          <div class="hidden sm:flex items-center gap-1.5 bg-stone-900/90 px-2.5 py-1 rounded-xl border border-stone-800 text-xs font-fredoka flex-shrink-0">
+            <button id="btn-toggle-autosort" title="Toggle Automatic Hand Sorting" class="comic-btn px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-yellow-300 flex items-center gap-1.5 text-xs">
+              <span>⚡ Auto-Sort:</span>
+              <span id="autosort-status-badge" class="text-lime-400 font-bold">ON</span>
+            </button>
+            <button id="btn-manual-sort" title="Sort Hand Now" class="comic-btn px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white text-xs">
+              ↕ Sort
+            </button>
+          </div>
+
           <!-- Action & Play Controls -->
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 ml-auto flex-shrink-0">
             <button id="btn-clear-selection" class="comic-btn px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 font-bangers text-stone-300 text-xs tracking-wider cursor-pointer hidden">
               CLEAR (0)
             </button>
@@ -2032,11 +2335,11 @@
   </div>
 
   <!-- 5. FELINE BLACKMAIL SURRENDER MODAL -->
-  <div id="modal-favor-give" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
-    <div class="bg-[#1f130b] border-4 border-amber-500 rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl animate-pop">
+  <div id="modal-favor-give" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
+    <div id="felineBlackmailModal" class="bg-[#1f130b] border-4 border-amber-500 rounded-3xl max-w-xl w-full p-6 text-center shadow-2xl animate-pop">
       <h2 class="font-bangers text-3xl text-amber-400 mb-1">FELINE BLACKMAIL!</h2>
       <p id="favor-give-desc" class="font-fredoka text-sm text-stone-300 mb-4">A rival technician played Feline Blackmail. Choose 1 card from your hand to surrender:</p>
-      <div id="favor-give-hand-grid" class="flex flex-wrap items-center justify-center gap-2 mb-4 max-h-60 overflow-y-auto p-2">
+      <div id="favor-give-hand-grid" class="modal-cards-grid mb-4">
         <!-- Hand cards -->
       </div>
     </div>
@@ -2071,7 +2374,7 @@
         You played 5 unique cards! Click any card from the Discard Pile to salvage it into your hand:
       </p>
 
-      <div id="discard-browser-grid" class="flex flex-wrap items-center justify-center gap-3 mb-5 max-h-72 overflow-y-auto p-3 bg-black/40 rounded-2xl border border-stone-800">
+      <div id="discard-browser-grid" class="modal-cards-grid mb-5 max-h-72 p-3 bg-black/40 rounded-2xl border border-stone-800">
         <!-- Discard pile cards rendered here -->
       </div>
 
@@ -3606,34 +3909,45 @@
     // High-Fidelity Reference Card HTML Generator (Structured Flexbox Layout)
     function renderComicCardHTML(card, options = {}) {
       if (!card) return '';
-      const badgeColor = card.badgeColor || '#000000';
-      const funnySetup = getCardFunnySetup(card);
-      const ruleText = getCardRuleText(card);
+      const badgeColor = card.categoryColor || card.badgeColor || '#ff8c00';
+      const funnySetup = card.flavorText || card.funnySetup || getCardFunnySetup(card) || '';
+      const ruleText = card.actionDescription || card.ruleText || getCardRuleText(card) || '';
+      const cardTitle = card.name || card.title || 'CARD';
+      const artSVG = card.artSVG || getCardArtSVG(card) || '';
+      const iconSVG = card.miniIconSVG || getCardIconWhite(card.iconName, 'w-3.5 h-3.5') || '🔥';
 
       return `
-        <!-- Section 1: Top Header (.card-header) -->
-        <div class="card-header">
-          <div class="card-badge" style="background-color:${badgeColor}">
-            ${getCardIconWhite(card.iconName, 'w-3.5 h-3.5')}
+        <!-- Top Section: Icon, Title, and Setup Flavor -->
+        <div class="game-card-top card-header">
+          <div class="game-card-icon-badge card-badge" style="background-color: ${badgeColor};">
+            ${iconSVG}
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="card-title">
-              ${card.title || 'CARD'}
-            </div>
-            <div class="card-flavor">
-              ${funnySetup}
-            </div>
+          <div class="game-card-title-wrap card-title-group flex-1 min-w-0">
+            <div class="game-card-name card-title">${cardTitle}</div>
+            <div class="game-card-flavor card-flavor-text card-flavor">${funnySetup}</div>
           </div>
         </div>
 
-        <!-- Section 2: Center Art Frame (.card-art-frame) -->
-        <div class="card-art-frame">
-          ${getCardArtSVG(card)}
+        <!-- Center Art: Illustrated Comic Graphic -->
+        <div class="game-card-art card-art-box card-art-frame">
+          ${artSVG}
         </div>
 
-        <!-- Section 3: Bottom Action Box (.card-action-box) -->
-        <div class="card-action-box">
-          ${ruleText}
+        <!-- Bottom Section: Action Rules & Keyword -->
+        <div class="game-card-bottom card-action-box">
+          <div class="game-card-action-text card-rule-text">
+            ${ruleText}
+          </div>
+        </div>
+      `;
+    }
+
+    // Standardized Card Full HTML Generator
+    function createCardHTML(card, isModal = false) {
+      if (!card) return '';
+      return `
+        <div class="game-card card ${isModal ? 'modal-game-card modal-card-item' : 'hand-card'}" data-card-id="${card.id || ''}" data-card-type="${card.type || ''}">
+          ${renderComicCardHTML(card)}
         </div>
       `;
     }
@@ -3760,7 +4074,7 @@
 
       // 4. Create the Animated Card Element in the 3D Perspective Stage
       const slamEl = document.createElement('div');
-      slamEl.className = 'absolute rounded-xl bg-white shadow-2xl pointer-events-none select-none overflow-hidden';
+      slamEl.className = 'card absolute rounded-xl bg-white shadow-2xl pointer-events-none select-none overflow-hidden';
       slamEl.style.width = `${targetW}px`;
       slamEl.style.height = `${targetH}px`;
       slamEl.style.left = `${targetRect.left}px`;
@@ -4954,7 +5268,9 @@
       // 3. Top Discard Card & Discard Pile Count
       const discardSlot = document.getElementById('discard-card-slot');
       if (state.topDiscard) {
-        discardSlot.className = 'w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-white shadow-xl overflow-hidden relative select-none';
+        discardSlot.className = 'game-card card w-28 h-40 sm:w-36 sm:h-52 rounded-2xl bg-white shadow-xl overflow-hidden relative select-none';
+        discardSlot.setAttribute('data-card-id', state.topDiscard.id || '');
+        discardSlot.setAttribute('data-card-type', state.topDiscard.type || '');
         discardSlot.style.transform = `rotate(${currentDiscardRotation}deg)`;
         discardSlot.innerHTML = renderComicCardHTML(state.topDiscard);
       } else {
@@ -5054,7 +5370,7 @@
         opponentsRow.appendChild(opp);
       });
 
-      // 5b. Update My Avatar Box
+      // 5b. Update My Avatar Box & Dedicated HUD Corner
       const myP = state.players.find((p) => p.id === state.myId);
       const myAvatarBox = document.getElementById('my-avatar-box');
       if (myP && myAvatarBox) {
@@ -5062,22 +5378,26 @@
         if (!myAvatarBox.classList.contains('player-pedestal')) myAvatarBox.classList.add('player-pedestal');
         if (!myAvatarBox.classList.contains('local-player')) myAvatarBox.classList.add('local-player');
         
-        const myIconContainer = document.getElementById('my-avatar-icon');
+        const myIconContainer = document.getElementById('hudPlayerAvatar') || document.getElementById('my-avatar-icon');
         const myGravBadge = document.getElementById('my-gravestone-badge');
+        const myNameEl = document.getElementById('hudPlayerName') || document.getElementById('my-avatar-name');
+        const myCardsEl = document.getElementById('hudPlayerCardCount') || document.getElementById('my-avatar-cards-count');
         
         if (myP.isDead) {
           myAvatarBox.classList.add('eliminated');
           myAvatarBox.classList.remove('border-yellow-500/70', 'hover:border-yellow-400');
           myAvatarBox.classList.add('border-stone-900');
-          myIconContainer.className = 'avatar-circle w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-cyan-500/40 bg-stone-950 relative flex items-center justify-center flex-shrink-0';
-          myIconContainer.innerHTML = `
-            <div class="w-full h-full opacity-40 grayscale contrast-125">
-              ${getAvatarSVG(myP.avatarId)}
-            </div>
-            <div class="avatar-ghost-overlay" title="Ghost">
-              <span class="ghost-symbol text-base select-none">👻</span>
-            </div>
-          `;
+          if (myIconContainer) {
+            myIconContainer.className = 'hud-avatar-circle avatar-circle relative flex items-center justify-center flex-shrink-0';
+            myIconContainer.innerHTML = `
+              <div class="w-full h-full opacity-40 grayscale contrast-125 flex items-center justify-center">
+                ${getAvatarSVG(myP.avatarId)}
+              </div>
+              <div class="avatar-ghost-overlay" title="Ghost">
+                <span class="ghost-symbol text-base select-none">👻</span>
+              </div>
+            `;
+          }
           if (myGravBadge) {
             myGravBadge.className = 'gravestone-badge';
             myGravBadge.innerHTML = `
@@ -5089,33 +5409,59 @@
               <span>R.I.P</span>
             `;
           }
-          document.getElementById('my-avatar-name').className = 'player-name font-bangers text-xs sm:text-sm text-stone-500 line-through break-words max-w-[120px]';
-          document.getElementById('my-avatar-cards-count').innerHTML = `<span class="text-stone-400 font-bangers flex items-center gap-1">🪦 ELIMINATED</span>`;
+          if (myNameEl) {
+            myNameEl.className = 'hud-player-name player-name text-stone-500 line-through';
+            myNameEl.innerText = `${myP.name || 'YOU'} (R.I.P)`;
+          }
+          if (myCardsEl) {
+            myCardsEl.innerHTML = `<span class="text-stone-400 font-fredoka flex items-center gap-1">🪦 ELIMINATED</span>`;
+          }
         } else {
           myAvatarBox.classList.remove('eliminated', 'border-stone-900');
           myAvatarBox.classList.add('border-yellow-500/70');
-          myIconContainer.className = 'avatar-circle w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-yellow-400 bg-stone-800 relative flex items-center justify-center flex-shrink-0';
-          myIconContainer.innerHTML = getAvatarSVG(myP.avatarId);
+          if (myIconContainer) {
+            myIconContainer.className = 'hud-avatar-circle avatar-circle relative flex items-center justify-center flex-shrink-0';
+            myIconContainer.innerHTML = getAvatarSVG(myP.avatarId);
+          }
           if (myGravBadge) {
             myGravBadge.className = 'hidden';
             myGravBadge.innerHTML = '';
           }
-          document.getElementById('my-avatar-name').className = 'player-name font-bangers text-xs sm:text-sm text-yellow-300 break-words max-w-[120px]';
-          document.getElementById('my-avatar-name').innerText = myP.name || 'You';
-          document.getElementById('my-avatar-cards-count').innerText = `${(state.myHand || []).length} cards`;
+          if (myNameEl) {
+            myNameEl.className = 'hud-player-name player-name';
+            myNameEl.innerText = `${myP.name || 'OPERATOR'} (YOU)`;
+          }
+          if (myCardsEl) {
+            myCardsEl.innerText = `${(state.myHand || []).length} cards`;
+          }
         }
       }
 
-      // 6. Active turn status badge
+      // 6. Active turn status badge (Separate, zero-overlap display)
       const activeP = state.players[state.activePlayerIndex];
-      const statusBadge = document.getElementById('player-status-badge');
+      const hudTurnStatus = document.getElementById('hudTurnStatus');
+      const legacyStatusBadge = document.getElementById('player-status-badge');
+      
+      let turnHtml = '';
       if (myP && myP.isDead) {
-        statusBadge.innerHTML = `<span class="text-stone-400 font-bold">🪦 SPECTATING (YOU WERE ELIMINATED)</span>`;
+        turnHtml = `
+          <span class="turn-highlight text-stone-400">🪦 SPECTATING</span>
+          <span class="turn-subtext text-stone-400">YOU WERE ELIMINATED</span>
+        `;
       } else if (state.isMyTurn) {
-        statusBadge.innerHTML = `<span class="text-lime-400 font-bold animate-pulse">YOUR TURN!</span> (${state.turnsRemaining} turn${state.turnsRemaining > 1 ? 's' : ''} left)`;
+        turnHtml = `
+          <span class="turn-highlight animate-pulse">⚡ YOUR TURN!</span>
+          <span class="turn-subtext">(${state.turnsRemaining} turn${state.turnsRemaining > 1 ? 's' : ''} left)</span>
+        `;
       } else {
-        statusBadge.innerHTML = `<span>${activeP ? activeP.name : 'OPPONENT'}'S TURN</span> (${state.turnsRemaining} left)`;
+        const pName = activeP ? activeP.name.toUpperCase() : 'OPPONENT';
+        turnHtml = `
+          <span class="turn-highlight text-amber-400">${pName}'S TURN</span>
+          <span class="turn-subtext text-amber-200/80">(${state.turnsRemaining} left)</span>
+        `;
       }
+      if (hudTurnStatus) hudTurnStatus.innerHTML = turnHtml;
+      if (legacyStatusBadge) legacyStatusBadge.innerHTML = turnHtml;
 
       // 7. Player Hand Cards Tray - Group duplicate cards into visual stacks with multiplier badges
       const handContainer = document.getElementById('player-hand-container');
@@ -5157,7 +5503,7 @@
         const cardPlay = getCardPlayability(card, state);
 
         const cardElem = document.createElement('div');
-        const classList = ['card', 'card-item'];
+        const classList = ['game-card', 'card', 'card-item', isDrawer ? 'drawer-card-item' : 'hand-card'];
         if (isSelected) classList.push('selected');
         if (cardPlay.isDisabled) classList.push('disabled');
         if (cardPlay.isPulseDefuse) classList.push('defuse-pulse');
@@ -5175,8 +5521,9 @@
 
         cardElem.className = classList.join(' ');
         cardElem.setAttribute('data-card-id', card.id);
+        cardElem.setAttribute('data-card-type', card.type || '');
         cardElem.setAttribute('data-stack-ids', stack.cards.map((c) => c.id).join(','));
-        cardElem.style.borderColor = isSelected ? '#f59e0b' : (card.badgeColor || '#e0e0e0');
+        cardElem.style.borderColor = isSelected ? '#ff8c00' : (card.badgeColor || '#222222');
 
         if (!isDrawer && currentlyFlyingCardId && stack.cards.every((c) => c.id === currentlyFlyingCardId)) {
           cardElem.style.opacity = '0';
@@ -5954,7 +6301,9 @@
       grid.innerHTML = '';
       cards.forEach((c) => {
         const el = document.createElement('div');
-        el.className = 'w-24 h-38 sm:w-28 sm:h-44 shadow-lg flex-shrink-0';
+        el.className = 'game-card modal-game-card card modal-card-item shadow-lg flex-shrink-0';
+        el.setAttribute('data-card-id', c.id || '');
+        el.setAttribute('data-card-type', c.type || '');
         el.innerHTML = renderComicCardHTML(c);
         grid.appendChild(el);
       });
@@ -5979,7 +6328,7 @@
         el.className = 'flex flex-col items-center gap-1';
         el.innerHTML = `
           <div class="text-[11px] font-bangers text-yellow-300">#${idx + 1} ${idx === 0 ? '(TOP)' : ''}</div>
-          <div class="w-24 h-38 sm:w-28 sm:h-44 shadow-lg flex-shrink-0">
+          <div class="game-card modal-game-card card modal-card-item shadow-lg flex-shrink-0" data-card-id="${c.id || ''}" data-card-type="${c.type || ''}">
             ${renderComicCardHTML(c)}
           </div>
           <div class="flex gap-1 mt-1">
@@ -6042,13 +6391,15 @@
 
     // Favor Surrender Modal
     function showFavorGiveModal(requesterName, hand) {
-      document.getElementById('favor-give-desc').innerText = `${requesterName} played a Favor card. Choose 1 card from your hand to surrender:`;
+      document.getElementById('favor-give-desc').innerText = `${requesterName} played Feline Blackmail. Choose 1 card from your hand to surrender:`;
       const grid = document.getElementById('favor-give-hand-grid');
       grid.innerHTML = '';
 
       hand.forEach((card) => {
         const btn = document.createElement('button');
-        btn.className = 'comic-btn w-24 h-38 sm:w-28 sm:h-44 text-left hover:scale-105 shadow-md flex-shrink-0 transition-transform rounded-xl overflow-hidden';
+        btn.className = 'game-card modal-game-card card modal-card-item hover:scale-105 shadow-md flex-shrink-0 transition-transform cursor-pointer';
+        btn.setAttribute('data-card-id', card.id || '');
+        btn.setAttribute('data-card-type', card.type || '');
         btn.innerHTML = renderComicCardHTML(card);
         btn.addEventListener('click', () => {
           socket.emit('favor_give', { roomId: currentRoomId, cardId: card.id });
@@ -6124,7 +6475,9 @@
         emptyMsg.classList.add('hidden');
         eligible.forEach((card) => {
           const cardElem = document.createElement('div');
-          cardElem.className = 'w-24 h-38 sm:w-28 sm:h-44 shadow-lg cursor-pointer hover:scale-105 hover:shadow-xl transition-all flex-shrink-0 rounded-xl overflow-hidden';
+          cardElem.className = 'game-card modal-game-card card modal-card-item shadow-lg cursor-pointer hover:scale-105 hover:shadow-xl transition-all flex-shrink-0';
+          cardElem.setAttribute('data-card-id', card.id || '');
+          cardElem.setAttribute('data-card-type', card.type || '');
           cardElem.innerHTML = renderComicCardHTML(card);
           cardElem.addEventListener('click', () => {
             socket.emit('select_discard_card', {
@@ -6892,7 +7245,9 @@
       displayCards.forEach((item, displayIdx) => {
         const { card, originalIndex } = item;
         const cardElem = document.createElement('div');
-        cardElem.className = 'w-full h-44 sm:h-52 rounded-2xl bg-white shadow-lg border-2 border-stone-950 overflow-hidden relative flex flex-col justify-between select-none hover:scale-102 hover:shadow-2xl transition-all duration-150';
+        cardElem.className = 'game-card card drawer-card-item w-full h-44 sm:h-52 rounded-2xl bg-white shadow-lg border-2 border-stone-950 overflow-hidden relative flex flex-col justify-between select-none hover:scale-102 hover:shadow-2xl transition-all duration-150';
+        cardElem.setAttribute('data-card-id', card.id || '');
+        cardElem.setAttribute('data-card-type', card.type || '');
 
         // Render card comic HTML
         cardElem.innerHTML = renderComicCardHTML(card);
