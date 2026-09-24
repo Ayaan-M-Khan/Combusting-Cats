@@ -314,6 +314,10 @@ class GameRoom {
     this.nopeTimer = null;
     this.pendingAction = null;
     this.botTimer = null;
+    this.turnTimeout = null;
+    this.favorTimeout = null;
+    this.alterTimeout = null;
+    this.discardTimeout = null;
     this.botKnownTopCards = {};
     this.matchStats = {
       turnsPlayed: 0,
@@ -323,6 +327,122 @@ class GameRoom {
       winnerName: '',
       isHumanWinner: false,
     };
+  }
+
+  ensureValidHost() {
+    const currentHost = this.players.find((p) => p.socketId === this.hostId && !p.isBot);
+    if (!currentHost) {
+      const nextHost = this.players.find((p) => !p.isBot && p.socketId);
+      if (nextHost) {
+        this.hostId = nextHost.socketId;
+        this.players.forEach((p) => (p.isHost = p.socketId === nextHost.socketId));
+      }
+    }
+  }
+
+  resetToLobby() {
+    this.gameStarted = false;
+    this.turnState = 'NORMAL';
+    this.turnStateData = null;
+    this.pendingAction = null;
+    this.drawPile = [];
+    this.discardPile = [];
+    this.activePlayerIndex = 0;
+    this.turnsRemaining = 1;
+    this.turnCountTotal = 0;
+    this.botKnownTopCards = {};
+
+    clearTimeout(this.botTimer);
+    clearTimeout(this.defuseTimer);
+    clearTimeout(this.nopeTimer);
+    clearTimeout(this.turnTimeout);
+    clearTimeout(this.favorTimeout);
+    clearTimeout(this.alterTimeout);
+    clearTimeout(this.discardTimeout);
+
+    // Reset all player states
+    this.players.forEach((p) => {
+      p.isDead = false;
+      p.hand = [];
+      p.disconnectedAt = null;
+      p.isReady = p.isHost || p.isBot;
+    });
+
+    this.ensureValidHost();
+    this.log('LOBBY', 'player', 'Room reset to lobby. Ready up for the next match!');
+    this.broadcastLobby();
+    io.to(this.id).emit('returned_to_lobby', { roomId: this.id });
+  }
+
+  resetTurnTimeout() {
+    clearTimeout(this.turnTimeout);
+    if (!this.gameStarted || this.turnState !== 'NORMAL') return;
+
+    const currentP = this.players[this.activePlayerIndex];
+    if (currentP && !currentP.isBot && !currentP.isDead) {
+      // 35s authoritative turn timeout for active human player
+      this.turnTimeout = setTimeout(() => {
+        if (this.gameStarted && this.turnState === 'NORMAL' && this.players[this.activePlayerIndex]?.id === currentP.id) {
+          this.log(currentP.name, currentP.avatarId, `${currentP.name} timed out. Auto-drawing from reactor.`);
+          this.drawCard(currentP.id);
+        }
+      }, 35000);
+    }
+  }
+
+  autoResolveFavor(victimId) {
+    if (this.turnState !== 'AWAITING_FAVOR') return;
+    clearTimeout(this.favorTimeout);
+
+    const victim = this.players.find((p) => p.id === victimId || p.socketId === victimId);
+    const requester = this.players.find((p) => p.id === this.turnStateData?.requesterId);
+
+    if (!victim || !requester) {
+      this.turnState = 'NORMAL';
+      this.turnStateData = null;
+      this.broadcastGameState();
+      this.checkBotTurn();
+      return;
+    }
+
+    if (victim.hand.length > 0) {
+      const nonDefuse = victim.hand.filter((c) => c.type !== 'DEFUSE' && c.type !== 'COOLANT_FOAM');
+      const given = nonDefuse.length > 0 ? nonDefuse[Math.floor(Math.random() * nonDefuse.length)] : victim.hand[0];
+      victim.hand = victim.hand.filter((c) => c.id !== given.id);
+      requester.hand.push(given);
+      this.log(victim.name, victim.avatarId, `auto-surrendered ${given.title} to ${requester.name} (timeout).`);
+    } else {
+      this.log(victim.name, victim.avatarId, `had no cards to surrender to ${requester.name}.`);
+    }
+
+    this.turnState = 'NORMAL';
+    this.turnStateData = null;
+    this.broadcastGameState();
+    this.checkBotTurn();
+  }
+
+  autoResolveDiscardSelection(playerId) {
+    if (this.turnState !== 'SELECTING_DISCARD') return;
+    clearTimeout(this.discardTimeout);
+
+    const currentP = this.players[this.activePlayerIndex];
+    if (currentP) {
+      const eligible = this.discardPile.filter((c) => c.type !== 'COMBUSTION_CAT' && c.type !== 'EXPLODING_KITTEN');
+      if (eligible.length > 0) {
+        const card = eligible[eligible.length - 1];
+        const idx = this.discardPile.findIndex((c) => c.id === card.id);
+        if (idx !== -1) {
+          const recovered = this.discardPile.splice(idx, 1)[0];
+          currentP.hand.push(recovered);
+          this.log(currentP.name, currentP.avatarId, `auto-retrieved ${recovered.title} from the Discard Pile (timeout).`);
+        }
+      }
+    }
+
+    this.turnState = 'NORMAL';
+    this.turnStateData = null;
+    this.broadcastGameState();
+    this.checkBotTurn();
   }
 
   log(playerName, playerAvatar, message, cardType = null) {
@@ -435,6 +555,10 @@ class GameRoom {
     clearTimeout(this.botTimer);
     clearTimeout(this.defuseTimer);
     clearTimeout(this.nopeTimer);
+    clearTimeout(this.turnTimeout);
+    clearTimeout(this.favorTimeout);
+    clearTimeout(this.alterTimeout);
+    clearTimeout(this.discardTimeout);
 
     // 1. Build standard pool
     const pool = [];
@@ -497,6 +621,7 @@ class GameRoom {
     this.broadcastLobby();
     this.broadcastGameState();
 
+    this.resetTurnTimeout();
     this.checkBotTurn();
   }
 
@@ -504,6 +629,10 @@ class GameRoom {
     clearTimeout(this.botTimer);
     clearTimeout(this.defuseTimer);
     clearTimeout(this.nopeTimer);
+    clearTimeout(this.turnTimeout);
+    clearTimeout(this.favorTimeout);
+    clearTimeout(this.alterTimeout);
+    clearTimeout(this.discardTimeout);
     this.pendingAction = null;
     const alive = this.players.filter((p) => !p.isDead);
     if (alive.length <= 1) {
@@ -551,6 +680,7 @@ class GameRoom {
     }
 
     this.broadcastGameState();
+    this.resetTurnTimeout();
     this.checkBotTurn();
   }
 
@@ -706,6 +836,8 @@ class GameRoom {
     const currentP = this.players[this.activePlayerIndex];
     if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL') return;
 
+    clearTimeout(this.turnTimeout);
+
     if (this.drawPile.length === 0) return;
 
     const drawnCard = this.drawPile.shift();
@@ -810,6 +942,7 @@ class GameRoom {
     if (this.turnsRemaining > 1) {
       this.turnsRemaining--;
       this.broadcastGameState();
+      this.resetTurnTimeout();
       this.checkBotTurn();
     } else {
       this.advanceTurn(1);
@@ -1173,6 +1306,17 @@ class GameRoom {
           this.turnStateData = { targetSocketId: currentP.socketId, topCards: top3 };
           io.to(currentP.socketId).emit('alter_future_prompt', { cards: top3 });
           this.broadcastGameState();
+
+          clearTimeout(this.alterTimeout);
+          this.alterTimeout = setTimeout(() => {
+            if (this.turnState === 'ALTERING_FUTURE') {
+              this.turnState = 'NORMAL';
+              this.turnStateData = null;
+              this.log(currentP.name, currentP.avatarId, 'manipulated the timeline (timeout).');
+              this.broadcastGameState();
+              this.checkBotTurn();
+            }
+          }, 15000);
         }
         break;
       }
@@ -1249,8 +1393,9 @@ class GameRoom {
   // ALTER FUTURE CONFIRMATION
   reorderFuture(playerId, reorderedCardIds) {
     if (this.turnState !== 'ALTERING_FUTURE') return;
+    clearTimeout(this.alterTimeout);
     const currentP = this.players[this.activePlayerIndex];
-    if (!currentP || currentP.id !== playerId) return;
+    if (!currentP || (currentP.id !== playerId && currentP.socketId !== playerId)) return;
 
     const topCards = this.drawPile.slice(0, 3);
     const topIds = topCards.map((c) => c.id).sort();
@@ -1333,14 +1478,23 @@ class GameRoom {
         requesterId: currentP.id,
         requesterName: currentP.name,
         targetSocketId: victim.socketId,
+        targetPlayerId: victim.id,
       };
       this.broadcastGameState();
+
+      clearTimeout(this.favorTimeout);
+      this.favorTimeout = setTimeout(() => {
+        if (this.turnState === 'AWAITING_FAVOR') {
+          this.autoResolveFavor(victim.id);
+        }
+      }, 15000);
     }
   }
 
   resolveFavorGive(victimId, cardId) {
     if (this.turnState !== 'AWAITING_FAVOR') return;
-    const victim = this.players.find((p) => p.id === victimId);
+    clearTimeout(this.favorTimeout);
+    const victim = this.players.find((p) => p.id === victimId || p.socketId === victimId);
     const requester = this.players.find((p) => p.id === this.turnStateData?.requesterId);
 
     if (!victim || !requester) return;
@@ -1582,14 +1736,22 @@ class GameRoom {
         discardPile: this.discardPile.filter((c) => c.type !== 'COMBUSTION_CAT' && c.type !== 'EXPLODING_KITTEN'),
       });
       this.broadcastGameState();
+
+      clearTimeout(this.discardTimeout);
+      this.discardTimeout = setTimeout(() => {
+        if (this.turnState === 'SELECTING_DISCARD') {
+          this.autoResolveDiscardSelection(currentP.id);
+        }
+      }, 15000);
     }
   }
 
   // SELECT CARD FROM DISCARD PILE
   selectDiscardCard(playerId, cardId) {
     if (this.turnState !== 'SELECTING_DISCARD') return;
+    clearTimeout(this.discardTimeout);
     const currentP = this.players[this.activePlayerIndex];
-    if (!currentP || currentP.id !== playerId) return;
+    if (!currentP || (currentP.id !== playerId && currentP.socketId !== playerId)) return;
 
     const idx = this.discardPile.findIndex((c) => c.id === cardId && c.type !== 'COMBUSTION_CAT' && c.type !== 'EXPLODING_KITTEN');
     if (idx === -1) return;
@@ -1777,13 +1939,23 @@ io.on('connection', (socket) => {
   // 4. TOGGLE READY
   socket.on('toggle_ready', ({ roomId }) => {
     const room = rooms.get(roomId);
-    if (!room || room.gameStarted) return;
+    if (!room) return;
+    if (room.gameStarted) {
+      room.resetToLobby();
+    }
 
     const player = room.players.find((p) => p.socketId === socket.id);
-    if (player) {
+    if (player && !player.isHost) {
       player.isReady = !player.isReady;
       room.broadcastLobby();
     }
+  });
+
+  // 4a. RETURN TO LOBBY
+  socket.on('return_to_lobby', ({ roomId }) => {
+    const room = rooms.get(roomId);
+    if (!room) return;
+    room.resetToLobby();
   });
 
   // 4b. UPDATE PROFILE (Name & Avatar in Lobby)
@@ -1871,12 +2043,22 @@ io.on('connection', (socket) => {
     const room = rooms.get(roomId);
     if (!room || room.gameStarted || room.hostId !== socket.id) return;
 
+    // Prune stale disconnected sockets from the lobby
+    room.players = room.players.filter((p) => p.isBot || (p.socketId && io.sockets.sockets.has(p.socketId)));
+
     // Minimum 2 players to start
-    if (room.players.length < 2) return;
+    if (room.players.length < 2) {
+      socket.emit('game_error', { message: 'Need at least 2 players to launch the lab!' });
+      room.broadcastLobby();
+      return;
+    }
 
     // All human players must be ready
     const allReady = room.players.every((p) => p.isReady || p.isBot);
-    if (!allReady) return;
+    if (!allReady) {
+      socket.emit('game_error', { message: 'All technicians must be READY before launching!' });
+      return;
+    }
 
     room.setupGame();
   });
@@ -2023,26 +2205,30 @@ io.on('connection', (socket) => {
     socket.leave(roomId);
     socketToRoom.delete(socket.id);
 
+    const leavingIdx = room.players.findIndex((p) => p.socketId === socket.id);
+    const wasActive = room.activePlayerIndex === leavingIdx;
+
     room.players = room.players.filter((p) => p.socketId !== socket.id);
 
-    if (room.players.length === 0) {
+    const remainingHumans = room.players.filter((p) => !p.isBot);
+    if (remainingHumans.length === 0 && (!room.gameStarted || room.players.length === 0)) {
       rooms.delete(roomId);
       return;
     }
 
-    // Host migration
-    if (room.hostId === socket.id) {
-      const nextHost = room.players.find((p) => !p.isBot);
-      if (nextHost) {
-        room.hostId = nextHost.socketId;
-        nextHost.isHost = true;
-      }
-    }
+    room.ensureValidHost();
 
-    room.broadcastLobby();
     if (room.gameStarted) {
+      if (room.activePlayerIndex >= room.players.length) {
+        room.activePlayerIndex = 0;
+      }
+      if (wasActive && room.players.length > 0) {
+        room.advanceTurn(1);
+      }
       room.checkGameOver();
       room.broadcastGameState();
+    } else {
+      room.broadcastLobby();
     }
   });
 
@@ -2060,22 +2246,34 @@ io.on('connection', (socket) => {
     if (!room.gameStarted) {
       // In lobby: remove player immediately
       room.players = room.players.filter((p) => p.socketId !== socket.id);
-      if (room.players.length === 0) {
+      const remainingHumans = room.players.filter((p) => !p.isBot);
+      if (remainingHumans.length === 0) {
         rooms.delete(roomId);
       } else {
-        if (room.hostId === socket.id) {
-          const nextHost = room.players.find((p) => !p.isBot);
-          if (nextHost) {
-            room.hostId = nextHost.socketId;
-            nextHost.isHost = true;
-          }
-        }
+        room.ensureValidHost();
         room.broadcastLobby();
       }
     } else {
       // In active game: 30-second grace period
       player.disconnectedAt = Date.now();
       room.log(player.name, player.avatarId, `${player.name} disconnected (holding seat for 30s)...`);
+
+      // Immediately ensure valid host if host disconnected
+      if (room.hostId === socket.id) {
+        room.ensureValidHost();
+      }
+
+      // If disconnected player was blocking a pending modal state, auto-resolve immediately:
+      if (room.turnState === 'AWAITING_FAVOR' && (room.turnStateData?.targetSocketId === socket.id || room.turnStateData?.targetPlayerId === player.id)) {
+        room.autoResolveFavor(player.id);
+      } else if (room.turnState === 'ALTERING_FUTURE' && room.turnStateData?.targetSocketId === socket.id) {
+        clearTimeout(room.alterTimeout);
+        room.turnState = 'NORMAL';
+        room.turnStateData = null;
+      } else if (room.turnState === 'SELECTING_DISCARD' && room.turnStateData?.requesterSocketId === socket.id) {
+        room.autoResolveDiscardSelection(player.id);
+      }
+
       room.broadcastGameState();
 
       setTimeout(() => {
@@ -2084,6 +2282,15 @@ io.on('connection', (socket) => {
           player.isBot = true;
           player.disconnectedAt = null;
           room.log(player.name, player.avatarId, `${player.name} timed out and was replaced by AI bot.`);
+          room.ensureValidHost();
+
+          // If the game was in an unresolvable state, reset to NORMAL
+          if (room.turnState !== 'NORMAL' && room.turnState !== 'NOPE_WINDOW') {
+            room.turnState = 'NORMAL';
+            room.turnStateData = null;
+          }
+
+          room.checkGameOver();
           room.broadcastGameState();
           room.checkBotTurn();
         }

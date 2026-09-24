@@ -799,6 +799,73 @@
       100% { transform: translateX(-50%) translateY(-10px) scale(0.9); opacity: 0; }
     }
 
+    /* Comic Avatar Reaction Popups (Speech Bubbles Layer) */
+    .comic-reaction-popup {
+      position: fixed;
+      background: #ffffff;
+      color: #1c1917;
+      border: 3px solid #1c1917;
+      border-radius: 14px;
+      padding: 6px 14px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), 0 2px 4px rgba(0, 0, 0, 0.4);
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .comic-reaction-popup.comic-reaction-up {
+      transform: translate(-50%, -100%) scale(0);
+      animation: popReactionBubbleUp 3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+
+    .comic-reaction-popup.comic-reaction-down {
+      transform: translateX(-50%) scale(0);
+      animation: popReactionBubbleDown 3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+
+    /* Comic tail pointing DOWN to avatar below (e.g. local player HUD) */
+    .comic-reaction-popup.comic-reaction-up::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 8px 8px 0 8px;
+      border-style: solid;
+      border-color: #1c1917 transparent transparent transparent;
+    }
+
+    /* Comic tail pointing UP to avatar above (e.g. opponents at top) */
+    .comic-reaction-popup.comic-reaction-down::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 0 8px 8px 8px;
+      border-style: solid;
+      border-color: transparent transparent #1c1917 transparent;
+    }
+
+    @keyframes popReactionBubbleUp {
+      0% { transform: translate(-50%, -100%) scale(0); opacity: 0; }
+      12% { transform: translate(-50%, -100%) scale(1.15); opacity: 1; }
+      22% { transform: translate(-50%, -100%) scale(1); }
+      80% { transform: translate(-50%, -100%) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -115%) scale(0.85); opacity: 0; }
+    }
+
+    @keyframes popReactionBubbleDown {
+      0% { transform: translateX(-50%) scale(0); opacity: 0; }
+      12% { transform: translateX(-50%) scale(1.15); opacity: 1; }
+      22% { transform: translateX(-50%) scale(1); }
+      80% { transform: translateX(-50%) scale(1); opacity: 1; }
+      100% { transform: translateX(-50%) translateY(12px) scale(0.85); opacity: 0; }
+    }
+
     /* Discard Pile Interactive Hover Glow */
     #discardPile {
       cursor: pointer;
@@ -1413,10 +1480,10 @@
       }
 
       /* Reaction bubbles scaled down to 85% */
-      .top-player .reaction-bubble,
-      .reaction-bubble.bubble-down,
+      .comic-reaction-popup,
       .reaction-bubble {
-        transform: translateX(-50%) scale(0.85) !important;
+        font-size: 15px !important;
+        padding: 4px 10px !important;
       }
 
       /* Center Table Area: Scaled ~15% down */
@@ -1522,12 +1589,10 @@
       }
 
       /* Reaction bubbles scaled to 72% */
-      .reaction-bubble,
-      .top-player .reaction-bubble,
-      .reaction-bubble.bubble-down {
-        transform: translateX(-50%) scale(0.72) !important;
-        font-size: 12px !important;
-        padding: 2px 6px !important;
+      .comic-reaction-popup,
+      .reaction-bubble {
+        font-size: 13px !important;
+        padding: 3px 8px !important;
       }
 
       /* Header compact */
@@ -2749,6 +2814,38 @@
           setTimeout(() => this.playTone(freq, 'triangle', 0.25, 0.2), i * 130);
         });
       }
+      reactionChime() {
+        if (!this.enabled) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const osc1 = this.ctx.createOscillator();
+          const gain1 = this.ctx.createGain();
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(520, now);
+          osc1.frequency.exponentialRampToValueAtTime(1040, now + 0.08);
+          gain1.gain.setValueAtTime(0.3, now);
+          gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc1.connect(gain1);
+          gain1.connect(this.ctx.destination);
+          osc1.start(now);
+          osc1.stop(now + 0.13);
+
+          const osc2 = this.ctx.createOscillator();
+          const gain2 = this.ctx.createGain();
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(880, now + 0.03);
+          osc2.frequency.exponentialRampToValueAtTime(1400, now + 0.11);
+          gain2.gain.setValueAtTime(0.22, now + 0.03);
+          gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc2.connect(gain2);
+          gain2.connect(this.ctx.destination);
+          osc2.start(now + 0.03);
+          osc2.stop(now + 0.16);
+        } catch (e) {
+          this.bubblePop();
+        }
+      }
       bubblePop() {
         if (!this.enabled) return;
         this.init();
@@ -2758,7 +2855,7 @@
           osc.type = 'sine';
           osc.frequency.setValueAtTime(450, this.ctx.currentTime);
           osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.08);
-          gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
@@ -2826,6 +2923,17 @@
       }
     }
     const sounds = new SoundEngine();
+
+    // Browser Web Audio Autoplay Unlock
+    const unlockWebAudio = () => {
+      if (sounds) sounds.init();
+      ['pointerdown', 'touchstart', 'click', 'keydown'].forEach((evt) => {
+        window.removeEventListener(evt, unlockWebAudio);
+      });
+    };
+    ['pointerdown', 'touchstart', 'click', 'keydown'].forEach((evt) => {
+      window.addEventListener(evt, unlockWebAudio, { passive: true, once: true });
+    });
 
     function playSFX(name) {
       if (sounds && typeof sounds[name] === 'function') {
@@ -4421,6 +4529,29 @@
         if (state.turnState !== 'DEFUSING' && state.turnState !== 'AWAITING_DEFUSE') {
           clearEmergencyDefuse();
         }
+        if (state.turnState !== 'AWAITING_FAVOR') {
+          const m = document.getElementById('modal-favor-give');
+          if (m && !m.classList.contains('hidden')) m.classList.add('hidden');
+        }
+        if (state.turnState !== 'ALTERING_FUTURE') {
+          const m = document.getElementById('modal-alter-future');
+          if (m && !m.classList.contains('hidden')) m.classList.add('hidden');
+        }
+        if (state.turnState !== 'SELECTING_DISCARD') {
+          const m = document.getElementById('modal-discard-browser');
+          if (m && !m.classList.contains('hidden')) m.classList.add('hidden');
+        }
+      });
+
+      // Reset to lobby event broadcast by server
+      socket.on('returned_to_lobby', () => {
+        ['modal-game-over', 'modal-defuse', 'modal-see-future', 'modal-alter-future', 'modal-discard-browser', 'modal-target-select', 'modal-demand-target', 'modal-favor-give'].forEach((id) => {
+          const m = document.getElementById(id);
+          if (m) m.classList.add('hidden');
+        });
+        clearNopeWindow();
+        clearEmergencyDefuse();
+        showScreen('lobby');
       });
 
       // Discard browser for 5-card combo
@@ -6529,6 +6660,9 @@
     }
     document.getElementById('btn-return-lobby').addEventListener('click', () => {
       document.getElementById('modal-game-over').classList.add('hidden');
+      if (socket && currentRoomId) {
+        socket.emit('return_to_lobby', { roomId: currentRoomId });
+      }
       showScreen('lobby');
     });
     document.getElementById('btn-game-over-menu').addEventListener('click', () => {
@@ -6676,47 +6810,66 @@
 
     // Helper to find the active, rendered DOM element for a player avatar across Lobby and Game Table
     function findPlayerVisualAnchor(playerId) {
-      const isLobby = !document.getElementById('screen-lobby').classList.contains('hidden');
+      const screenLobby = document.getElementById('screen-lobby');
+      const screenGame = document.getElementById('screen-game');
+      const isGame = screenGame && !screenGame.classList.contains('hidden');
+      const isLobby = screenLobby && !screenLobby.classList.contains('hidden');
       const myId = (localGameState && localGameState.myId) || (socket && socket.id);
+      const isSelf = (!playerId || playerId === 'me' || playerId === myId || (socket && playerId === socket.id));
+
+      if (isGame) {
+        // In Game table view: prioritize active HUD and table elements
+        if (isSelf) {
+          const myAvatar = document.getElementById('my-avatar-wrapper') || document.getElementById('my-avatar-box') || document.getElementById('hudPlayerAvatar');
+          if (myAvatar) return myAvatar;
+        }
+
+        if (playerId) {
+          const oppBox = document.getElementById(`opp-box-${playerId}`);
+          if (oppBox) {
+            const oppAvatar = oppBox.querySelector('.avatar-circle') || oppBox;
+            return oppAvatar;
+          }
+          const scopedElem = screenGame.querySelector(`[data-player-id="${playerId}"]`);
+          if (scopedElem && scopedElem.offsetParent !== null) return scopedElem;
+        }
+
+        const myBox = document.getElementById('my-avatar-box');
+        if (myBox) return myBox;
+      }
 
       if (isLobby) {
-        // In Lobby view: prioritize lobby-player cards
-        if (playerId) {
-          const card = document.getElementById(`lobby-player-${playerId}`);
+        // In Lobby view: prioritize active lobby cards
+        if (playerId && !isSelf) {
+          const card = screenLobby.querySelector(`[data-player-id="${playerId}"]`) ||
+                       document.getElementById(`lobby-player-${playerId}`);
           if (card && card.offsetParent !== null) return card;
         }
-        // If it's me or playerId matches self, find self card in lobby
-        if (playerId === myId || !playerId) {
+
+        if (isSelf) {
           const allCards = document.querySelectorAll('#lobby-members-grid > div[id^="lobby-player-"]');
           for (const c of allCards) {
             if (c.innerText.includes('(YOU)')) return c;
           }
           if (allCards.length > 0) return allCards[0];
         }
+
         const anyCard = document.getElementById(`lobby-player-${playerId}`);
-        if (anyCard) return anyCard;
+        if (anyCard && anyCard.offsetParent !== null) return anyCard;
       }
 
-      // In Game table view
-      if (playerId === myId || !playerId) {
+      // Universal visible fallback
+      if (isSelf) {
         const myBox = document.getElementById('my-avatar-box');
         if (myBox && myBox.offsetParent !== null) return myBox;
-      } else {
-        const opp = document.getElementById(`opp-box-${playerId}`);
-        if (opp && opp.offsetParent !== null) return opp;
       }
 
-      // Fallbacks
-      const oppFallback = document.getElementById(`opp-box-${playerId}`);
-      if (oppFallback && oppFallback.offsetParent !== null) return oppFallback;
+      const allMatches = document.querySelectorAll(`[data-player-id="${playerId}"]`);
+      for (const el of allMatches) {
+        if (el.offsetParent !== null) return el;
+      }
 
-      const myBoxFallback = document.getElementById('my-avatar-box');
-      if (myBoxFallback && myBoxFallback.offsetParent !== null) return myBoxFallback;
-
-      const lobbyFallback = document.getElementById(`lobby-player-${playerId}`);
-      if (lobbyFallback && lobbyFallback.offsetParent !== null) return lobbyFallback;
-
-      return document.getElementById('player-status-badge');
+      return document.getElementById('my-avatar-box') || document.getElementById('player-status-badge');
     }
 
     function showSpeechBubble(senderId, text, kind = 'emote') {
@@ -6870,13 +7023,15 @@
       if (btn) {
         const emote = btn.getAttribute('data-emote');
         if (emote) {
-          if (socket && currentRoomId) {
-            // Let the socket listener handle bubble creation exclusively
-            socket.emit('send_reaction', { roomId: currentRoomId, reactionText: emote });
-          } else {
-            // Local preview or fallback when disconnected
-            showAvatarReaction(socket?.id || 'me', emote);
+          if (sounds) {
+            sounds.reactionChime ? sounds.reactionChime() : sounds.bubblePop();
           }
+          if (socket && currentRoomId) {
+            socket.emit('send_reaction', { roomId: currentRoomId, reactionText: emote });
+          }
+          // Show instant reaction on self avatar for immediate tactile feedback
+          const myId = (localGameState && localGameState.myId) || (socket && socket.id) || 'me';
+          showAvatarReaction(myId, emote);
         }
         const panel = document.getElementById('emote-popover-panel');
         if (panel && !panel.classList.contains('hidden')) {
@@ -7084,60 +7239,77 @@
     document.getElementById('btn-game-sound').addEventListener('click', toggleSoundFn);
 
     // --- AVATAR ANCHORED REACTION & SPEECH BUBBLE SYSTEM ---
+    const recentReactionTimestamps = new Map();
+
     function showAvatarReaction(playerId, reactionText) {
       if (!reactionText) return;
 
-      // Locate player visual anchor: strict data-player-id query first
-      let targetElem = document.querySelector(`[data-player-id="${playerId}"]`);
-      if (!targetElem) {
-        targetElem = findPlayerVisualAnchor(playerId);
+      const normId = String(playerId || 'me');
+      const now = Date.now();
+      const last = recentReactionTimestamps.get(normId) || 0;
+      // Debounce duplicates per player within 200ms
+      if (now - last < 200) return;
+      recentReactionTimestamps.set(normId, now);
+
+      // Play reaction chime / bubble pop sound
+      if (sounds) {
+        sounds.reactionChime ? sounds.reactionChime() : sounds.bubblePop();
       }
+
+      // Locate player visual anchor
+      const targetElem = findPlayerVisualAnchor(playerId);
       if (!targetElem) return;
 
-      // Ensure relative positioning on target element
-      if (!targetElem.classList.contains('relative')) {
-        targetElem.classList.add('relative');
+      // Playful bounce on avatar circle icon
+      const avatarCircle = targetElem.querySelector('.avatar-circle') || targetElem;
+      if (avatarCircle) {
+        avatarCircle.style.transition = 'transform 0.18s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
+        avatarCircle.style.transform = 'scale(1.22) rotate(-5deg)';
+        setTimeout(() => {
+          avatarCircle.style.transform = '';
+        }, 220);
       }
 
-      // Strict Deduplication Guard: remove any existing active reaction bubbles on this target
-      const prevBubbles = targetElem.querySelectorAll('.reaction-bubble');
-      prevBubbles.forEach((b) => b.remove());
+      const rect = targetElem.getBoundingClientRect();
+      const layer = document.getElementById('speech-bubbles-layer');
 
-      const bubble = document.createElement('div');
-      bubble.className = 'reaction-bubble';
+      if (layer && rect.width > 0 && rect.height > 0) {
+        // Floating fixed speech bubble in speech-bubbles-layer for 100% visible, unclipped rendering
+        const isBottom = rect.top > (window.innerHeight / 2);
+        const bubble = document.createElement('div');
+        bubble.className = `comic-reaction-popup ${isBottom ? 'comic-reaction-up' : 'comic-reaction-down'}`;
 
-      const isTopPlayer = targetElem.classList.contains('top-player') ||
-                          (targetElem.id && targetElem.id.startsWith('opp-box-')) ||
-                          (targetElem.closest && targetElem.closest('#game-opponents-row'));
+        const centerX = Math.max(50, Math.min(window.innerWidth - 50, rect.left + rect.width / 2));
+        bubble.style.left = `${centerX}px`;
 
-      if (isTopPlayer) {
-        bubble.classList.add('bubble-down');
-        if (!targetElem.classList.contains('top-player')) {
-          targetElem.classList.add('top-player');
+        if (isBottom) {
+          bubble.style.top = `${Math.max(12, rect.top - 12)}px`;
+        } else {
+          bubble.style.top = `${rect.bottom + 12}px`;
         }
+
+        bubble.innerText = reactionText;
+        layer.appendChild(bubble);
+
+        setTimeout(() => {
+          if (bubble.parentNode) bubble.remove();
+        }, 3000);
       } else {
-        const isLobby = !document.getElementById('screen-lobby').classList.contains('hidden');
-        const rect = targetElem.getBoundingClientRect();
-        if (!isLobby && rect.top < 220) {
-          bubble.classList.add('bubble-down');
-          if (!targetElem.classList.contains('top-player')) {
-            targetElem.classList.add('top-player');
-          }
+        // Fallback: direct relative attachment inside target element
+        if (!targetElem.classList.contains('relative')) {
+          targetElem.classList.add('relative');
         }
+        targetElem.querySelectorAll('.reaction-bubble').forEach((b) => b.remove());
+
+        const bubble = document.createElement('div');
+        bubble.className = 'reaction-bubble';
+        bubble.innerText = reactionText;
+        targetElem.appendChild(bubble);
+
+        setTimeout(() => {
+          if (bubble.parentNode) bubble.remove();
+        }, 2800);
       }
-
-      bubble.innerText = reactionText;
-      targetElem.appendChild(bubble);
-
-      // Play cartoon pop sound
-      playSFX('bubblePop');
-
-      // Automatically remove bubble DOM element after 2.8-second animation ends
-      setTimeout(() => {
-        if (bubble.parentNode) {
-          bubble.remove();
-        }
-      }, 2800);
     }
 
     // Avatar Reaction Options: socket listener handles bubble creation exclusively
@@ -7145,14 +7317,14 @@
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const reactionText = btn.getAttribute('data-reaction') || btn.innerText;
-        if (socket && currentRoomId) {
-          // Do NOT spawn the bubble locally inside the click handler.
-          // Let the socket listener handle bubble creation exclusively.
-          socket.emit('send_reaction', { roomId: currentRoomId, reactionText });
-        } else {
-          // Preview or local fallback when disconnected
-          showAvatarReaction(socket?.id || 'me', reactionText);
+        if (sounds) {
+          sounds.reactionChime ? sounds.reactionChime() : sounds.bubblePop();
         }
+        if (socket && currentRoomId) {
+          socket.emit('send_reaction', { roomId: currentRoomId, reactionText });
+        }
+        const myId = (localGameState && localGameState.myId) || (socket && socket.id) || 'me';
+        showAvatarReaction(myId, reactionText);
       });
     });
 
