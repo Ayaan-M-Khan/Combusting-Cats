@@ -239,6 +239,31 @@
       animation: pedestal-spotlight 2.4s ease-in-out infinite;
     }
 
+    /* Victory Celebration Effects */
+    @keyframes victory-banner-pop {
+      0% { transform: translate(-50%, -50%) scale(0.2) rotate(-8deg); opacity: 0; }
+      55% { transform: translate(-50%, -50%) scale(1.12) rotate(3deg); opacity: 1; }
+      75% { transform: translate(-50%, -50%) scale(0.96) rotate(-1deg); }
+      100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes victory-star-spin {
+      0% { transform: rotate(0deg) scale(0.9); }
+      50% { transform: rotate(180deg) scale(1.2); }
+      100% { transform: rotate(360deg) scale(0.9); }
+    }
+    @keyframes victory-board-glow {
+      0%, 100% { box-shadow: inset 0 0 50px rgba(250, 204, 21, 0.25), 0 0 70px rgba(245, 158, 11, 0.4); border-color: #facc15; }
+      50% { box-shadow: inset 0 0 90px rgba(250, 204, 21, 0.55), 0 0 120px rgba(234, 88, 12, 0.8); border-color: #f59e0b; }
+    }
+    .board-victory-celebrate {
+      animation: victory-board-glow 2s ease-in-out infinite !important;
+    }
+    .victory-badge-shimmer {
+      background: linear-gradient(135deg, #facc15 0%, #fbbf24 25%, #f59e0b 50%, #fef08a 75%, #facc15 100%);
+      background-size: 200% 200%;
+      animation: shimmerBtn 2.2s linear infinite;
+    }
+
     /* Active turn beacon badge */
     .pedestal-turn-beacon {
       position: absolute;
@@ -814,17 +839,20 @@
       margin-top: 2px;
     }
 
-    /* Turn status sits cleanly to the right with its own space */
+    /* Turn status sits cleanly to the right with its own space and 30s Turn Timer */
     .hud-turn-status {
       display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(0, 200, 83, 0.15);
-      border: 1px solid #00c853;
-      border-radius: 10px;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      background: rgba(18, 14, 11, 0.94);
+      border: 1.5px solid #00c853;
+      border-radius: 12px;
       padding: 6px 12px;
       white-space: nowrap;
       flex-shrink: 0;
+      min-width: 155px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
 
     .turn-highlight {
@@ -1872,6 +1900,15 @@
     <!-- Decorative background hazard grid & warning stripes -->
     <div class="absolute inset-0 opacity-5 pointer-events-none bg-[repeating-linear-gradient(45deg,#ea580c,#ea580c_20px,#000_20px,#000_40px)]"></div>
 
+    <!-- Top Left Settings & Audio Control Button -->
+    <div class="absolute top-3 left-3 sm:top-5 sm:left-5 z-30">
+      <button id="btn-menu-top-left-settings" title="Lab Settings & Audio" class="comic-btn btn-shimmer px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 border-2 border-stone-950 text-stone-950 font-bangers text-xs sm:text-sm flex items-center gap-1.5 shadow-lg cursor-pointer transition-transform hover:scale-105 active:scale-95">
+        <span>⚙️</span>
+        <span>SETTINGS</span>
+        <span id="badge-menu-top-left-audio" class="text-[10px] px-1.5 py-0.2 rounded bg-stone-950 text-yellow-300 font-fredoka font-bold">🎵</span>
+      </button>
+    </div>
+
     <!-- Background Silhouette Cats -->
     <div class="absolute -top-12 -left-12 opacity-15 text-orange-500 pointer-events-none">
       <svg class="w-80 h-80 fill-current" viewBox="0 0 100 100">
@@ -2082,7 +2119,10 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="btn-lobby-settings" title="Lab Settings & Audio" class="comic-btn btn-shimmer px-2.5 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 border border-stone-950 text-stone-950 font-bangers text-xs flex items-center gap-1 shadow cursor-pointer">
+          <span>⚙️ SETTINGS</span>
+        </button>
         <span id="lobby-privacy-tag" class="px-3 py-1 rounded-full font-bangers text-xs tracking-wider bg-red-950 text-red-300 border border-red-800">
           🔒 PRIVATE PARTY
         </span>
@@ -2194,10 +2234,37 @@
       </span>
     </div>
 
+    <!-- Grand Victory Celebration Banner on the Game Board (animated when human wins) -->
+    <div id="victory-celebration-banner" class="fixed top-1/2 left-1/2 z-45 pointer-events-none hidden" style="transform: translate(-50%, -50%);">
+      <div class="relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl bg-stone-950/95 border-4 border-yellow-400 shadow-[0_0_60px_rgba(250,204,21,0.8)] text-center animate-[victory-banner-pop_0.8s_cubic-bezier(0.175,0.885,0.32,1.275)_forwards]">
+        <div class="text-6xl sm:text-7xl mb-2 animate-bounce">👑</div>
+        <h1 class="font-bangers text-5xl sm:text-7xl text-yellow-300 tracking-wider drop-shadow-[0_4px_12px_rgba(0,0,0,1)]">
+          VICTORY!
+        </h1>
+        <p id="victory-banner-text" class="font-fredoka text-sm sm:text-base text-amber-100 mt-1 max-w-md drop-shadow">
+          YOU SURVIVED THE VOLATILE MELTDOWN! SOLE SURVIVING TECHNICIAN!
+        </p>
+        <div class="mt-3 flex items-center gap-2">
+          <span class="px-3 py-1 rounded-full font-bangers text-xs text-stone-950 bg-yellow-400 border border-yellow-200 shadow animate-pulse">
+            🎉 MISSION ACCOMPLISHED
+          </span>
+          <span class="px-3 py-1 rounded-full font-bangers text-xs text-amber-300 bg-amber-950/80 border border-amber-500">
+            💥 VOLATILE CORE COOLED
+          </span>
+        </div>
+      </div>
+    </div>
+
     <!-- Top Bar: Game status, Opponents, and Menu -->
-    <header class="w-full px-4 py-2 sm:py-2.5 bg-black/60 backdrop-blur-xs border-b border-black/40 z-30 flex items-center justify-between gap-3 min-h-[90px]">
-      <div class="flex items-center gap-2">
-        <button id="btn-game-menu" class="px-3 py-1.5 rounded-xl bg-[#4a2414] hover:bg-[#61301b] border-2 border-stone-900 font-bangers text-amber-200 text-xs tracking-wider cursor-pointer shadow-md">
+    <header class="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-black/60 backdrop-blur-xs border-b border-black/40 z-30 flex items-center justify-between gap-2 sm:gap-3 min-h-[90px]">
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- Dedicated Top-Left Settings Button -->
+        <button id="btn-top-left-settings" title="Lab Settings & Audio Mute" class="comic-btn btn-shimmer px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 border-2 border-stone-950 text-stone-950 font-bangers text-xs sm:text-sm flex items-center gap-1.5 shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95">
+          <span>⚙️</span>
+          <span>SETTINGS</span>
+          <span id="badge-top-left-audio" class="text-[10px] px-1.5 py-0.2 rounded-md bg-stone-950 text-yellow-300 font-fredoka font-bold">🎵</span>
+        </button>
+        <button id="btn-game-menu" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#4a2414] hover:bg-[#61301b] border-2 border-stone-900 font-bangers text-amber-200 text-xs tracking-wider cursor-pointer shadow-md">
           MENU / RULES
         </button>
         <span id="game-room-tag" class="hidden sm:inline-block font-bangers text-xs text-stone-400">
@@ -2421,10 +2488,23 @@
             </div>
           </div>
 
-          <!-- Distinct Center/Right: Turn Indicator Banner -->
-          <div class="hud-turn-status" id="hudTurnStatus">
-            <span class="turn-highlight">WAITING...</span>
-            <span class="turn-subtext">FOR OPPONENT</span>
+          <!-- Distinct Center/Right: Turn Indicator Banner & 30s Turn Timer Bar -->
+          <div class="hud-turn-status flex flex-col justify-center min-w-[140px] sm:min-w-[190px] relative transition-all" id="hudTurnStatus">
+            <div class="flex items-center justify-between gap-2 w-full">
+              <span class="turn-highlight" id="hudTurnHighlight">WAITING...</span>
+              <span id="turn-timer-badge" class="font-bangers text-xs sm:text-sm px-2 py-0.5 rounded-full bg-stone-950/80 border border-lime-400 text-lime-400 flex items-center gap-1 hidden shadow-xs">
+                <span id="turn-timer-clock-icon" class="inline-block">⏱️</span>
+                <span id="turn-timer-sec-text">30s</span>
+              </span>
+            </div>
+            <!-- Dynamic 30-Second Turn Timer Progress Bar -->
+            <div id="turn-timer-progress-wrap" class="w-full bg-stone-950/90 border border-stone-700/60 h-2 rounded-full overflow-hidden mt-1 hidden shadow-inner relative">
+              <div id="turn-timer-progress-fill" class="h-full bg-gradient-to-r from-emerald-500 to-lime-400 rounded-full transition-all duration-100 ease-linear shadow-xs" style="width: 100%;"></div>
+            </div>
+            <div class="turn-subtext text-[10px] text-stone-400 mt-0.5 flex items-center justify-between" id="hudTurnSubtext">
+              <span id="hudTurnSubtextMsg">FOR OPPONENT</span>
+              <span id="hudTurnTimerHint" class="hidden text-amber-300/80 text-[9px] font-fredoka">auto-skips at 0s</span>
+            </div>
           </div>
 
           <!-- Hand Sorting Controls -->
@@ -2480,6 +2560,18 @@
       <button id="closeDrawerBtn" class="drawer-close-btn px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bangers text-sm rounded-xl border border-stone-700 cursor-pointer transition-colors">
         ✕ CLOSE
       </button>
+    </div>
+    <!-- 30-Second Turn Timer Banner inside Mobile Drawer -->
+    <div id="drawer-turn-timer-banner" class="hidden flex items-center justify-between px-3.5 py-1.5 bg-stone-950/95 border-b border-amber-600/40 text-xs font-bangers text-yellow-300 flex-shrink-0">
+      <div class="flex items-center gap-1.5">
+        <span class="animate-pulse">⏱️</span>
+        <span>TURN TIMER:</span>
+        <span id="drawer-timer-sec" class="text-lime-400 font-bold">30s</span>
+        <span class="text-[10px] text-stone-400 font-fredoka">(auto-skips on 0s)</span>
+      </div>
+      <div class="w-28 sm:w-36 bg-stone-900 border border-stone-700 h-2 rounded-full overflow-hidden shadow-inner">
+        <div id="drawer-timer-progress-fill" class="h-full bg-gradient-to-r from-emerald-500 to-lime-400 rounded-full transition-all duration-100 ease-linear shadow-xs" style="width: 100%;"></div>
+      </div>
     </div>
     <div id="drawerCardsContainer" class="drawer-cards-grid flex-1 overflow-y-auto p-3 grid grid-cols-2 sm:grid-cols-3 gap-2.5 justify-items-center">
       <!-- Player cards rendered dynamically here -->
@@ -2737,7 +2829,7 @@
               </span>
             </div>
             <p class="font-fredoka text-xs text-stone-400 mt-0.5">
-              Inspect all previously expended cards and laboratory reactions.
+              Inspect expended cards, track used Coolants and Nopes, and analyze laboratory hazard flow.
             </p>
           </div>
         </div>
@@ -2755,7 +2847,123 @@
         </div>
       </div>
 
-      <!-- Empty State -->
+      <!-- Search & Filter Controls Bar -->
+      <div id="discard-search-filter-bar" class="flex flex-col gap-2 mb-3 bg-stone-950/80 p-2.5 sm:p-3 rounded-2xl border border-amber-900/50 shadow-inner">
+        <!-- Row 1: Real-time Search Input & Card Type Dropdown -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <!-- Search Box -->
+          <div class="relative flex-1">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none text-sm">🔍</span>
+            <input
+              id="input-discard-search"
+              type="text"
+              placeholder="Search by card name, rule, or keyword (e.g. Defuse, Nope, Attack, Steal)..."
+              class="w-full bg-[#140b06] border border-amber-900/70 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 rounded-xl pl-9 pr-8 py-2 text-xs sm:text-sm font-fredoka text-amber-100 placeholder-stone-500 outline-none transition-all shadow-inner"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button
+              id="btn-clear-discard-search"
+              type="button"
+              class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white text-xs flex items-center justify-center cursor-pointer leading-none transition-colors"
+              title="Clear search query"
+            >
+              ✕
+            </button>
+          </div>
+
+          <!-- Specific Card Type Dropdown Filter -->
+          <div class="flex items-center gap-1.5 shrink-0">
+            <label for="select-discard-card-type" class="sr-only">Filter by specific type</label>
+            <select
+              id="select-discard-card-type"
+              class="w-full sm:w-auto bg-[#140b06] border border-amber-900/70 focus:border-amber-400 rounded-xl px-3 py-2 text-xs font-fredoka text-amber-200 cursor-pointer outline-none transition-all shadow-inner"
+            >
+              <option value="ALL">All Specific Types</option>
+              <option value="COOLANT_FOAM">🛡️ Coolant Foam (Defuse)</option>
+              <option value="THERMAL_BLAST">🔥 Thermal Blast (Attack)</option>
+              <option value="EMERGENCY_EVAC">💨 Emergency Evac (Skip)</option>
+              <option value="INFRARED_SCAN">🔮 Infrared Scan (See Future)</option>
+              <option value="TIMELINE_SCRAMBLE">⏳ Timeline Scramble (Alter)</option>
+              <option value="THERMODYNAMIC_VORTEX">🌀 Thermodynamic Vortex (Shuffle)</option>
+              <option value="FELINE_BLACKMAIL">😼 Feline Blackmail (Favor)</option>
+              <option value="NOPE">🛑 Nope (Cancel)</option>
+              <option value="CAT_COMBOS">🐱 Feral Cat Combos</option>
+              <option value="COMBUSTION_CAT">💣 Combustion Cat (Detonation)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 2: Category Filter Tabs & Results Status Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-900/30">
+          <!-- Segmented Category Filter Buttons -->
+          <div id="discard-category-tabs" class="flex flex-wrap items-center gap-1 sm:gap-1.5">
+            <button
+              type="button"
+              data-category="ALL"
+              class="discard-cat-btn comic-btn px-2.5 py-1 rounded-lg font-bangers text-xs tracking-wider border transition-all cursor-pointer bg-amber-500 text-stone-950 border-amber-400 font-bold shadow-xs active:scale-95"
+            >
+              ALL <span class="cat-count font-fredoka text-[11px] opacity-90">(0)</span>
+            </button>
+            <button
+              type="button"
+              data-category="DEFUSE"
+              class="discard-cat-btn comic-btn px-2.5 py-1 rounded-lg font-bangers text-xs tracking-wider border transition-all cursor-pointer bg-stone-900/90 text-stone-300 hover:text-white hover:bg-stone-800 border-stone-800 active:scale-95"
+            >
+              🛡️ DEFUSE <span class="cat-count font-fredoka text-[11px] opacity-80">(0)</span>
+            </button>
+            <button
+              type="button"
+              data-category="ATTACK_SKIP"
+              class="discard-cat-btn comic-btn px-2.5 py-1 rounded-lg font-bangers text-xs tracking-wider border transition-all cursor-pointer bg-stone-900/90 text-stone-300 hover:text-white hover:bg-stone-800 border-stone-800 active:scale-95"
+            >
+              ⚔️ ATTACK/SKIP <span class="cat-count font-fredoka text-[11px] opacity-80">(0)</span>
+            </button>
+            <button
+              type="button"
+              data-category="FUTURE"
+              class="discard-cat-btn comic-btn px-2.5 py-1 rounded-lg font-bangers text-xs tracking-wider border transition-all cursor-pointer bg-stone-900/90 text-stone-300 hover:text-white hover:bg-stone-800 border-stone-800 active:scale-95"
+            >
+              🔮 FUTURE <span class="cat-count font-fredoka text-[11px] opacity-80">(0)</span>
+            </button>
+            <button
+              type="button"
+              data-category="NOPE"
+              class="discard-cat-btn comic-btn px-2.5 py-1 rounded-lg font-bangers text-xs tracking-wider border transition-all cursor-pointer bg-stone-900/90 text-stone-300 hover:text-white hover:bg-stone-800 border-stone-800 active:scale-95"
+            >
+              🛑 NOPE <span class="cat-count font-fredoka text-[11px] opacity-80">(0)</span>
+            </button>
+            <button
+              type="button"
+              data-category="COMBOS"
+              class="discard-cat-btn comic-btn px-2.5 py-1 rounded-lg font-bangers text-xs tracking-wider border transition-all cursor-pointer bg-stone-900/90 text-stone-300 hover:text-white hover:bg-stone-800 border-stone-800 active:scale-95"
+            >
+              🐱 COMBOS <span class="cat-count font-fredoka text-[11px] opacity-80">(0)</span>
+            </button>
+            <button
+              type="button"
+              data-category="OTHER"
+              class="discard-cat-btn comic-btn px-2.5 py-1 rounded-lg font-bangers text-xs tracking-wider border transition-all cursor-pointer bg-stone-900/90 text-stone-300 hover:text-white hover:bg-stone-800 border-stone-800 active:scale-95"
+            >
+              🌀 VORTEX/FAVOR <span class="cat-count font-fredoka text-[11px] opacity-80">(0)</span>
+            </button>
+          </div>
+
+          <!-- Matching Results Counter & Clear Action -->
+          <div class="flex items-center gap-2 text-xs font-fredoka ml-auto">
+            <span id="discard-filter-matches-text" class="text-amber-300/90 font-medium"></span>
+            <button
+              id="btn-reset-discard-filters"
+              type="button"
+              class="hidden text-amber-400 hover:text-yellow-300 underline cursor-pointer text-xs transition-colors"
+            >
+              Clear filters
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State (No cards played yet in match) -->
       <div id="discard-history-empty" class="hidden flex-1 flex flex-col items-center justify-center py-16 text-center">
         <span class="text-6xl mb-3 opacity-60">📭</span>
         <div class="font-bangers text-2xl text-stone-400">DISCARD GRAVEYARD IS EMPTY</div>
@@ -2764,10 +2972,25 @@
         </p>
       </div>
 
+      <!-- No Matching Filter Results State -->
+      <div id="discard-filter-no-results" class="hidden flex-1 flex flex-col items-center justify-center py-12 text-center bg-stone-950/60 rounded-2xl border border-stone-800/80 my-2">
+        <span class="text-5xl mb-2 opacity-75">🔎</span>
+        <div class="font-bangers text-xl sm:text-2xl text-amber-400 tracking-wide">NO MATCHING CARDS FOUND</div>
+        <p id="discard-no-results-msg" class="font-fredoka text-xs sm:text-sm text-stone-400 mt-1 max-w-sm px-4">
+          No cards in the discard pile match your filter criteria. Try adjusting your search query or selecting a different category.
+        </p>
+        <button id="btn-empty-reset-filters" type="button" class="comic-btn mt-4 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 font-bangers text-xs sm:text-sm text-white flex items-center gap-1.5 shadow-md cursor-pointer transition-transform active:scale-95">
+          <span>🔄</span> RESET ALL FILTERS
+        </button>
+      </div>
+
       <!-- Card Grid Container -->
-      <div id="discard-history-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-2.5 overflow-y-auto max-h-[66vh] bg-stone-950/60 rounded-2xl border border-stone-800">
+      <div id="discard-history-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-2.5 overflow-y-auto max-h-[58vh] sm:max-h-[62vh] bg-stone-950/60 rounded-2xl border border-stone-800">
         <!-- Rendered dynamically -->
       </div>
+    </div>
+  </div>
+
   <!-- 10. GAME SETTINGS MODAL -->
   <div id="modal-settings" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden">
     <div class="bg-[#1f130b] border-4 border-amber-500 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl animate-pop flex flex-col max-h-[92vh]">
@@ -2788,25 +3011,71 @@
       <!-- Settings Content Body -->
       <div class="space-y-4 overflow-y-auto pr-1 flex-1 font-fredoka text-sm">
         
-        <!-- 1. Background Music (BGM) -->
-        <div class="bg-black/40 p-3.5 rounded-2xl border border-stone-800 flex flex-col gap-2.5">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="text-xl">🎵</span>
+        <!-- 1. Background Music (BGM) & Multi-Track Audio Engine -->
+        <div class="bg-gradient-to-br from-amber-950/60 via-stone-900/90 to-black/80 p-3.5 sm:p-4 rounded-2xl border-2 border-amber-500/70 shadow-lg flex flex-col gap-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <div id="settings-audio-visualizer-icon" class="w-10 h-10 rounded-xl bg-amber-900/70 border border-amber-400 flex items-center justify-center text-xl shadow">
+                🎵
+              </div>
               <div>
-                <div class="font-bangers text-base text-yellow-300">BACKGROUND MUSIC</div>
-                <div class="text-[11px] text-stone-400">Playful procedural tabletop jazz soundtrack</div>
+                <div class="flex items-center gap-2">
+                  <span class="font-bangers text-base sm:text-lg text-yellow-300 tracking-wide">BACKGROUND MUSIC</span>
+                  <span id="settings-music-badge-state" class="px-2 py-0.5 rounded-full font-bangers text-[10px] sm:text-xs bg-emerald-900/80 border border-emerald-400 text-emerald-300">
+                    PLAYING
+                  </span>
+                </div>
+                <div id="settings-current-track-name" class="font-fredoka text-[11px] sm:text-xs text-amber-200/90 truncate max-w-[210px] sm:max-w-xs">
+                  Track 1: Sneaky Spy Cat (Smooth D-Minor Jazz)
+                </div>
               </div>
             </div>
-            <button id="setting-toggle-bgm" class="comic-btn px-4 py-1.5 rounded-xl font-bangers text-xs tracking-wider transition-all bg-emerald-700 text-white">
-              ON
+            <!-- Prominent MUTE / UNMUTE Button in Settings -->
+            <button id="setting-btn-mute-music" class="comic-btn px-3.5 py-1.5 rounded-xl font-bangers text-xs sm:text-sm tracking-wider flex items-center gap-1.5 transition-all shadow-md bg-red-600 hover:bg-red-500 text-white cursor-pointer active:scale-95">
+              <span id="setting-btn-mute-icon">🔇</span>
+              <span id="setting-btn-mute-text">MUTE MUSIC</span>
             </button>
           </div>
-          <!-- BGM Volume Slider -->
-          <div class="flex items-center gap-3 pt-1 border-t border-stone-800/80">
-            <span class="text-xs text-stone-400 font-bold min-w-[50px]">VOLUME:</span>
-            <input id="setting-slider-bgm" type="range" min="0" max="100" value="35" class="flex-1 h-2 bg-stone-800 rounded-lg appearance-none cursor-pointer accent-amber-400" />
-            <span id="setting-bgm-vol-text" class="text-xs text-amber-300 font-bangers min-w-[36px] text-right">35%</span>
+
+          <!-- Multi-Track Selector (Non-repeating variety) -->
+          <div class="pt-2 border-t border-amber-800/40">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-bangers text-xs text-stone-300 tracking-wide">MULTI-TRACK SOUNDTRACKS:</span>
+              <button id="btn-next-music-track" type="button" class="comic-btn px-2.5 py-0.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-300 font-bangers text-xs flex items-center gap-1 border border-stone-700 cursor-pointer">
+                <span>NEXT TRACK</span> <span>⏭️</span>
+              </button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5" id="settings-track-buttons-grid">
+              <button data-track="SPY_JAZZ" type="button" class="music-track-card px-2 py-1.5 rounded-xl border-2 text-left font-bangers text-xs transition-all cursor-pointer bg-amber-950/80 border-amber-400 text-yellow-300">
+                <div class="truncate">🎷 SPY CAT</div>
+                <div class="text-[9px] font-fredoka text-amber-200/80">Smooth Jazz</div>
+              </button>
+              <button data-track="REACTOR_RUSH" type="button" class="music-track-card px-2 py-1.5 rounded-xl border-2 text-left font-bangers text-xs transition-all cursor-pointer bg-stone-900 border-stone-700 text-stone-400 hover:border-amber-500">
+                <div class="truncate">⚡ REACTOR RUSH</div>
+                <div class="text-[9px] font-fredoka text-stone-400">125 BPM Synth</div>
+              </button>
+              <button data-track="MIDNIGHT_ALLEY" type="button" class="music-track-card px-2 py-1.5 rounded-xl border-2 text-left font-bangers text-xs transition-all cursor-pointer bg-stone-900 border-stone-700 text-stone-400 hover:border-amber-500">
+                <div class="truncate">🌙 MIDNIGHT ALLEY</div>
+                <div class="text-[9px] font-fredoka text-stone-400">Chill Lofi Beats</div>
+              </button>
+              <button data-track="NUCLEAR_MELTDOWN" type="button" class="music-track-card px-2 py-1.5 rounded-xl border-2 text-left font-bangers text-xs transition-all cursor-pointer bg-stone-900 border-stone-700 text-stone-400 hover:border-amber-500">
+                <div class="truncate">🚨 MELTDOWN</div>
+                <div class="text-[9px] font-fredoka text-stone-400">High Tension</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Evolution & Volume Slider -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-amber-800/40 text-xs">
+            <label class="flex items-center gap-2 cursor-pointer text-stone-300 font-fredoka select-none">
+              <input id="setting-auto-rotate-music" type="checkbox" checked class="w-4 h-4 rounded accent-amber-500 cursor-pointer" />
+              <span>Auto-cycle tracks & evolve melodies dynamically</span>
+            </label>
+            <div class="flex items-center gap-2 min-w-[170px] justify-end">
+              <span class="text-xs text-stone-400 font-bold">VOL:</span>
+              <input id="setting-slider-bgm" type="range" min="0" max="100" value="35" class="w-20 sm:w-28 h-2 bg-stone-800 rounded-lg appearance-none cursor-pointer accent-amber-400" />
+              <span id="setting-bgm-vol-text" class="text-xs text-amber-300 font-bangers min-w-[32px] text-right">35%</span>
+            </div>
           </div>
         </div>
 
@@ -3236,166 +3505,412 @@
           gain.gain.setValueAtTime(0.2, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
           osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now);
-          osc.stop(now + 1.15);
-      // --- PROCEDURAL BACKGROUND MUSIC SYNTHESIZER ---
-      startMusic() {
-        if (this.musicPlaying) return;
-        this.musicPlaying = true;
-        this.musicStep = 0;
-        clearInterval(this.musicTimer);
+        osc.start(now);
+        osc.stop(now + 1.15);
+      } catch (e) {}
+    }
 
-        // Cat-heist spy jazz progression in D minor
-        const chordProgressions = [
+    // --- PROCEDURAL MULTI-TRACK BACKGROUND MUSIC & AUDIO SYNTHESIZER ---
+    static TRACK_CATALOG = {
+      SPY_JAZZ: {
+        id: 'SPY_JAZZ',
+        title: 'Track 1: Sneaky Spy Cat',
+        subtitle: 'Smooth D-Minor Feline Stealth Jazz',
+        stepMs: 310,
+        verseA: [
           { bass: 73.42, notes: [174.61, 220.00, 261.63, 329.63] }, // Dm9
           { bass: 58.27, notes: [174.61, 220.00, 293.66, 349.23] }, // Bbmaj7
           { bass: 49.00, notes: [146.83, 196.00, 233.08, 293.66] }, // Gm7
           { bass: 55.00, notes: [164.81, 220.00, 277.18, 329.63] }, // A7alt
-        ];
-        const melodyScales = [
-          [587.33, 659.25, 698.46, 783.99, 880.00], // D pentatonic
-          [587.33, 698.46, 783.99, 880.00, 1046.50],
+        ],
+        verseB: [
+          { bass: 87.31, notes: [174.61, 220.00, 261.63, 329.63] }, // Fmaj7
+          { bass: 82.41, notes: [164.81, 196.00, 246.94, 293.66] }, // Em7b5
+          { bass: 77.78, notes: [155.56, 196.00, 233.08, 293.66] }, // Eb7#11
+          { bass: 55.00, notes: [146.83, 220.00, 277.18, 349.23] }, // A7b9
+        ],
+        melodyPools: [
+          [587.33, 659.25, 698.46, 783.99, 880.00],
+          [587.33, 698.46, 783.99, 830.61, 880.00, 1046.50],
+          [493.88, 587.33, 659.25, 698.46, 783.99, 880.00],
+          [554.37, 659.25, 783.99, 880.00, 932.33, 1108.73],
+        ],
+        bassType: 'triangle',
+        chordType: 'sine',
+        rhythmStyle: 'brush'
+      },
+      REACTOR_RUSH: {
+        id: 'REACTOR_RUSH',
+        title: 'Track 2: Reactor Rush',
+        subtitle: '125 BPM Synthwave Electro Drive',
+        stepMs: 240,
+        verseA: [
+          { bass: 55.00, notes: [220.00, 261.63, 329.63] }, // Am
+          { bass: 43.65, notes: [174.61, 220.00, 261.63] }, // F
+          { bass: 65.41, notes: [196.00, 261.63, 329.63] }, // C
+          { bass: 49.00, notes: [196.00, 246.94, 293.66] }, // G
+        ],
+        verseB: [
+          { bass: 73.42, notes: [220.00, 293.66, 349.23] }, // Dm
+          { bass: 82.41, notes: [196.00, 246.94, 329.63] }, // Em
+          { bass: 87.31, notes: [220.00, 261.63, 329.63, 392.00] }, // Fmaj7
+          { bass: 41.20, notes: [207.65, 246.94, 293.66, 329.63] }, // E7
+        ],
+        melodyPools: [
+          [440.00, 523.25, 659.25, 783.99, 880.00],
+          [349.23, 440.00, 523.25, 698.46, 880.00],
+          [523.25, 659.25, 783.99, 987.77, 1046.50],
+          [392.00, 493.88, 587.33, 783.99, 987.77],
+        ],
+        bassType: 'sawtooth',
+        chordType: 'triangle',
+        rhythmStyle: 'electro'
+      },
+      MIDNIGHT_ALLEY: {
+        id: 'MIDNIGHT_ALLEY',
+        title: 'Track 3: Midnight Alley',
+        subtitle: 'Chill Tabletop Lofi Feline Beats',
+        stepMs: 380,
+        verseA: [
+          { bass: 65.41, notes: [164.81, 196.00, 246.94, 293.66] }, // Cmaj9
+          { bass: 55.00, notes: [164.81, 196.00, 220.00, 246.94] }, // Am9
+          { bass: 73.42, notes: [174.61, 220.00, 261.63, 329.63] }, // Dm9
+          { bass: 49.00, notes: [174.61, 246.94, 329.63, 440.00] }, // G13
+        ],
+        verseB: [
+          { bass: 82.41, notes: [196.00, 246.94, 293.66, 392.00] }, // Em7
+          { bass: 55.00, notes: [174.61, 220.00, 277.18, 349.23] }, // A7b9
+          { bass: 73.42, notes: [174.61, 220.00, 261.63, 349.23] }, // Dm7
+          { bass: 49.00, notes: [174.61, 246.94, 293.66, 392.00] }, // G7sus4
+        ],
+        melodyPools: [
+          [523.25, 587.33, 659.25, 783.99, 880.00],
+          [440.00, 523.25, 587.33, 659.25, 783.99],
+          [587.33, 659.25, 698.46, 783.99, 880.00],
+          [392.00, 440.00, 493.88, 587.33, 659.25],
+        ],
+        bassType: 'sine',
+        chordType: 'sine',
+        rhythmStyle: 'lofi'
+      },
+      NUCLEAR_MELTDOWN: {
+        id: 'NUCLEAR_MELTDOWN',
+        title: 'Track 4: Nuclear Meltdown',
+        subtitle: 'High-Stakes Cinematic Cat Tension',
+        stepMs: 270,
+        verseA: [
+          { bass: 65.41, notes: [196.00, 233.08, 261.63] }, // Cm
+          { bass: 51.91, notes: [207.65, 261.63, 311.13, 392.00] }, // Abmaj7
+          { bass: 43.65, notes: [174.61, 207.65, 261.63, 311.13] }, // Fm7
+          { bass: 49.00, notes: [196.00, 246.94, 293.66, 349.23] }, // G7b9
+        ],
+        verseB: [
+          { bass: 77.78, notes: [185.00, 233.08, 277.18] }, // Ebm
+          { bass: 58.27, notes: [174.61, 233.08, 277.18] }, // Bbm
+          { bass: 46.25, notes: [174.61, 220.00, 261.63, 311.13] }, // F#dim7
+          { bass: 49.00, notes: [196.00, 261.63, 293.66, 392.00] }, // Gsus4
+        ],
+        melodyPools: [
+          [523.25, 622.25, 698.46, 783.99, 932.33],
+          [415.30, 523.25, 622.25, 783.99, 830.61],
+          [349.23, 415.30, 523.25, 622.25, 698.46],
           [493.88, 587.33, 698.46, 783.99, 880.00],
-          [554.37, 659.25, 783.99, 880.00, 932.33]
-        ];
-
-        this.musicTimer = setInterval(() => {
-          if (!this.musicEnabled || !this.ctx || this.ctx.state !== 'running') return;
-          try {
-            const step = this.musicStep % 16;
-            const bar = Math.floor(step / 4);
-            const beatInBar = step % 4;
-            const now = this.ctx.currentTime;
-            const dest = this.masterMusicGain;
-            if (!dest) return;
-
-            // 1. Acoustic Bassline on downbeats
-            if (beatInBar === 0) {
-              const bassOsc = this.ctx.createOscillator();
-              const bassGain = this.ctx.createGain();
-              bassOsc.type = 'triangle';
-              bassOsc.frequency.setValueAtTime(chordProgressions[bar].bass, now);
-              bassGain.gain.setValueAtTime(0.35, now);
-              bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
-              bassOsc.connect(bassGain);
-              bassGain.connect(dest);
-              bassOsc.start(now);
-              bassOsc.stop(now + 0.7);
-            }
-
-            // 2. Warm Rhodes chords on beat 0
-            if (beatInBar === 0) {
-              chordProgressions[bar].notes.forEach((freq, idx) => {
-                const chordOsc = this.ctx.createOscillator();
-                const chordGain = this.ctx.createGain();
-                chordOsc.type = 'sine';
-                chordOsc.frequency.setValueAtTime(freq, now);
-                chordGain.gain.setValueAtTime(0.11, now);
-                chordGain.gain.exponentialRampToValueAtTime(0.001, now + 0.95);
-                chordOsc.connect(chordGain);
-                chordGain.connect(dest);
-                chordOsc.start(now + idx * 0.015);
-                chordOsc.stop(now + 1.0);
-              });
-            }
-
-            // 3. Subtle hi-hat / shaker tap on offbeats
-            if (beatInBar === 1 || beatInBar === 3) {
-              const bufSize = Math.floor(this.ctx.sampleRate * 0.03);
-              const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
-              const d = buf.getChannelData(0);
-              for (let i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
-              const n = this.ctx.createBufferSource();
-              n.buffer = buf;
-              const filter = this.ctx.createBiquadFilter();
-              filter.type = 'highpass';
-              filter.frequency.setValueAtTime(3400, now);
-              const nGain = this.ctx.createGain();
-              nGain.gain.setValueAtTime(0.05, now);
-              nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-              n.connect(filter);
-              filter.connect(nGain);
-              nGain.connect(dest);
-              n.start(now);
-            }
-
-            // 4. Playful marimba/bell notes
-            if (beatInBar === 2 || (step % 8 === 5 && Math.random() > 0.45)) {
-              const notes = melodyScales[bar];
-              const noteFreq = notes[Math.floor(Math.random() * notes.length)];
-              const mOsc = this.ctx.createOscillator();
-              const mGain = this.ctx.createGain();
-              mOsc.type = 'sine';
-              mOsc.frequency.setValueAtTime(noteFreq, now);
-              mGain.gain.setValueAtTime(0.12, now);
-              mGain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
-              mOsc.connect(mGain);
-              mGain.connect(dest);
-              mOsc.start(now);
-              mOsc.stop(now + 0.35);
-            }
-
-            this.musicStep++;
-          } catch (e) {}
-        }, 320); // 320ms per beat ~ 94 BPM
+        ],
+        bassType: 'sawtooth',
+        chordType: 'sawtooth',
+        rhythmStyle: 'tension'
       }
-      stopMusic() {
-        this.musicPlaying = false;
-        clearInterval(this.musicTimer);
-        this.musicTimer = null;
-      }
-      setBGMVolume(val) {
-        this.musicVolume = Math.max(0, Math.min(1, val));
-        localStorage.setItem('combustion_cats_bgm_volume', this.musicVolume);
-        if (this.masterMusicGain && this.ctx) {
-          this.masterMusicGain.gain.setValueAtTime(this.musicEnabled ? this.musicVolume : 0.0001, this.ctx.currentTime);
-        }
-      }
-      toggleMusic() {
-        this.init();
-        this.musicEnabled = !this.musicEnabled;
-        localStorage.setItem('combustion_cats_bgm_enabled', this.musicEnabled ? 'true' : 'false');
-        if (this.masterMusicGain && this.ctx) {
-          this.masterMusicGain.gain.setValueAtTime(this.musicEnabled ? this.musicVolume : 0.0001, this.ctx.currentTime);
-        }
-        if (this.musicEnabled) {
-          if (!this.musicPlaying) this.startMusic();
-        } else {
-          this.stopMusic();
-        }
-        if (typeof updateAudioUI === 'function') updateAudioUI();
-        return this.musicEnabled;
-      }
-      toggleSFX() {
-        this.init();
-        this.enabled = !this.enabled;
-        localStorage.setItem('combustion_cats_sfx_enabled', this.enabled ? 'true' : 'false');
-        if (this.masterSfxGain && this.ctx) {
-          this.masterSfxGain.gain.setValueAtTime(this.enabled ? 0.75 : 0.0001, this.ctx.currentTime);
-        }
-        if (typeof updateAudioUI === 'function') updateAudioUI();
-        return this.enabled;
-      }
-      buttonClick() {
-        if (!this.enabled) return;
-        this.init();
+    };
+
+    startMusic() {
+      if (this.musicPlaying) return;
+      this.musicPlaying = true;
+      this.musicStep = 0;
+      this.measureCount = 0;
+      this.variationIndex = 0;
+      clearInterval(this.musicTimer);
+
+      const runStep = () => {
+        if (!this.musicEnabled || !this.ctx || this.ctx.state !== 'running') return;
         try {
+          const trackKey = this.currentTrack || 'SPY_JAZZ';
+          const track = SoundEngine.TRACK_CATALOG[trackKey] || SoundEngine.TRACK_CATALOG.SPY_JAZZ;
+          const dest = this.masterMusicGain;
+          if (!dest) return;
+
+          const step = this.musicStep % 16;
+          const bar = Math.floor(step / 4);
+          const beatInBar = step % 4;
           const now = this.ctx.currentTime;
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(950, now);
-          osc.frequency.exponentialRampToValueAtTime(320, now + 0.035);
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
-          osc.connect(gain);
-          gain.connect(this.getDest());
-          osc.start(now);
-          osc.stop(now + 0.04);
+
+          // Alternate Verse A and Verse B every 4 bars for varied progression
+          const isVerseB = Math.floor(this.measureCount / 4) % 2 === 1;
+          const chords = isVerseB ? track.verseB : track.verseA;
+          const currentChord = chords[bar % chords.length];
+
+          // 1. Bassline (Dynamic phrasing with variation)
+          if (beatInBar === 0 || (beatInBar === 2 && this.variationIndex % 2 === 1)) {
+            const bassOsc = this.ctx.createOscillator();
+            const bassGain = this.ctx.createGain();
+            bassOsc.type = track.bassType || 'triangle';
+            // Slight octave bounce on alternating variations
+            const bassFreq = beatInBar === 2 ? currentChord.bass * 1.5 : currentChord.bass;
+            bassOsc.frequency.setValueAtTime(bassFreq, now);
+            bassGain.gain.setValueAtTime(beatInBar === 0 ? 0.32 : 0.22, now);
+            bassGain.gain.exponentialRampToValueAtTime(0.001, now + (track.stepMs * 0.0018));
+            bassOsc.connect(bassGain);
+            bassGain.connect(dest);
+            bassOsc.start(now);
+            bassOsc.stop(now + (track.stepMs * 0.002));
+          }
+
+          // 2. Chords (Voicing on downbeat + occasional syncopated stab)
+          if (beatInBar === 0 || (beatInBar === 2 && Math.random() > 0.6)) {
+            const chordVol = beatInBar === 0 ? 0.09 : 0.06;
+            currentChord.notes.forEach((freq, idx) => {
+              const chordOsc = this.ctx.createOscillator();
+              const chordGain = this.ctx.createGain();
+              chordOsc.type = track.chordType || 'sine';
+              // Staggered arpeggiation delay
+              const delay = idx * 0.016;
+              chordOsc.frequency.setValueAtTime(freq, now + delay);
+              chordGain.gain.setValueAtTime(chordVol, now + delay);
+              chordGain.gain.exponentialRampToValueAtTime(0.001, now + delay + (track.stepMs * 0.0035));
+              chordOsc.connect(chordGain);
+              chordGain.connect(dest);
+              chordOsc.start(now + delay);
+              chordOsc.stop(now + delay + (track.stepMs * 0.0038));
+            });
+          }
+
+          // 3. Rhythm Percussion (Custom to track style)
+          if (track.rhythmStyle === 'electro') {
+            // Kick on beat 0 and 2
+            if (beatInBar === 0 || beatInBar === 2) {
+              const kickOsc = this.ctx.createOscillator();
+              const kickGain = this.ctx.createGain();
+              kickOsc.type = 'sine';
+              kickOsc.frequency.setValueAtTime(140, now);
+              kickOsc.frequency.exponentialRampToValueAtTime(38, now + 0.09);
+              kickGain.gain.setValueAtTime(0.35, now);
+              kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+              kickOsc.connect(kickGain);
+              kickGain.connect(dest);
+              kickOsc.start(now);
+              kickOsc.stop(now + 0.11);
+            }
+            // Crisp synth hat
+            if (beatInBar % 2 === 1) {
+              this.playProceduralNoise(dest, now, 4200, 0.035, 0.025);
+            }
+          } else if (track.rhythmStyle === 'lofi') {
+            // Soft cozy tape dust & click on offbeats
+            if (beatInBar === 1 || beatInBar === 3) {
+              this.playProceduralNoise(dest, now, 2200, 0.02, 0.04);
+            }
+          } else if (track.rhythmStyle === 'tension') {
+            // Urgent double ticks
+            if (beatInBar === 0 || beatInBar === 1 || beatInBar === 3) {
+              this.playProceduralNoise(dest, now, 5000, 0.03, 0.015);
+            }
+          } else {
+            // Default Jazz Brush
+            if (beatInBar === 1 || beatInBar === 3) {
+              this.playProceduralNoise(dest, now, 3200, 0.04, 0.03);
+            }
+          }
+
+          // 4. Non-Repeating Generative Lead Melodies
+          // Playful melodic phrases that evolve every measure rather than a static loop
+          const melodyPool = track.melodyPools[bar % track.melodyPools.length];
+          const shouldPlayLead = (beatInBar === 2) || 
+            (beatInBar === 1 && (this.variationIndex + this.measureCount) % 3 === 0) ||
+            (beatInBar === 3 && Math.random() > 0.45);
+
+          if (shouldPlayLead && melodyPool && melodyPool.length) {
+            // Pick a note with step-wise affinity to last note for musicality
+            let chosenFreq;
+            if (this.lastMelodyFreq && Math.random() > 0.35) {
+              // Find closest frequency in scale
+              const sorted = [...melodyPool].sort((a, b) => Math.abs(a - this.lastMelodyFreq) - Math.abs(b - this.lastMelodyFreq));
+              chosenFreq = sorted[Math.floor(Math.random() * Math.min(3, sorted.length))];
+            } else {
+              chosenFreq = melodyPool[Math.floor(Math.random() * melodyPool.length)];
+            }
+            // Occasional octave lift on energetic sections
+            if (isVerseB && Math.random() > 0.7) chosenFreq *= 1.5;
+            this.lastMelodyFreq = chosenFreq;
+
+            const mOsc = this.ctx.createOscillator();
+            const mGain = this.ctx.createGain();
+            mOsc.type = track.rhythmStyle === 'electro' ? 'sawtooth' : 'sine';
+            mOsc.frequency.setValueAtTime(chosenFreq, now);
+            // Slight feline vibrato
+            if (Math.random() > 0.6) {
+              mOsc.frequency.linearRampToValueAtTime(chosenFreq * 1.015, now + 0.08);
+              mOsc.frequency.linearRampToValueAtTime(chosenFreq, now + 0.16);
+            }
+            const leadVol = track.rhythmStyle === 'electro' ? 0.08 : 0.12;
+            mGain.gain.setValueAtTime(leadVol, now);
+            mGain.gain.exponentialRampToValueAtTime(0.001, now + (track.stepMs * 0.0022));
+            mOsc.connect(mGain);
+            mGain.connect(dest);
+            mOsc.start(now);
+            mOsc.stop(now + (track.stepMs * 0.0025));
+          }
+
+          this.musicStep++;
+          if (this.musicStep % 4 === 0) {
+            this.measureCount++;
+            if (this.measureCount % 8 === 0) {
+              this.variationIndex++;
+            }
+            // Auto-cycle tracks every 32 bars to keep music completely non-repeating and fresh!
+            if (this.autoRotate && this.measureCount > 0 && this.measureCount % 32 === 0) {
+              this.nextTrack(true);
+            }
+          }
         } catch (e) {}
+      };
+
+      const initialTrack = SoundEngine.TRACK_CATALOG[this.currentTrack] || SoundEngine.TRACK_CATALOG.SPY_JAZZ;
+      this.musicTimer = setInterval(runStep, initialTrack.stepMs || 300);
+    }
+
+    playProceduralNoise(dest, time, filterFreq, gainVal, duration) {
+      if (!this.ctx) return;
+      try {
+        const bufSize = Math.floor(this.ctx.sampleRate * duration);
+        const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+        const src = this.ctx.createBufferSource();
+        src.buffer = buf;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(filterFreq, time);
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(gainVal, time);
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(dest);
+        src.start(time);
+      } catch (e) {}
+    }
+
+    stopMusic() {
+      this.musicPlaying = false;
+      clearInterval(this.musicTimer);
+      this.musicTimer = null;
+    }
+
+    setBGMVolume(val) {
+      this.musicVolume = Math.max(0, Math.min(1, val));
+      localStorage.setItem('combustion_cats_bgm_volume', this.musicVolume);
+      if (this.masterMusicGain && this.ctx) {
+        this.masterMusicGain.gain.setValueAtTime(this.musicEnabled ? this.musicVolume : 0.0001, this.ctx.currentTime);
       }
     }
+
+    setTrack(trackKey, restart = true) {
+      if (!SoundEngine.TRACK_CATALOG[trackKey]) return;
+      this.currentTrack = trackKey;
+      localStorage.setItem('combustion_cats_current_track', trackKey);
+      if (this.musicPlaying && restart) {
+        this.stopMusic();
+        this.startMusic();
+      }
+      if (typeof updateAudioUI === 'function') updateAudioUI();
+    }
+
+    nextTrack(smooth = false) {
+      const keys = Object.keys(SoundEngine.TRACK_CATALOG);
+      const currIdx = keys.indexOf(this.currentTrack);
+      const nextKey = keys[(currIdx + 1) % keys.length];
+      this.setTrack(nextKey, this.musicPlaying);
+      if (typeof showComboNotification === 'function') {
+        const track = SoundEngine.TRACK_CATALOG[nextKey];
+        showComboNotification('NOW PLAYING 🎵', `${track.title} - ${track.subtitle}`, '🎶');
+      }
+      return nextKey;
+    }
+
+    setAutoRotate(enabled) {
+      this.autoRotate = !!enabled;
+      localStorage.setItem('combustion_cats_auto_rotate_bgm', this.autoRotate ? 'true' : 'false');
+    }
+
+    getCurrentTrackInfo() {
+      return SoundEngine.TRACK_CATALOG[this.currentTrack] || SoundEngine.TRACK_CATALOG.SPY_JAZZ;
+    }
+
+    muteMusic() {
+      this.init();
+      this.musicEnabled = false;
+      localStorage.setItem('combustion_cats_bgm_enabled', 'false');
+      if (this.masterMusicGain && this.ctx) {
+        this.masterMusicGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+      }
+      this.stopMusic();
+      if (typeof updateAudioUI === 'function') updateAudioUI();
+      return true;
+    }
+
+    unmuteMusic() {
+      this.init();
+      this.musicEnabled = true;
+      localStorage.setItem('combustion_cats_bgm_enabled', 'true');
+      if (this.masterMusicGain && this.ctx) {
+        this.masterMusicGain.gain.setValueAtTime(this.musicVolume, this.ctx.currentTime);
+      }
+      if (!this.musicPlaying) this.startMusic();
+      if (typeof updateAudioUI === 'function') updateAudioUI();
+      return true;
+    }
+
+    toggleMusic() {
+      if (this.musicEnabled) {
+        return this.muteMusic();
+      } else {
+        return this.unmuteMusic();
+      }
+    }
+
+    isMusicMuted() {
+      return !this.musicEnabled;
+    }
+
+    toggleSFX() {
+      this.init();
+      this.enabled = !this.enabled;
+      localStorage.setItem('combustion_cats_sfx_enabled', this.enabled ? 'true' : 'false');
+      if (this.masterSfxGain && this.ctx) {
+        this.masterSfxGain.gain.setValueAtTime(this.enabled ? 0.75 : 0.0001, this.ctx.currentTime);
+      }
+      if (typeof updateAudioUI === 'function') updateAudioUI();
+      return this.enabled;
+    }
+
+    buttonClick() {
+      if (!this.enabled) return;
+      this.init();
+      try {
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(950, now);
+        osc.frequency.exponentialRampToValueAtTime(320, now + 0.035);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+        osc.connect(gain);
+        gain.connect(this.getDest());
+        osc.start(now);
+        osc.stop(now + 0.04);
+      } catch (e) {}
+    }
+  }
     const sounds = new SoundEngine();
 
     // Browser Web Audio Autoplay Unlock
@@ -3631,6 +4146,160 @@
           type: 'ember'
         });
       }
+
+      // --- VICTORY FIREWORKS & CONFETTI CANNON SYSTEM ---
+      fireworkBurst(cx, cy, palette = ['#facc15', '#f59e0b', '#ef4444', '#ffffff', '#38bdf8']) {
+        if (!this.ctx) return;
+        // Central flash ring
+        this.shockwaves.push({
+          x: cx,
+          y: cy,
+          radius: 8,
+          maxRadius: 110,
+          alpha: 0.95,
+          color: palette[0] || '#facc15'
+        });
+
+        // 60-80 radiating firework stars
+        const starCount = 55 + Math.floor(Math.random() * 30);
+        for (let i = 0; i < starCount; i++) {
+          const angle = (i / starCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+          const speed = 2.5 + Math.random() * 8.5;
+          const color = palette[Math.floor(Math.random() * palette.length)];
+          this.particles.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: 2.2 + Math.random() * 3.8,
+            color,
+            alpha: 1,
+            decay: 0.016 + Math.random() * 0.014,
+            gravity: 0.07,
+            type: 'fireworkStar'
+          });
+        }
+      }
+
+      launchFirework(startX, startY, targetY, colors) {
+        if (!this.ctx) return;
+        const speed = -9 - Math.random() * 5;
+        this.particles.push({
+          x: startX,
+          y: startY,
+          vx: (Math.random() - 0.5) * 2.2,
+          vy: speed,
+          targetY,
+          trailColor: colors ? colors[0] : '#fde047',
+          colors: colors || ['#facc15', '#f59e0b', '#ef4444', '#ffffff'],
+          type: 'rocket'
+        });
+      }
+
+      spawnConfetti(cx, cy, count = 60, options = {}) {
+        if (!this.ctx) return;
+        const palette = options.palette || [
+          '#facc15', '#f59e0b', '#06b6d4', '#ec4899', '#10b981', '#ffffff', '#8b5cf6', '#fb7185'
+        ];
+        const shapes = ['rect', 'star', 'ribbon'];
+        for (let i = 0; i < count; i++) {
+          const angle = (options.vxSpread ? (Math.random() - 0.5) * options.vxSpread : (Math.random() - 0.5) * 12);
+          const vy = options.vyMin ? options.vyMin + Math.random() * (options.vyMax - options.vyMin) : -(4 + Math.random() * 11);
+          this.particles.push({
+            x: cx + (Math.random() - 0.5) * 40,
+            y: cy + (Math.random() - 0.5) * 20,
+            vx: angle,
+            vy: vy,
+            size: 4 + Math.random() * 5.5,
+            color: palette[Math.floor(Math.random() * palette.length)],
+            shape: shapes[Math.floor(Math.random() * shapes.length)],
+            rotation: Math.random() * Math.PI * 2,
+            rotSpeed: (Math.random() - 0.5) * 0.22,
+            wobble: Math.random() * Math.PI * 2,
+            wobbleSpeed: 0.08 + Math.random() * 0.12,
+            alpha: 1,
+            decay: 0.004 + Math.random() * 0.007,
+            gravity: 0.12 + Math.random() * 0.08,
+            type: 'confetti'
+          });
+        }
+      }
+
+      drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+        let rot = (Math.PI / 2) * 3;
+        let x = cx;
+        let y = cy;
+        const step = Math.PI / spikes;
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(cx, cy - outerRadius);
+        for (let i = 0; i < spikes; i++) {
+          x = cx + Math.cos(rot) * outerRadius;
+          y = cy + Math.sin(rot) * outerRadius;
+          this.ctx.lineTo(x, y);
+          rot += step;
+
+          x = cx + Math.cos(rot) * innerRadius;
+          y = cy + Math.sin(rot) * innerRadius;
+          this.ctx.lineTo(x, y);
+          rot += step;
+        }
+        this.ctx.lineTo(cx, cy - outerRadius);
+        this.ctx.closePath();
+        this.ctx.fill();
+      }
+
+      startVictoryCelebration(durationMs = 11000) {
+        this.stopVictoryCelebration();
+        const banner = document.getElementById('victory-celebration-banner');
+        const gameScreen = document.getElementById('screen-game');
+        if (banner) banner.classList.remove('hidden');
+        if (gameScreen) gameScreen.classList.add('board-victory-celebrate');
+
+        // Immediate massive cannon confetti blast from left, right, and center
+        const palettes = [
+          ['#facc15', '#f59e0b', '#fbbf24', '#ffffff', '#ef4444'],
+          ['#06b6d4', '#3b82f6', '#10b981', '#ec4899', '#fde047'],
+          ['#a855f7', '#ec4899', '#f43f5e', '#facc15', '#ffffff'],
+        ];
+
+        this.spawnConfetti(window.innerWidth * 0.15, window.innerHeight * 0.82, 110, { vyMin: -19, vyMax: -11, vxSpread: 12 });
+        this.spawnConfetti(window.innerWidth * 0.85, window.innerHeight * 0.82, 110, { vyMin: -19, vyMax: -11, vxSpread: -12 });
+        this.spawnConfetti(window.innerWidth * 0.5, window.innerHeight * 0.45, 90, { vyMin: -13, vyMax: -6, vxSpread: 14 });
+
+        // Continuous rhythmic firework launches and falling confetti rain
+        const startTime = Date.now();
+        this.victoryInterval = setInterval(() => {
+          if (Date.now() - startTime > durationMs) {
+            this.stopVictoryCelebration();
+            return;
+          }
+          // Launch 1-2 fireworks rockets from bottom to random height
+          const startX = window.innerWidth * (0.12 + Math.random() * 0.76);
+          const targetY = window.innerHeight * (0.12 + Math.random() * 0.36);
+          const colorSet = palettes[Math.floor(Math.random() * palettes.length)];
+          this.launchFirework(startX, window.innerHeight + 10, targetY, colorSet);
+
+          // Stream gentle confetti showers from the top
+          this.spawnConfetti(Math.random() * window.innerWidth, -10, 8, { vyMin: 1.5, vyMax: 4.5, vxSpread: 3 });
+        }, 340);
+      }
+
+      stopVictoryCelebration() {
+        if (this.victoryInterval) {
+          clearInterval(this.victoryInterval);
+          this.victoryInterval = null;
+        }
+        const banner = document.getElementById('victory-celebration-banner');
+        const gameScreen = document.getElementById('screen-game');
+        if (banner) {
+          setTimeout(() => banner.classList.add('hidden'), 5000);
+        }
+        if (gameScreen) {
+          setTimeout(() => gameScreen.classList.remove('board-victory-celebrate'), 6500);
+        }
+      }
+
       animate() {
         if (!this.ctx || !this.canvas) return;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -3692,29 +4361,83 @@
             p.radius -= 0.6;
             p.x = p.cx + Math.cos(p.angle) * p.radius;
             p.y = p.cy + Math.sin(p.angle) * p.radius;
+          } else if (p.type === 'rocket') {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.08;
+            if (Math.random() < 0.6) {
+              this.sparkle(p.x, p.y, p.trailColor, 2);
+            }
+            if (p.y <= p.targetY || p.vy >= 0) {
+              this.fireworkBurst(p.x, p.y, p.colors);
+              p.alpha = 0;
+            }
+          } else if (p.type === 'fireworkStar') {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vx *= 0.96;
+            p.vy *= 0.96;
+            p.vy += p.gravity || 0.07;
+          } else if (p.type === 'confetti') {
+            p.x += p.vx + Math.sin(p.wobble) * 1.5;
+            p.y += p.vy;
+            p.vy += p.gravity || 0.12;
+            p.vx *= 0.98;
+            p.wobble += p.wobbleSpeed;
+            p.rotation += p.rotSpeed;
           } else {
             p.x += p.vx;
             p.y += p.vy;
             if (p.gravity) p.vy += p.gravity;
           }
-          p.alpha -= p.decay;
+          p.alpha -= p.decay || 0.015;
 
-          if (p.alpha <= 0 || p.size <= 0.2 || (p.type === 'vortex' && p.radius <= 2)) {
+          if (p.alpha <= 0 || p.size <= 0.2 || (p.type === 'vortex' && p.radius <= 2) || (p.y > this.canvas.height + 60 && p.type === 'confetti')) {
             this.particles.splice(i, 1);
             continue;
           }
 
           this.ctx.save();
-          this.ctx.beginPath();
-          this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          this.ctx.fillStyle = p.color;
-          this.ctx.globalAlpha = Math.max(0, p.alpha * (p.type === 'puff' ? 0.85 : 1));
-          this.ctx.fill();
-          if (p.type === 'puff' && p.alpha > 0.28) {
-            this.ctx.strokeStyle = p.strokeColor || '#1c1917';
-            this.ctx.lineWidth = 1.2;
-            this.ctx.globalAlpha = Math.max(0, p.alpha * 0.35);
-            this.ctx.stroke();
+          if (p.type === 'confetti') {
+            this.ctx.translate(p.x, p.y);
+            this.ctx.rotate(p.rotation);
+            this.ctx.scale(Math.cos(p.wobble), 1);
+            this.ctx.fillStyle = p.color;
+            this.ctx.globalAlpha = Math.max(0, p.alpha);
+            if (p.shape === 'star') {
+              this.drawStar(0, 0, 5, p.size * 1.2, p.size * 0.5);
+            } else if (p.shape === 'ribbon') {
+              this.ctx.fillRect(-p.size * 1.8, -p.size * 0.4, p.size * 3.6, p.size * 0.8);
+            } else {
+              this.ctx.fillRect(-p.size, -p.size * 0.65, p.size * 2, p.size * 1.3);
+            }
+          } else if (p.type === 'rocket') {
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+            this.ctx.fillStyle = p.trailColor || '#ffffff';
+            this.ctx.shadowColor = p.trailColor || '#facc15';
+            this.ctx.shadowBlur = 8;
+            this.ctx.fill();
+          } else if (p.type === 'fireworkStar') {
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fillStyle = p.color;
+            this.ctx.shadowColor = p.color;
+            this.ctx.shadowBlur = 6;
+            this.ctx.globalAlpha = Math.max(0, p.alpha);
+            this.ctx.fill();
+          } else {
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fillStyle = p.color;
+            this.ctx.globalAlpha = Math.max(0, p.alpha * (p.type === 'puff' ? 0.85 : 1));
+            this.ctx.fill();
+            if (p.type === 'puff' && p.alpha > 0.28) {
+              this.ctx.strokeStyle = p.strokeColor || '#1c1917';
+              this.ctx.lineWidth = 1.2;
+              this.ctx.globalAlpha = Math.max(0, p.alpha * 0.35);
+              this.ctx.stroke();
+            }
           }
           this.ctx.restore();
         }
@@ -4997,6 +5720,13 @@
         localGameState = state;
         renderGameTable(state);
 
+        // Synchronize 30-second turn timer for active human player
+        if (state.turnTimer && state.turnState === 'NORMAL') {
+          startTurnTimer(state.turnTimer);
+        } else {
+          stopTurnTimer();
+        }
+
         if (state.turnState !== 'NOPE_WINDOW') {
           clearNopeWindow();
         }
@@ -5017,8 +5747,25 @@
         }
       });
 
+      // 30-Second Turn Timer Expired (Auto-skips turn)
+      socket.on('turn_timer_expired', (data) => {
+        stopTurnTimer();
+        if (sounds && sounds.evac) sounds.evac();
+        showComboNotification(
+          '⏳ TIME EXPIRED!',
+          `${data.playerName} failed to play a card within 30s. Turn skipped!`,
+          '⏩'
+        );
+        const gameScreen = document.getElementById('screen-game');
+        if (gameScreen) {
+          gameScreen.classList.add('animate-shake');
+          setTimeout(() => gameScreen.classList.remove('animate-shake'), 600);
+        }
+      });
+
       // Reset to lobby event broadcast by server
       socket.on('returned_to_lobby', () => {
+        stopTurnTimer();
         ['modal-game-over', 'modal-defuse', 'modal-see-future', 'modal-alter-future', 'modal-discard-browser', 'modal-target-select', 'modal-demand-target', 'modal-favor-give'].forEach((id) => {
           const m = document.getElementById(id);
           if (m) m.classList.add('hidden');
@@ -5597,6 +6344,118 @@
       return { isPlayable: true, isDisabled: false };
     }
 
+    // --- 30-SECOND HUMAN PLAYER TURN TIMER CONTROLLER ---
+    let turnTimerInterval = null;
+    let turnTimerData = null;
+    let lastTickedSecond = null;
+
+    function startTurnTimer(timerData) {
+      turnTimerData = timerData;
+      clearInterval(turnTimerInterval);
+      lastTickedSecond = null;
+
+      if (!turnTimerData || !turnTimerData.expiresAt) {
+        hideTurnTimerUI();
+        return;
+      }
+
+      updateTurnTimerDisplay();
+      turnTimerInterval = setInterval(updateTurnTimerDisplay, 80);
+    }
+
+    function stopTurnTimer() {
+      clearInterval(turnTimerInterval);
+      turnTimerInterval = null;
+      turnTimerData = null;
+      lastTickedSecond = null;
+      hideTurnTimerUI();
+    }
+
+    function hideTurnTimerUI() {
+      const timerBadge = document.getElementById('turn-timer-badge');
+      const progressWrap = document.getElementById('turn-timer-progress-wrap');
+      const drawerTimerBanner = document.getElementById('drawer-turn-timer-banner');
+      const hint = document.getElementById('hudTurnTimerHint');
+      if (timerBadge) timerBadge.classList.add('hidden');
+      if (progressWrap) progressWrap.classList.add('hidden');
+      if (drawerTimerBanner) drawerTimerBanner.classList.add('hidden');
+      if (hint) hint.classList.add('hidden');
+      document.querySelectorAll('.opp-turn-timer-tag').forEach((el) => el.classList.add('hidden'));
+    }
+
+    function updateTurnTimerDisplay() {
+      if (!turnTimerData || !turnTimerData.expiresAt) {
+        hideTurnTimerUI();
+        return;
+      }
+
+      const now = Date.now();
+      const remainingMs = Math.max(0, turnTimerData.expiresAt - now);
+      const totalDuration = turnTimerData.durationMs || 30000;
+      const secondsLeft = Math.ceil(remainingMs / 1000);
+      const progressPct = Math.max(0, Math.min(100, (remainingMs / totalDuration) * 100));
+
+      const timerBadge = document.getElementById('turn-timer-badge');
+      const secText = document.getElementById('turn-timer-sec-text');
+      const progressWrap = document.getElementById('turn-timer-progress-wrap');
+      const progressFill = document.getElementById('turn-timer-progress-fill');
+      const drawerTimerBanner = document.getElementById('drawer-turn-timer-banner');
+      const drawerTimerSec = document.getElementById('drawer-timer-sec');
+      const drawerTimerFill = document.getElementById('drawer-timer-progress-fill');
+      const hint = document.getElementById('hudTurnTimerHint');
+
+      // Update timer elements visibility
+      if (timerBadge) timerBadge.classList.remove('hidden');
+      if (progressWrap) progressWrap.classList.remove('hidden');
+      if (drawerTimerBanner) drawerTimerBanner.classList.remove('hidden');
+      if (hint) hint.classList.remove('hidden');
+
+      // Format text
+      if (secText) secText.innerText = `${secondsLeft}s`;
+      if (drawerTimerSec) drawerTimerSec.innerText = `${secondsLeft}s`;
+
+      // Progress bar fill
+      if (progressFill) progressFill.style.width = `${progressPct}%`;
+      if (drawerTimerFill) drawerTimerFill.style.width = `${progressPct}%`;
+
+      // Update tags on active opponent pedestal
+      document.querySelectorAll('.opp-turn-timer-tag').forEach((el) => {
+        el.innerText = `${secondsLeft}s`;
+        el.classList.remove('hidden');
+      });
+
+      // Update color scheme based on urgency
+      if (secondsLeft > 10) {
+        // Safe / Normal pace (Green / Lime)
+        if (secText) secText.className = 'text-lime-400 font-bold';
+        if (timerBadge) timerBadge.className = 'font-bangers text-xs sm:text-sm px-2 py-0.5 rounded-full bg-stone-950/80 border border-lime-400/80 text-lime-400 flex items-center gap-1 shadow-xs';
+        if (progressFill) progressFill.className = 'h-full bg-gradient-to-r from-emerald-500 to-lime-400 rounded-full transition-all duration-100 ease-linear shadow-xs';
+      } else if (secondsLeft > 5) {
+        // Warning (Amber / Orange)
+        if (secText) secText.className = 'text-amber-400 font-bold';
+        if (timerBadge) timerBadge.className = 'font-bangers text-xs sm:text-sm px-2 py-0.5 rounded-full bg-stone-950/80 border border-amber-400 text-amber-300 flex items-center gap-1 shadow-sm';
+        if (progressFill) progressFill.className = 'h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-100 ease-linear shadow-xs';
+      } else {
+        // Critical (< 5 seconds left - pulsing red urgency)
+        if (secText) secText.className = 'text-red-400 font-bold animate-pulse';
+        if (timerBadge) timerBadge.className = 'font-bangers text-xs sm:text-sm px-2 py-0.5 rounded-full bg-red-950/90 border border-red-500 text-red-300 flex items-center gap-1 shadow-md animate-pulse';
+        if (progressFill) progressFill.className = 'h-full bg-gradient-to-r from-red-600 to-rose-400 rounded-full transition-all duration-100 ease-linear shadow-xs';
+
+        // Play subtle urgency tick on last 5 seconds for local player
+        if (localGameState?.isMyTurn && lastTickedSecond !== secondsLeft && secondsLeft > 0) {
+          lastTickedSecond = secondsLeft;
+          if (sounds && sounds.playTone) {
+            sounds.playTone(850 + (5 - secondsLeft) * 120, 'sine', 0.04, 0.12);
+          }
+        }
+      }
+
+      if (remainingMs <= 0) {
+        clearInterval(turnTimerInterval);
+        turnTimerInterval = null;
+      }
+    }
+
     // --- REAL-TIME NOPE INTERRUPTION SYSTEM ---
     let nopeCountdownInterval = null;
     let nopeDurationMs = 3500;
@@ -5933,6 +6792,7 @@
             <div class="turn-indicator-pill absolute -top-2.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-bangers text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full shadow-lg border border-yellow-200 uppercase tracking-wider z-20 flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-stone-950 animate-ping"></span>
               <span>TURN</span>
+              <span class="opp-turn-timer-tag hidden text-[9px] bg-stone-950/90 text-yellow-300 px-1 rounded ml-0.5 font-fredoka">30s</span>
             </div>
           ` : ''}
           <div class="avatar-wrapper relative mb-1.5 flex items-center justify-center">
@@ -6056,31 +6916,43 @@
         }
       }
 
-      // 6. Active turn status badge (Separate, zero-overlap display)
+      // 6. Active turn status badge (Separate, zero-overlap display with 30s Turn Timer)
       const activeP = state.players[state.activePlayerIndex];
       const hudTurnStatus = document.getElementById('hudTurnStatus');
       const legacyStatusBadge = document.getElementById('player-status-badge');
-      
-      let turnHtml = '';
+      const hudTurnHighlight = document.getElementById('hudTurnHighlight');
+      const hudTurnSubtext = document.getElementById('hudTurnSubtextMsg');
+      const hudTurnTimerHint = document.getElementById('hudTurnTimerHint');
+
       if (myP && myP.isDead) {
-        turnHtml = `
-          <span class="turn-highlight text-stone-400">🪦 SPECTATING</span>
-          <span class="turn-subtext text-stone-400">YOU WERE ELIMINATED</span>
-        `;
+        if (hudTurnHighlight) hudTurnHighlight.innerHTML = '<span class="text-stone-400">🪦 SPECTATING</span>';
+        if (hudTurnSubtext) hudTurnSubtext.innerText = 'YOU WERE ELIMINATED';
+        if (hudTurnTimerHint) hudTurnTimerHint.classList.add('hidden');
+        if (hudTurnStatus) {
+          hudTurnStatus.style.borderColor = '#44403c';
+          hudTurnStatus.style.background = 'rgba(28, 25, 23, 0.85)';
+        }
       } else if (state.isMyTurn) {
-        turnHtml = `
-          <span class="turn-highlight animate-pulse">⚡ YOUR TURN!</span>
-          <span class="turn-subtext">(${state.turnsRemaining} turn${state.turnsRemaining > 1 ? 's' : ''} left)</span>
-        `;
+        if (hudTurnHighlight) hudTurnHighlight.innerHTML = '<span class="text-yellow-300 animate-pulse">⚡ YOUR TURN!</span>';
+        if (hudTurnSubtext) hudTurnSubtext.innerText = `(${state.turnsRemaining} turn${state.turnsRemaining > 1 ? 's' : ''} left)`;
+        if (hudTurnTimerHint) hudTurnTimerHint.classList.remove('hidden');
+        if (hudTurnStatus) {
+          hudTurnStatus.style.borderColor = '#00c853';
+          hudTurnStatus.style.background = 'rgba(18, 14, 11, 0.94)';
+        }
       } else {
         const pName = activeP ? activeP.name.toUpperCase() : 'OPPONENT';
-        turnHtml = `
-          <span class="turn-highlight text-amber-400">${pName}'S TURN</span>
-          <span class="turn-subtext text-amber-200/80">(${state.turnsRemaining} left)</span>
-        `;
+        if (hudTurnHighlight) hudTurnHighlight.innerHTML = `<span class="text-amber-400">${pName}'S TURN</span>`;
+        if (hudTurnSubtext) hudTurnSubtext.innerText = `(${state.turnsRemaining} turn${state.turnsRemaining > 1 ? 's' : ''} left)`;
+        if (hudTurnTimerHint) hudTurnTimerHint.classList.add('hidden');
+        if (hudTurnStatus) {
+          hudTurnStatus.style.borderColor = '#f59e0b';
+          hudTurnStatus.style.background = 'rgba(18, 14, 11, 0.94)';
+        }
       }
-      if (hudTurnStatus) hudTurnStatus.innerHTML = turnHtml;
-      if (legacyStatusBadge) legacyStatusBadge.innerHTML = turnHtml;
+      if (legacyStatusBadge) {
+        legacyStatusBadge.innerHTML = state.isMyTurn ? '⚡ YOUR TURN' : (activeP ? `${activeP.name.toUpperCase()}'S TURN` : 'WAITING');
+      }
 
       // 7. Player Hand Cards Tray - Group duplicate cards into visual stacks with multiplier badges
       const handContainer = document.getElementById('player-hand-container');
@@ -7132,8 +8004,17 @@
 
     // Game Over Modal
     function showGameOverModal(data) {
-      const isWinner = data.winnerId === socket.id;
-      if (isWinner) sounds.victory();
+      const myId = (localGameState && localGameState.myId) || (socket && socket.id);
+      const isWinner = data.winnerId === myId || (socket && data.winnerId === socket.id);
+      const isHumanWinner = (data.isHumanWinner !== undefined) ? data.isHumanWinner : isWinner;
+
+      // Animate the game board with a 'Victory' confetti explosion & fireworks effect when a human wins
+      if (isWinner || isHumanWinner) {
+        sounds.victory();
+        if (vfx && typeof vfx.startVictoryCelebration === 'function') {
+          vfx.startVictoryCelebration(12000);
+        }
+      }
 
       document.getElementById('game-over-icon').innerText = isWinner ? '👑' : '💥';
       document.getElementById('game-over-title').innerText = isWinner ? 'VICTORY!' : 'GAME OVER';
@@ -7144,9 +8025,19 @@
       document.getElementById('stat-attacks').innerText = data.stats?.attacksPlayed || 0;
       document.getElementById('stat-stolen').innerText = data.stats?.cardsStolen || 0;
 
+      const modalBox = document.querySelector('#modal-game-over > div');
+      if (modalBox) {
+        if (isWinner) {
+          modalBox.classList.add('border-yellow-400', 'shadow-[0_0_60px_rgba(250,204,21,0.6)]');
+        } else {
+          modalBox.classList.remove('border-yellow-400', 'shadow-[0_0_60px_rgba(250,204,21,0.6)]');
+        }
+      }
+
       document.getElementById('modal-game-over').classList.remove('hidden');
     }
     document.getElementById('btn-return-lobby').addEventListener('click', () => {
+      if (vfx && typeof vfx.stopVictoryCelebration === 'function') vfx.stopVictoryCelebration();
       document.getElementById('modal-game-over').classList.add('hidden');
       if (socket && currentRoomId) {
         socket.emit('return_to_lobby', { roomId: currentRoomId });
@@ -7154,6 +8045,7 @@
       showScreen('lobby');
     });
     document.getElementById('btn-game-over-menu').addEventListener('click', () => {
+      if (vfx && typeof vfx.stopVictoryCelebration === 'function') vfx.stopVictoryCelebration();
       document.getElementById('modal-game-over').classList.add('hidden');
       if (socket && currentRoomId) {
         socket.emit('leave_room', { roomId: currentRoomId });
@@ -7718,9 +8610,30 @@
     });
 
     // --- AUDIO & SETTINGS MODAL CONTROLS ---
+    // --- AUDIO & SETTINGS MODAL CONTROLS ---
     function updateAudioUI() {
-      // 1. Music quick buttons
-      const musicStatusText = sounds.musicEnabled ? 'ON' : 'OFF';
+      const isMuted = !sounds.musicEnabled;
+      const currentTrack = sounds.getCurrentTrackInfo();
+
+      // 1. Top-Left & Header badges
+      const topLeftAudioBadge = document.getElementById('badge-top-left-audio');
+      if (topLeftAudioBadge) {
+        topLeftAudioBadge.innerText = isMuted ? '🔇' : '🎵';
+        topLeftAudioBadge.className = `text-[10px] px-1.5 py-0.2 rounded-md font-fredoka font-bold ${
+          isMuted ? 'bg-red-950 text-red-300 border border-red-700' : 'bg-stone-950 text-yellow-300'
+        }`;
+      }
+
+      const menuTopLeftAudioBadge = document.getElementById('badge-menu-top-left-audio');
+      if (menuTopLeftAudioBadge) {
+        menuTopLeftAudioBadge.innerText = isMuted ? '🔇' : '🎵';
+        menuTopLeftAudioBadge.className = `text-[10px] px-1.5 py-0.2 rounded font-fredoka font-bold ${
+          isMuted ? 'bg-red-950 text-red-300 border border-red-700' : 'bg-black/60 text-yellow-400'
+        }`;
+      }
+
+      // 2. Music quick buttons
+      const musicStatusText = sounds.musicEnabled ? 'ON' : 'MUTED';
       const quickMusicBtn = document.getElementById('btn-quick-music');
       const quickMusicIcon = document.getElementById('quick-music-icon');
       const quickMusicStatus = document.getElementById('quick-music-status');
@@ -7738,18 +8651,58 @@
 
       const menuMusicBtn = document.getElementById('btn-menu-music');
       if (menuMusicBtn) {
-        menuMusicBtn.innerText = sounds.musicEnabled ? '🎵 BGM: ON' : '🔇 BGM: OFF';
+        menuMusicBtn.innerText = sounds.musicEnabled ? '🎵 BGM: ON' : '🔇 BGM: MUTED';
       }
 
-      const settingToggleBgm = document.getElementById('setting-toggle-bgm');
-      if (settingToggleBgm) {
-        settingToggleBgm.innerText = sounds.musicEnabled ? 'ON' : 'OFF';
-        settingToggleBgm.className = `comic-btn px-4 py-1.5 rounded-xl font-bangers text-xs tracking-wider transition-all ${
-          sounds.musicEnabled ? 'bg-emerald-700 text-white' : 'bg-stone-800 text-stone-400'
-        }`;
+      // 3. Settings Modal Prominent Mute Button & Track Info
+      const settingBtnMute = document.getElementById('setting-btn-mute-music');
+      const settingBtnMuteIcon = document.getElementById('setting-btn-mute-icon');
+      const settingBtnMuteText = document.getElementById('setting-btn-mute-text');
+      const settingsMusicBadgeState = document.getElementById('settings-music-badge-state');
+      const settingsTrackName = document.getElementById('settings-current-track-name');
+
+      if (settingsTrackName && currentTrack) {
+        settingsTrackName.innerText = `${currentTrack.title} (${currentTrack.subtitle})`;
       }
 
-      // 2. SFX quick buttons
+      if (settingBtnMute) {
+        if (sounds.musicEnabled) {
+          if (settingBtnMuteIcon) settingBtnMuteIcon.innerText = '🔇';
+          if (settingBtnMuteText) settingBtnMuteText.innerText = 'MUTE MUSIC';
+          settingBtnMute.className = 'comic-btn px-3.5 py-1.5 rounded-xl font-bangers text-xs sm:text-sm tracking-wider flex items-center gap-1.5 transition-all shadow-md bg-red-600 hover:bg-red-500 text-white cursor-pointer active:scale-95';
+        } else {
+          if (settingBtnMuteIcon) settingBtnMuteIcon.innerText = '🔊';
+          if (settingBtnMuteText) settingBtnMuteText.innerText = 'UNMUTE MUSIC';
+          settingBtnMute.className = 'comic-btn px-3.5 py-1.5 rounded-xl font-bangers text-xs sm:text-sm tracking-wider flex items-center gap-1.5 transition-all shadow-md bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer active:scale-95';
+        }
+      }
+
+      if (settingsMusicBadgeState) {
+        if (sounds.musicEnabled) {
+          settingsMusicBadgeState.innerText = 'PLAYING';
+          settingsMusicBadgeState.className = 'px-2 py-0.5 rounded-full font-bangers text-[10px] sm:text-xs bg-emerald-900/80 border border-emerald-400 text-emerald-300';
+        } else {
+          settingsMusicBadgeState.innerText = 'MUTED';
+          settingsMusicBadgeState.className = 'px-2 py-0.5 rounded-full font-bangers text-[10px] sm:text-xs bg-red-950 border border-red-500 text-red-300';
+        }
+      }
+
+      // Update Track Selector active styling
+      document.querySelectorAll('.music-track-card').forEach((card) => {
+        const trKey = card.getAttribute('data-track');
+        if (trKey === sounds.currentTrack) {
+          card.className = 'music-track-card px-2 py-1.5 rounded-xl border-2 text-left font-bangers text-xs transition-all cursor-pointer bg-amber-950/80 border-amber-400 text-yellow-300 ring-2 ring-amber-400/50';
+        } else {
+          card.className = 'music-track-card px-2 py-1.5 rounded-xl border-2 text-left font-bangers text-xs transition-all cursor-pointer bg-stone-900 border-stone-700 text-stone-400 hover:border-amber-500';
+        }
+      });
+
+      const autoRotateCheckbox = document.getElementById('setting-auto-rotate-music');
+      if (autoRotateCheckbox) {
+        autoRotateCheckbox.checked = !!sounds.autoRotate;
+      }
+
+      // 4. SFX quick buttons
       const gameSoundBtn = document.getElementById('btn-game-sound');
       if (gameSoundBtn) {
         gameSoundBtn.innerText = sounds.enabled ? '🔊' : '🔇';
@@ -7768,7 +8721,7 @@
         }`;
       }
 
-      // 3. Slider values
+      // 5. Slider values
       const bgmSlider = document.getElementById('setting-slider-bgm');
       const bgmVolText = document.getElementById('setting-bgm-vol-text');
       if (bgmSlider) {
@@ -7826,6 +8779,17 @@
       if (modal) modal.classList.add('hidden');
     };
 
+    // Top-Left Settings Button (Game Header)
+    const btnTopLeftSettings = document.getElementById('btn-top-left-settings');
+    if (btnTopLeftSettings) btnTopLeftSettings.addEventListener('click', openSettingsFn);
+
+    // Top-Left Settings Button (Main Menu)
+    const btnMenuTopLeftSettings = document.getElementById('btn-menu-top-left-settings');
+    if (btnMenuTopLeftSettings) btnMenuTopLeftSettings.addEventListener('click', openSettingsFn);
+
+    const btnLobbySettings = document.getElementById('btn-lobby-settings');
+    if (btnLobbySettings) btnLobbySettings.addEventListener('click', openSettingsFn);
+
     const gameSettingsBtn = document.getElementById('btn-game-settings');
     if (gameSettingsBtn) gameSettingsBtn.addEventListener('click', openSettingsFn);
 
@@ -7845,21 +8809,61 @@
       });
     }
 
+    // Settings Modal: Prominent Mute Button
+    const settingBtnMuteMusic = document.getElementById('setting-btn-mute-music');
+    if (settingBtnMuteMusic) {
+      settingBtnMuteMusic.addEventListener('click', () => {
+        sounds.buttonClick();
+        sounds.toggleMusic();
+        if (sounds.isMusicMuted()) {
+          showComboNotification('MUSIC MUTED 🔇', 'Background music silenced', '🔇');
+        } else {
+          const tr = sounds.getCurrentTrackInfo();
+          showComboNotification('MUSIC ACTIVE 🎵', `Playing ${tr.title}`, '🎶');
+        }
+      });
+    }
+
+    // Settings Modal: Next Track Button
+    const btnNextMusicTrack = document.getElementById('btn-next-music-track');
+    if (btnNextMusicTrack) {
+      btnNextMusicTrack.addEventListener('click', () => {
+        sounds.buttonClick();
+        sounds.nextTrack();
+      });
+    }
+
+    // Settings Modal: Individual Track Cards
+    document.querySelectorAll('.music-track-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        sounds.buttonClick();
+        const trKey = card.getAttribute('data-track');
+        if (trKey) {
+          if (sounds.isMusicMuted()) {
+            sounds.unmuteMusic();
+          }
+          sounds.setTrack(trKey);
+          const tr = sounds.getCurrentTrackInfo();
+          showComboNotification('SOUNDTRACK CHANGED 🎵', `${tr.title}`, '🎷');
+        }
+      });
+    });
+
+    // Settings Modal: Auto-Rotate Checkbox
+    const settingAutoRotateMusic = document.getElementById('setting-auto-rotate-music');
+    if (settingAutoRotateMusic) {
+      settingAutoRotateMusic.addEventListener('change', (e) => {
+        sounds.buttonClick();
+        sounds.setAutoRotate(e.target.checked);
+      });
+    }
+
     const settingsTutorialBtn = document.getElementById('btn-settings-tutorial');
     if (settingsTutorialBtn) {
       settingsTutorialBtn.addEventListener('click', () => {
         sounds.buttonClick();
         closeSettingsFn();
         document.getElementById('modal-tutorial').classList.remove('hidden');
-      });
-    }
-
-    // Modal Inner Toggles & Sliders
-    const settingToggleBgm = document.getElementById('setting-toggle-bgm');
-    if (settingToggleBgm) {
-      settingToggleBgm.addEventListener('click', () => {
-        sounds.buttonClick();
-        sounds.toggleMusic();
       });
     }
 
@@ -8015,9 +9019,12 @@
     });
 
     // ============================================================
-    // DISCARD PILE HISTORY VIEWER & SORT ENGINE
+    // DISCARD PILE HISTORY VIEWER, SEARCH, FILTER & SORT ENGINE
     // ============================================================
     let isDiscardSorted = false;
+    let discardSearchQuery = '';
+    let discardCategoryFilter = 'ALL';
+    let discardTypeFilter = 'ALL';
 
     // Card Type Priority Ranking for Deterministic Sorting:
     // Coolant Foam (Defuse) ➔ Thermal Blast (Attack) ➔ Emergency Evac (Skip) ➔
@@ -8043,14 +9050,92 @@
       return 110;
     }
 
+    function getCardCategory(card) {
+      if (!card) return 'OTHER';
+      const t = (card.type || '').toUpperCase();
+      if (t === 'COOLANT_FOAM' || t === 'DEFUSE' || card.category === 'defuse') return 'DEFUSE';
+      if (t === 'THERMAL_BLAST' || t === 'ATTACK' || t === 'EMERGENCY_EVAC' || t === 'SKIP') return 'ATTACK_SKIP';
+      if (t === 'INFRARED_SCAN' || t === 'SEE_THE_FUTURE' || t === 'TIMELINE_SCRAMBLE' || t === 'ALTER_THE_FUTURE') return 'FUTURE';
+      if (t === 'NOPE') return 'NOPE';
+      if (t.startsWith('CAT_') || card.category === 'cat') return 'COMBOS';
+      if (t === 'COMBUSTION_CAT' || t === 'EXPLODING_KITTEN' || card.category === 'danger') return 'DANGER';
+      return 'OTHER';
+    }
+
+    function matchesCardTypeFilter(card, typeFilter) {
+      if (!typeFilter || typeFilter === 'ALL') return true;
+      const t = (card.type || '').toUpperCase();
+      if (typeFilter === 'CAT_COMBOS') {
+        return t.startsWith('CAT_') || card.category === 'cat';
+      }
+      if (typeFilter === 'COOLANT_FOAM') return t === 'COOLANT_FOAM' || t === 'DEFUSE';
+      if (typeFilter === 'THERMAL_BLAST') return t === 'THERMAL_BLAST' || t === 'ATTACK';
+      if (typeFilter === 'EMERGENCY_EVAC') return t === 'EMERGENCY_EVAC' || t === 'SKIP';
+      if (typeFilter === 'INFRARED_SCAN') return t === 'INFRARED_SCAN' || t === 'SEE_THE_FUTURE';
+      if (typeFilter === 'TIMELINE_SCRAMBLE') return t === 'TIMELINE_SCRAMBLE' || t === 'ALTER_THE_FUTURE';
+      if (typeFilter === 'THERMODYNAMIC_VORTEX') return t === 'THERMODYNAMIC_VORTEX' || t === 'SHUFFLE';
+      if (typeFilter === 'FELINE_BLACKMAIL') return t === 'FELINE_BLACKMAIL' || t === 'FAVOR';
+      if (typeFilter === 'NOPE') return t === 'NOPE';
+      if (typeFilter === 'COMBUSTION_CAT') return t === 'COMBUSTION_CAT' || t === 'EXPLODING_KITTEN';
+      return t === typeFilter;
+    }
+
+    function matchesCardSearch(card, query) {
+      if (!query || !query.trim()) return true;
+      const q = query.trim().toLowerCase();
+
+      // Strategic synonyms & common terms
+      if (q === 'defuse' && (card.type === 'COOLANT_FOAM' || card.type === 'DEFUSE' || card.category === 'defuse')) return true;
+      if (q === 'attack' && (card.type === 'THERMAL_BLAST' || card.type === 'ATTACK')) return true;
+      if (q === 'skip' && (card.type === 'EMERGENCY_EVAC' || card.type === 'SKIP')) return true;
+      if ((q === 'future' || q === 'see future' || q === 'scan') && (card.type === 'INFRARED_SCAN' || card.type === 'TIMELINE_SCRAMBLE')) return true;
+      if (q === 'shuffle' && (card.type === 'THERMODYNAMIC_VORTEX' || card.type === 'SHUFFLE')) return true;
+      if (q === 'favor' && (card.type === 'FELINE_BLACKMAIL' || card.type === 'FAVOR')) return true;
+      if ((q === 'combo' || q === 'feral' || q === 'pair' || q === 'steal') && ((card.type && card.type.startsWith('CAT_')) || card.category === 'cat')) return true;
+      if ((q === 'cat' || q === 'cats') && ((card.type && card.type.startsWith('CAT_')) || card.category === 'cat' || card.type === 'COMBUSTION_CAT')) return true;
+      if ((q === 'explode' || q === 'explosion' || q === 'bomb' || q === 'kitten' || q === 'meltdown') && (card.type === 'COMBUSTION_CAT' || card.type === 'EXPLODING_KITTEN')) return true;
+
+      const fields = [
+        card.title,
+        card.subTitle,
+        card.type,
+        card.actionText,
+        card.bracketRule,
+        card.funnySetup,
+        card.flavorText,
+        card.category
+      ];
+
+      return fields.some((f) => f && String(f).toLowerCase().includes(q));
+    }
+
+    function resetDiscardFilters() {
+      discardSearchQuery = '';
+      discardCategoryFilter = 'ALL';
+      discardTypeFilter = 'ALL';
+      const searchInput = document.getElementById('input-discard-search');
+      if (searchInput) searchInput.value = '';
+      const typeSelect = document.getElementById('select-discard-card-type');
+      if (typeSelect) typeSelect.value = 'ALL';
+      renderDiscardHistoryGrid();
+      playSFX('buttonClick');
+    }
+
     function renderDiscardHistoryGrid() {
       const modal = document.getElementById('discardHistoryModal');
       const grid = document.getElementById('discard-history-grid');
       const emptyState = document.getElementById('discard-history-empty');
+      const noResultsState = document.getElementById('discard-filter-no-results');
+      const noResultsMsg = document.getElementById('discard-no-results-msg');
       const countLabel = document.getElementById('discard-history-count');
       const sortBtn = document.getElementById('btn-toggle-discard-sort');
       const sortBtnText = document.getElementById('discard-sort-btn-text');
       const sortBtnIcon = document.getElementById('discard-sort-btn-icon');
+      const searchInput = document.getElementById('input-discard-search');
+      const clearSearchBtn = document.getElementById('btn-clear-discard-search');
+      const typeSelect = document.getElementById('select-discard-card-type');
+      const matchesText = document.getElementById('discard-filter-matches-text');
+      const resetFiltersBtn = document.getElementById('btn-reset-discard-filters');
 
       if (!grid || !emptyState || !countLabel) return;
 
@@ -8059,48 +9144,155 @@
         : [];
 
       const totalCount = rawDiscardPile.length;
-      countLabel.innerText = `${totalCount} ${totalCount === 1 ? 'Card' : 'Cards'} Played`;
 
+      // Update clear search button visibility
+      if (clearSearchBtn) {
+        if (discardSearchQuery && discardSearchQuery.trim().length > 0) {
+          clearSearchBtn.classList.remove('hidden');
+        } else {
+          clearSearchBtn.classList.add('hidden');
+        }
+      }
+
+      // Sync select input if out of sync
+      if (typeSelect && typeSelect.value !== discardTypeFilter) {
+        typeSelect.value = discardTypeFilter;
+      }
+
+      // Case 1: Total discard pile is completely empty
       if (totalCount === 0) {
+        countLabel.innerText = '0 Cards Played';
         emptyState.classList.remove('hidden');
+        if (noResultsState) noResultsState.classList.add('hidden');
         grid.classList.add('hidden');
         if (sortBtn) sortBtn.classList.add('opacity-50', 'pointer-events-none');
+        if (matchesText) matchesText.innerText = '';
+        if (resetFiltersBtn) resetFiltersBtn.classList.add('hidden');
+
+        // Reset category counts to (0)
+        document.querySelectorAll('#discard-category-tabs .discard-cat-btn').forEach((btn) => {
+          const catCount = btn.querySelector('.cat-count');
+          if (catCount) catCount.innerText = '(0)';
+        });
         return;
       }
 
+      // Case 2: Discard pile has cards
       emptyState.classList.add('hidden');
-      grid.classList.remove('hidden');
       if (sortBtn) sortBtn.classList.remove('opacity-50', 'pointer-events-none');
 
       // Update Sort Toggle Button Appearance
       if (isDiscardSorted) {
-        sortBtnText.innerText = 'Show Chronological (Unsorted)';
-        sortBtnIcon.innerText = '🔀';
-        sortBtn.className = 'comic-btn px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 font-bangers text-xs sm:text-sm text-white flex items-center gap-1.5 shadow-md cursor-pointer transition-transform active:scale-95';
+        if (sortBtnText) sortBtnText.innerText = 'Show Chronological (Unsorted)';
+        if (sortBtnIcon) sortBtnIcon.innerText = '🔀';
+        if (sortBtn) sortBtn.className = 'comic-btn px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 font-bangers text-xs sm:text-sm text-white flex items-center gap-1.5 shadow-md cursor-pointer transition-transform active:scale-95';
       } else {
-        sortBtnText.innerText = 'Sort by Type';
-        sortBtnIcon.innerText = '📑';
-        sortBtn.className = 'comic-btn px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 font-bangers text-xs sm:text-sm text-stone-950 flex items-center gap-1.5 shadow-md cursor-pointer transition-transform active:scale-95';
+        if (sortBtnText) sortBtnText.innerText = 'Sort by Type';
+        if (sortBtnIcon) sortBtnIcon.innerText = '📑';
+        if (sortBtn) sortBtn.className = 'comic-btn px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 font-bangers text-xs sm:text-sm text-stone-950 flex items-center gap-1.5 shadow-md cursor-pointer transition-transform active:scale-95';
       }
 
-      // Prepare Cards
-      let displayCards = [];
+      // Calculate category counts
+      const counts = {
+        ALL: rawDiscardPile.length,
+        DEFUSE: 0,
+        ATTACK_SKIP: 0,
+        FUTURE: 0,
+        NOPE: 0,
+        COMBOS: 0,
+        OTHER: 0,
+        DANGER: 0
+      };
+
+      rawDiscardPile.forEach((c) => {
+        const cat = getCardCategory(c);
+        if (counts[cat] !== undefined) {
+          counts[cat]++;
+        } else {
+          counts.OTHER++;
+        }
+      });
+
+      // Update Category Tab buttons with counts and active styles
+      document.querySelectorAll('#discard-category-tabs .discard-cat-btn').forEach((btn) => {
+        const cat = btn.getAttribute('data-category');
+        const countSpan = btn.querySelector('.cat-count');
+        if (countSpan && counts[cat] !== undefined) {
+          countSpan.innerText = `(${counts[cat]})`;
+        }
+        if (cat === discardCategoryFilter) {
+          btn.className = 'discard-cat-btn comic-btn px-2.5 py-1 rounded-lg font-bangers text-xs tracking-wider border transition-all cursor-pointer bg-amber-500 text-stone-950 border-amber-400 font-bold shadow-xs active:scale-95';
+        } else {
+          btn.className = 'discard-cat-btn comic-btn px-2.5 py-1 rounded-lg font-bangers text-xs tracking-wider border transition-all cursor-pointer bg-stone-900/90 text-stone-300 hover:text-white hover:bg-stone-800 border-stone-800 active:scale-95';
+        }
+      });
+
+      // Filter cards by category, type, and search query
+      const isFiltered = Boolean(
+        (discardSearchQuery && discardSearchQuery.trim()) ||
+        discardCategoryFilter !== 'ALL' ||
+        discardTypeFilter !== 'ALL'
+      );
+
+      let matchedItems = [];
+      rawDiscardPile.forEach((card, originalIndex) => {
+        // 1. Category filter
+        if (discardCategoryFilter !== 'ALL') {
+          const cardCat = getCardCategory(card);
+          if (cardCat !== discardCategoryFilter) return;
+        }
+
+        // 2. Specific Card Type filter
+        if (discardTypeFilter !== 'ALL') {
+          if (!matchesCardTypeFilter(card, discardTypeFilter)) return;
+        }
+
+        // 3. Text search query
+        if (discardSearchQuery && discardSearchQuery.trim()) {
+          if (!matchesCardSearch(card, discardSearchQuery)) return;
+        }
+
+        matchedItems.push({ card, originalIndex });
+      });
+
+      // Update matches counter and reset buttons
+      if (isFiltered) {
+        if (matchesText) matchesText.innerText = `Showing ${matchedItems.length} of ${totalCount}`;
+        countLabel.innerText = `${matchedItems.length}/${totalCount} Cards`;
+        if (resetFiltersBtn) resetFiltersBtn.classList.remove('hidden');
+      } else {
+        if (matchesText) matchesText.innerText = `${totalCount} ${totalCount === 1 ? 'card' : 'cards'}`;
+        countLabel.innerText = `${totalCount} ${totalCount === 1 ? 'Card' : 'Cards'} Played`;
+        if (resetFiltersBtn) resetFiltersBtn.classList.add('hidden');
+      }
+
+      // Check if filter returned 0 results
+      if (matchedItems.length === 0) {
+        grid.classList.add('hidden');
+        if (noResultsState) noResultsState.classList.remove('hidden');
+        if (noResultsMsg) {
+          const term = discardSearchQuery.trim() ? `"${discardSearchQuery.trim()}"` : 'current filters';
+          noResultsMsg.innerText = `No cards in the discard pile match ${term}. Click 'RESET ALL FILTERS' to view all ${totalCount} cards.`;
+        }
+        return;
+      }
+
+      if (noResultsState) noResultsState.classList.add('hidden');
+      grid.classList.remove('hidden');
+
+      // Sort if sort is toggled
       if (isDiscardSorted) {
-        // Deterministically grouped by category priority
-        displayCards = rawDiscardPile.map((c, originalIdx) => ({ card: c, originalIndex: originalIdx }));
-        displayCards.sort((a, b) => {
+        matchedItems.sort((a, b) => {
           const rankA = getCardSortRank(a.card.type);
           const rankB = getCardSortRank(b.card.type);
           if (rankA !== rankB) return rankA - rankB;
           return (a.card.title || '').localeCompare(b.card.title || '');
         });
-      } else {
-        // Chronological order: index 0 to N
-        displayCards = rawDiscardPile.map((c, idx) => ({ card: c, originalIndex: idx }));
       }
 
+      // Render cards
       grid.innerHTML = '';
-      displayCards.forEach((item, displayIdx) => {
+      matchedItems.forEach((item) => {
         const { card, originalIndex } = item;
         const cardElem = document.createElement('div');
         cardElem.className = 'game-card card drawer-card-item w-full h-44 sm:h-52 rounded-2xl bg-white shadow-lg border-2 border-stone-950 overflow-hidden relative flex flex-col justify-between select-none hover:scale-102 hover:shadow-2xl transition-all duration-150';
@@ -8133,6 +9325,12 @@
       modal.classList.remove('hidden');
       renderDiscardHistoryGrid();
       playSFX('buttonClick');
+      setTimeout(() => {
+        const searchInput = document.getElementById('input-discard-search');
+        if (searchInput && window.innerWidth >= 640) {
+          searchInput.focus();
+        }
+      }, 100);
     }
 
     function closeDiscardHistoryModal() {
@@ -8176,6 +9374,77 @@
       btnCloseDiscardHistory.addEventListener('click', (e) => {
         e.stopPropagation();
         closeDiscardHistoryModal();
+      });
+    }
+
+    // Search and Filter Event Listeners
+    const inputDiscardSearch = document.getElementById('input-discard-search');
+    if (inputDiscardSearch) {
+      inputDiscardSearch.addEventListener('input', (e) => {
+        discardSearchQuery = e.target.value;
+        renderDiscardHistoryGrid();
+      });
+      inputDiscardSearch.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && inputDiscardSearch.value) {
+          e.stopPropagation();
+          discardSearchQuery = '';
+          inputDiscardSearch.value = '';
+          renderDiscardHistoryGrid();
+        }
+      });
+    }
+
+    const btnClearDiscardSearch = document.getElementById('btn-clear-discard-search');
+    if (btnClearDiscardSearch) {
+      btnClearDiscardSearch.addEventListener('click', (e) => {
+        e.stopPropagation();
+        discardSearchQuery = '';
+        if (inputDiscardSearch) {
+          inputDiscardSearch.value = '';
+          inputDiscardSearch.focus();
+        }
+        renderDiscardHistoryGrid();
+        playSFX('buttonClick');
+      });
+    }
+
+    const selectDiscardCardType = document.getElementById('select-discard-card-type');
+    if (selectDiscardCardType) {
+      selectDiscardCardType.addEventListener('change', (e) => {
+        discardTypeFilter = e.target.value;
+        renderDiscardHistoryGrid();
+        playSFX('buttonClick');
+      });
+    }
+
+    const discardCatTabsContainer = document.getElementById('discard-category-tabs');
+    if (discardCatTabsContainer) {
+      discardCatTabsContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.discard-cat-btn');
+        if (!btn) return;
+        e.stopPropagation();
+        const cat = btn.getAttribute('data-category');
+        if (cat) {
+          discardCategoryFilter = cat;
+          renderDiscardHistoryGrid();
+          playSFX('buttonClick');
+        }
+      });
+    }
+
+    const btnResetDiscardFilters = document.getElementById('btn-reset-discard-filters');
+    if (btnResetDiscardFilters) {
+      btnResetDiscardFilters.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetDiscardFilters();
+      });
+    }
+
+    const btnEmptyResetFilters = document.getElementById('btn-empty-reset-filters');
+    if (btnEmptyResetFilters) {
+      btnEmptyResetFilters.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetDiscardFilters();
       });
     }
 

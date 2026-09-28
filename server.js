@@ -315,6 +315,7 @@ class GameRoom {
     this.pendingAction = null;
     this.botTimer = null;
     this.turnTimeout = null;
+    this.turnTimerExpiresAt = null;
     this.favorTimeout = null;
     this.alterTimeout = null;
     this.discardTimeout = null;
@@ -356,6 +357,7 @@ class GameRoom {
     clearTimeout(this.defuseTimer);
     clearTimeout(this.nopeTimer);
     clearTimeout(this.turnTimeout);
+    this.turnTimerExpiresAt = null;
     clearTimeout(this.favorTimeout);
     clearTimeout(this.alterTimeout);
     clearTimeout(this.discardTimeout);
@@ -374,19 +376,57 @@ class GameRoom {
     io.to(this.id).emit('returned_to_lobby', { roomId: this.id });
   }
 
+  // 30-SECOND TURN TIMER FOR HUMAN PLAYERS (Auto-skips turn on timeout to maintain game pace)
   resetTurnTimeout() {
     clearTimeout(this.turnTimeout);
-    if (!this.gameStarted || this.turnState !== 'NORMAL') return;
+    this.turnTimerExpiresAt = null;
+
+    if (!this.gameStarted || this.turnState !== 'NORMAL') {
+      this.broadcastGameState();
+      return;
+    }
 
     const currentP = this.players[this.activePlayerIndex];
     if (currentP && !currentP.isBot && !currentP.isDead) {
-      // 35s authoritative turn timeout for active human player
+      // 30s authoritative turn timeout for active human player
+      const TURN_DURATION_MS = 30000;
+      this.turnTimerExpiresAt = Date.now() + TURN_DURATION_MS;
+
+      // Broadcast immediately so clients receive accurate expiresAt and durationMs
+      this.broadcastGameState();
+
       this.turnTimeout = setTimeout(() => {
-        if (this.gameStarted && this.turnState === 'NORMAL' && this.players[this.activePlayerIndex]?.id === currentP.id) {
-          this.log(currentP.name, currentP.avatarId, `${currentP.name} timed out. Auto-drawing from reactor.`);
-          this.drawCard(currentP.id);
+        if (
+          this.gameStarted &&
+          this.turnState === 'NORMAL' &&
+          this.players[this.activePlayerIndex]?.id === currentP.id
+        ) {
+          this.log(
+            currentP.name,
+            currentP.avatarId,
+            `⏳ TIME EXPIRED! ${currentP.name} took over 30s without acting. Turn automatically skipped!`,
+            'EMERGENCY_EVAC'
+          );
+
+          io.to(this.id).emit('turn_timer_expired', {
+            playerId: currentP.id,
+            playerName: currentP.name,
+            message: `${currentP.name}'s turn timed out (30s) and was skipped!`,
+          });
+
+          // Automatically skip their turn to keep game pace moving briskly
+          if (this.turnsRemaining > 1) {
+            this.turnsRemaining--;
+            this.broadcastGameState();
+            this.resetTurnTimeout();
+            this.checkBotTurn();
+          } else {
+            this.advanceTurn(1);
+          }
         }
-      }, 35000);
+      }, TURN_DURATION_MS);
+    } else {
+      this.broadcastGameState();
     }
   }
 
@@ -417,7 +457,7 @@ class GameRoom {
 
     this.turnState = 'NORMAL';
     this.turnStateData = null;
-    this.broadcastGameState();
+    this.resetTurnTimeout();
     this.checkBotTurn();
   }
 
@@ -441,7 +481,7 @@ class GameRoom {
 
     this.turnState = 'NORMAL';
     this.turnStateData = null;
-    this.broadcastGameState();
+    this.resetTurnTimeout();
     this.checkBotTurn();
   }
 
@@ -536,6 +576,13 @@ class GameRoom {
         myHand: player.hand,
         myId: player.id,
         isMyTurn: this.players[this.activePlayerIndex]?.id === player.id,
+        turnTimer: (this.turnTimerExpiresAt && this.turnState === 'NORMAL') ? {
+          durationMs: 30000,
+          expiresAt: this.turnTimerExpiresAt,
+          activePlayerId: this.players[this.activePlayerIndex]?.id,
+          activePlayerName: this.players[this.activePlayerIndex]?.name,
+          isHuman: !this.players[this.activePlayerIndex]?.isBot,
+        } : null,
       };
 
       io.to(player.socketId).emit('game_state', maskedPayload);
@@ -556,6 +603,7 @@ class GameRoom {
     clearTimeout(this.defuseTimer);
     clearTimeout(this.nopeTimer);
     clearTimeout(this.turnTimeout);
+    this.turnTimerExpiresAt = null;
     clearTimeout(this.favorTimeout);
     clearTimeout(this.alterTimeout);
     clearTimeout(this.discardTimeout);
@@ -1320,6 +1368,7 @@ class GameRoom {
         if (this.turnsRemaining > 1) {
           this.turnsRemaining--;
           this.broadcastGameState();
+          this.resetTurnTimeout();
           this.checkBotTurn();
         } else {
           this.advanceTurn(1);
@@ -1343,7 +1392,7 @@ class GameRoom {
           this.checkBotTurn();
         } else {
           io.to(currentP.socketId).emit('see_future_result', { cards: top3 });
-          this.broadcastGameState();
+          this.resetTurnTimeout();
         }
         break;
       }
@@ -1378,7 +1427,7 @@ class GameRoom {
               this.turnState = 'NORMAL';
               this.turnStateData = null;
               this.log(currentP.name, currentP.avatarId, 'manipulated the timeline (timeout).');
-              this.broadcastGameState();
+              this.resetTurnTimeout();
               this.checkBotTurn();
             }
           }, 15000);
@@ -1396,7 +1445,7 @@ class GameRoom {
           `activated ${card.title} and thoroughly agitated the core deck!`,
           card.type
         );
-        this.broadcastGameState();
+        this.resetTurnTimeout();
         this.checkBotTurn();
         break;
       }
@@ -1475,7 +1524,7 @@ class GameRoom {
 
     this.turnState = 'NORMAL';
     this.turnStateData = null;
-    this.broadcastGameState();
+    this.resetTurnTimeout();
     this.checkBotTurn();
   }
 
@@ -1574,7 +1623,7 @@ class GameRoom {
 
     this.turnState = 'NORMAL';
     this.turnStateData = null;
-    this.broadcastGameState();
+    this.resetTurnTimeout();
     this.checkBotTurn();
   }
 
@@ -1634,7 +1683,7 @@ class GameRoom {
       cards: cardsToPlay,
     });
 
-    this.broadcastGameState();
+    this.resetTurnTimeout();
     this.checkBotTurn();
   }
 
@@ -1725,7 +1774,7 @@ class GameRoom {
       });
     }
 
-    this.broadcastGameState();
+    this.resetTurnTimeout();
     this.checkBotTurn();
   }
 
@@ -1828,7 +1877,7 @@ class GameRoom {
 
     this.turnState = 'NORMAL';
     this.turnStateData = null;
-    this.broadcastGameState();
+    this.resetTurnTimeout();
     this.checkBotTurn();
   }
 }
