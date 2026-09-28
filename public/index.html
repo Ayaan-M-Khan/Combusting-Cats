@@ -285,17 +285,18 @@
       gap: 3px;
     }
 
-    /* 1. Hand Tray: smooth horizontal scrolling with hidden scrollbar and generous headroom */
+    /* 1. Hand Tray: compact horizontal layout without excessive padding */
     #handContainer, #player-hand-container, .hand-tray {
       display: flex;
-      justify-content: center; /* Centered when few cards, updates dynamically to flex-start when overflowing */
+      justify-content: center;
       align-items: flex-end;
       overflow-x: auto !important;
       overflow-y: visible !important;
       scroll-behavior: smooth;
-      scrollbar-width: none; /* Hide default scrollbar in Firefox */
-      -ms-overflow-style: none; /* Hide default scrollbar in IE/Edge */
-      padding: 75px 40px 18px 40px !important;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 12px 14px 4px 14px !important;
+      min-height: 0 !important;
     }
     #handContainer::-webkit-scrollbar,
     #player-hand-container::-webkit-scrollbar,
@@ -303,24 +304,24 @@
       display: none;
     }
 
-    /* 2. Generous card sizing with complete text visibility */
+    /* 2. Compact, crisp card sizing fitting all viewports without scrolling */
     .card, .card-item {
       position: relative;
-      width: 175px;
-      min-width: 175px;
-      height: 265px;
-      min-height: 265px;
+      width: 108px;
+      min-width: 108px;
+      height: 156px;
+      min-height: 156px;
       background: #ffffff;
-      border-radius: 14px;
-      border: 3px solid #e0e0e0;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      border-radius: 10px;
+      border: 2px solid #222222;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 8px 10px;
+      padding: 4px 5px;
       box-sizing: border-box;
       transform-origin: bottom center;
-      transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.2s ease;
+      transition: transform 0.18s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.18s ease;
       user-select: none;
       cursor: pointer;
       flex-shrink: 0;
@@ -328,40 +329,41 @@
 
     @media (max-width: 640px) {
       .card, .card-item {
-        width: 145px;
-        min-width: 145px;
-        height: 230px;
-        min-height: 230px;
-        padding: 6px 8px;
+        width: 78px;
+        min-width: 78px;
+        height: 116px;
+        min-height: 116px;
+        padding: 3px 4px;
+        border-radius: 8px;
       }
       .card-art-frame {
-        height: 72px !important;
+        height: 35px !important;
       }
       .card-action-box {
-        font-size: 9.5px !important;
-        line-height: 1.25 !important;
-        padding: 4px 5px !important;
+        font-size: 7px !important;
+        line-height: 1.15 !important;
+        padding: 2px 3px !important;
       }
     }
 
-    /* Lift cleanly on hover without clipping - pop out to full size above neighbors */
+    /* Subtle lift on hover without clipping */
     .card:hover, .card-item:hover {
-      transform: translateY(-65px) scale(1.18) !important;
+      transform: translateY(-14px) scale(1.06) !important;
       z-index: 1000 !important;
-      margin-left: inherit; /* Preserves layout position */
-      box-shadow: 0 24px 40px rgba(0, 0, 0, 0.75), 0 0 24px rgba(255, 140, 0, 0.55) !important;
+      margin-left: inherit;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7), 0 0 14px rgba(255, 140, 0, 0.5) !important;
     }
 
     /* Selected state: elevated and highlighted with glowing border */
     .card.selected, .card-item.selected {
-      transform: translateY(-45px) scale(1.08) !important;
+      transform: translateY(-10px) scale(1.04) !important;
       z-index: 500 !important;
       border-color: #f59e0b !important;
-      outline: 3.5px solid #ffb703 !important;
-      box-shadow: 0 0 26px rgba(255, 183, 3, 0.95), 0 16px 30px rgba(0, 0, 0, 0.75) !important;
+      outline: 2.5px solid #ffb703 !important;
+      box-shadow: 0 0 16px rgba(255, 183, 3, 0.9), 0 6px 14px rgba(0, 0, 0, 0.6) !important;
     }
     .card.selected:hover, .card-item.selected:hover {
-      transform: translateY(-70px) scale(1.2) !important;
+      transform: translateY(-16px) scale(1.08) !important;
       z-index: 1000 !important;
     }
 
@@ -530,17 +532,17 @@
       background-color: #ffffff !important;
       color: #111111 !important;
       border: 2px solid #222222 !important;
-      border-radius: 12px !important;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+      border-radius: 10px !important;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
       box-sizing: border-box !important;
       display: flex !important;
       flex-direction: column !important;
       justify-content: space-between !important;
-      padding: 8px !important;
-      width: 140px !important;
-      height: 210px !important;
-      min-width: 140px !important;
-      min-height: 210px !important;
+      padding: 4px 5px !important;
+      width: 108px;
+      height: 156px;
+      min-width: 108px;
+      min-height: 156px;
       position: relative !important;
       overflow: hidden !important;
     }
@@ -573,14 +575,14 @@
 
     .game-card-icon-badge,
     .card-badge {
-      width: 22px !important;
-      height: 22px !important;
-      min-width: 22px !important;
-      border-radius: 6px !important;
+      width: 17px !important;
+      height: 17px !important;
+      min-width: 17px !important;
+      border-radius: 5px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      font-size: 12px !important;
+      font-size: 9.5px !important;
       flex-shrink: 0 !important;
       border: 1px solid #222222 !important;
     }
@@ -600,11 +602,11 @@
     .card-title,
     .card-header .card-title {
       font-family: 'Bangers', cursive, sans-serif !important;
-      font-size: 11.5px !important;
+      font-size: 9.5px !important;
       font-weight: 900 !important;
       color: #111111 !important;
       text-transform: uppercase !important;
-      line-height: 1.15 !important;
+      line-height: 1.1 !important;
       white-space: nowrap !important;
       overflow: hidden !important;
       text-overflow: ellipsis !important;
@@ -615,18 +617,15 @@
     .card-flavor-text,
     .card-header .card-flavor {
       font-family: 'Fredoka', cursive, sans-serif !important;
-      font-size: 8px !important;
+      font-size: 6.8px !important;
       font-style: italic !important;
       color: #555555 !important;
-      line-height: 1.1 !important;
-      margin-top: 1px !important;
+      line-height: 1.05 !important;
+      margin-top: 0px !important;
       text-transform: uppercase !important;
-      white-space: normal !important;
-      word-break: break-word !important;
+      white-space: nowrap !important;
       overflow: hidden !important;
-      display: -webkit-box !important;
-      -webkit-line-clamp: 2 !important;
-      -webkit-box-orient: vertical !important;
+      text-overflow: ellipsis !important;
     }
 
     /* Center Art Frame */
@@ -634,25 +633,25 @@
     .card-art-box,
     .card-art-frame {
       width: 100% !important;
-      height: 75px !important;
-      background: #f4f4f6 !important; /* Neutral light-gray display window */
+      height: 50px !important;
+      background: #f4f4f6 !important;
       background-color: #f4f4f6 !important;
       border: 1px solid #e0e0e0 !important;
-      border-radius: 8px !important;
+      border-radius: 6px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      margin: 4px 0 !important;
+      margin: 2px 0 !important;
       overflow: hidden !important;
       flex-shrink: 0 !important;
-      padding: 3px !important;
+      padding: 2px !important;
     }
 
     .game-card-art svg,
     .card-art-box svg,
     .card-art-frame svg {
       max-width: 85% !important;
-      max-height: 65px !important;
+      max-height: 44px !important;
       width: 100% !important;
       height: 100% !important;
     }
@@ -664,8 +663,8 @@
       background: #f0f0f3 !important;
       background-color: #f0f0f3 !important;
       border: 1px solid #d5d5db !important;
-      border-radius: 6px !important;
-      padding: 4px 6px !important;
+      border-radius: 5px !important;
+      padding: 2px 3px !important;
       box-sizing: border-box !important;
       text-align: center !important;
       flex-shrink: 0 !important;
@@ -674,25 +673,28 @@
     .game-card-action-text,
     .card-rule-text {
       font-family: 'Fredoka', cursive, sans-serif !important;
-      font-size: 9.5px !important;
+      font-size: 8px !important;
       font-weight: 800 !important;
       color: #111111 !important;
-      line-height: 1.25 !important;
+      line-height: 1.15 !important;
       white-space: normal !important;
       word-wrap: break-word !important;
-      display: block !important;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
     }
 
-    /* Desktop Hand Tray specific override for generous fanning */
+    /* Desktop Hand Tray specific compact sizing */
     #player-hand-container .game-card,
     #player-hand-container .card,
     #handContainer .game-card,
     #handContainer .card {
-      width: 165px !important;
-      min-width: 165px !important;
-      height: 250px !important;
-      min-height: 250px !important;
-      padding: 8px 10px !important;
+      width: 108px !important;
+      min-width: 108px !important;
+      height: 156px !important;
+      min-height: 156px !important;
+      padding: 4px 5px !important;
     }
     #player-hand-container .card-art-box,
     #player-hand-container .card-art-frame,
@@ -700,7 +702,7 @@
     #handContainer .card-art-box,
     #handContainer .card-art-frame,
     #handContainer .game-card-art {
-      height: 84px !important;
+      height: 50px !important;
     }
 
     /* ============================================================== */
@@ -720,11 +722,11 @@
     .modal-cards-grid .modal-card-item,
     .modal-cards-grid .game-card,
     .modal-cards-grid .card {
-      width: 140px !important;
-      max-width: 155px !important;
-      min-width: 130px !important;
-      height: 210px !important;
-      min-height: 200px !important;
+      width: 100px !important;
+      max-width: 115px !important;
+      min-width: 90px !important;
+      height: 148px !important;
+      min-height: 148px !important;
       margin: 0 !important;
       transform: none !important;
       flex-shrink: 0 !important;
@@ -779,11 +781,11 @@
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      gap: 16px;
-      padding: 8px 16px;
-      background: rgba(18, 14, 12, 0.92);
-      border-top: 2px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px 16px 0 0;
+      gap: 10px;
+      padding: 4px 12px;
+      background: rgba(18, 14, 12, 0.94);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px 12px 0 0;
       width: 100%;
       box-sizing: border-box;
       position: relative;
@@ -794,20 +796,20 @@
     .hud-player-corner {
       display: flex;
       align-items: center;
-      gap: 10px;
-      flex-shrink: 0; /* Never collapse or overlap */
+      gap: 6px;
+      flex-shrink: 0;
       background: rgba(255, 255, 255, 0.06);
-      padding: 6px 12px;
-      border-radius: 12px;
+      padding: 3px 8px;
+      border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-sizing: border-box;
     }
 
     .hud-avatar-circle {
-      width: 44px;
-      height: 44px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      border: 2px solid #ffb703;
+      border: 1.5px solid #ffb703;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -823,7 +825,7 @@
 
     .hud-player-name {
       font-family: 'Bangers', cursive, sans-serif;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
       color: #ffb703;
       text-transform: uppercase;
@@ -833,10 +835,10 @@
 
     .hud-player-cards {
       font-family: 'Fredoka', cursive, sans-serif;
-      font-size: 10px;
+      font-size: 9px;
       color: #aaaaaa;
       line-height: 1.1;
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
     /* Turn status sits cleanly to the right with its own space and 30s Turn Timer */
@@ -844,15 +846,15 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 3px;
+      gap: 1.5px;
       background: rgba(18, 14, 11, 0.94);
       border: 1.5px solid #00c853;
-      border-radius: 12px;
-      padding: 6px 12px;
+      border-radius: 8px;
+      padding: 3px 8px;
       white-space: nowrap;
       flex-shrink: 0;
-      min-width: 155px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      min-width: 125px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     }
 
     .turn-highlight {
@@ -1600,14 +1602,14 @@
       overscroll-behavior: contain;
     }
 
-    /* Drawer Card Item Grid Overrides (prevents extreme hover lift clipping) */
+    /* Drawer Card Item Grid Overrides */
     .drawer-cards-grid .card,
     .drawer-cards-grid .card-item {
       width: 100% !important;
-      max-width: 160px !important;
-      min-width: 125px !important;
-      height: 220px !important;
-      min-height: 220px !important;
+      max-width: 120px !important;
+      min-width: 85px !important;
+      height: 145px !important;
+      min-height: 145px !important;
       margin-left: 0 !important;
       transform: none !important;
       flex-shrink: 0;
@@ -1616,15 +1618,15 @@
     .drawer-cards-grid .card-item:hover {
       transform: scale(1.03) !important;
       z-index: 20 !important;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6) !important;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6) !important;
     }
     .drawer-cards-grid .card.selected,
     .drawer-cards-grid .card-item.selected {
       transform: scale(1.04) !important;
       z-index: 30 !important;
       border-color: #f59e0b !important;
-      outline: 3.5px solid #ffb703 !important;
-      box-shadow: 0 0 20px rgba(255, 183, 3, 0.85), 0 8px 18px rgba(0, 0, 0, 0.6) !important;
+      outline: 2.5px solid #ffb703 !important;
+      box-shadow: 0 0 16px rgba(255, 183, 3, 0.85), 0 6px 14px rgba(0, 0, 0, 0.6) !important;
     }
 
     /* ------------------------------------------------------------- */
@@ -1635,86 +1637,91 @@
       #game-opponents-row,
       .top-player-row {
         justify-content: center !important;
-        gap: 8px !important;
-        padding: 4px 6px !important;
+        gap: 6px !important;
+        padding: 2px 4px !important;
       }
 
-      /* Scale down avatar circles to 48px x 48px */
+      /* Scale down avatar circles */
       #game-opponents-row .player-pedestal {
-        min-width: 88px !important;
-        max-width: 105px !important;
-        padding: 6px 4px !important;
+        min-width: 70px !important;
+        max-width: 95px !important;
+        padding: 4px 3px !important;
       }
       #game-opponents-row .player-pedestal > div:first-child,
       .avatar-wrapper,
       .avatar-circle {
-        width: 48px !important;
-        height: 48px !important;
-        min-width: 48px !important;
-        min-height: 48px !important;
-        margin-bottom: 3px !important;
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        margin-bottom: 2px !important;
       }
       .avatar-ghost-overlay .ghost-symbol {
-        font-size: 1.15rem !important;
+        font-size: 0.95rem !important;
       }
       .gravestone-badge {
-        padding: 1px 3px !important;
-        font-size: 8px !important;
-        bottom: -3px !important;
-        right: -3px !important;
+        padding: 0.5px 2.5px !important;
+        font-size: 7px !important;
+        bottom: -2px !important;
+        right: -2px !important;
       }
       .gravestone-badge svg {
-        width: 10px !important;
-        height: 12px !important;
+        width: 8px !important;
+        height: 10px !important;
       }
-      /* Smaller player name labels: 11px */
       #game-opponents-row .player-pedestal .font-bangers {
-        font-size: 11px !important;
-        max-width: 90px !important;
+        font-size: 10px !important;
+        max-width: 80px !important;
       }
 
-      /* Reaction bubbles scaled down to 85% */
-      .comic-reaction-popup,
-      .reaction-bubble {
-        font-size: 15px !important;
-        padding: 4px 10px !important;
+      /* Header compact */
+      header {
+        min-height: 44px !important;
+        padding: 2px 6px !important;
       }
 
-      /* Center Table Area: Scaled ~15% down */
+      /* Center Table Area: Scaled down, keeps row orientation */
       main {
-        padding: 8px 12px !important;
-        gap: 16px !important;
+        padding: 4px 8px !important;
+        gap: 10px !important;
+        flex-direction: row !important;
       }
       main > div:nth-child(2) {
-        gap: 16px !important;
+        gap: 12px !important;
       }
 
       #deck-card,
       #discard-card-slot {
-        width: 120px !important;
-        height: 180px !important;
-        min-width: 120px !important;
-        min-height: 180px !important;
+        width: 85px !important;
+        height: 125px !important;
+        min-width: 85px !important;
+        min-height: 125px !important;
       }
 
-      /* Bottom Hand: Base width 130px, height 195px */
+      /* Bottom Hand: Base width 92px, height 136px */
+      #player-hand-container,
+      #handContainer,
+      .hand-tray {
+        display: flex !important;
+        padding: 8px 12px 2px 12px !important;
+      }
       #player-hand-container .card,
       #handContainer .card {
-        width: 130px !important;
-        min-width: 130px !important;
-        height: 195px !important;
-        min-height: 195px !important;
-        padding: 6px 7px !important;
+        width: 92px !important;
+        min-width: 92px !important;
+        height: 136px !important;
+        min-height: 136px !important;
+        padding: 3px 4px !important;
       }
       #player-hand-container .card .card-art-frame,
       #handContainer .card .card-art-frame {
-        height: 62px !important;
+        height: 42px !important;
       }
       #player-hand-container .card .card-action-box,
       #handContainer .card .card-action-box {
-        font-size: 9px !important;
-        line-height: 1.2 !important;
-        padding: 3px 5px !important;
+        font-size: 7.5px !important;
+        line-height: 1.15 !important;
+        padding: 2px 3px !important;
       }
 
       /* Touch-swipe scrolling */
@@ -1735,73 +1742,75 @@
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        gap: 5px !important;
-        padding: 4px 4px !important;
+        gap: 4px !important;
+        padding: 2px 3px !important;
         width: 100% !important;
       }
       .player-pedestal {
-        min-width: 50px !important;
-        max-width: 62px !important;
-        padding: 4px 2px !important;
-        border-radius: 10px !important;
+        min-width: 44px !important;
+        max-width: 58px !important;
+        padding: 2px 2px !important;
+        border-radius: 8px !important;
       }
       .avatar-wrapper,
       .avatar-circle,
       #game-opponents-row .player-pedestal > div:first-child {
-        width: 38px !important;
-        height: 38px !important;
-        min-width: 38px !important;
-        min-height: 38px !important;
-        margin-bottom: 2px !important;
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        margin-bottom: 1px !important;
       }
       .avatar-ghost-overlay .ghost-symbol {
-        font-size: 1rem !important;
+        font-size: 0.85rem !important;
       }
       .gravestone-badge {
-        padding: 0.5px 2.5px !important;
-        font-size: 7px !important;
+        padding: 0.5px 2px !important;
+        font-size: 6px !important;
         bottom: -2px !important;
         right: -2px !important;
       }
       .gravestone-badge svg {
-        width: 8.5px !important;
-        height: 10px !important;
+        width: 7px !important;
+        height: 8.5px !important;
       }
       .player-name,
       #game-opponents-row .player-pedestal .line-clamp-2 {
-        font-size: 9.5px !important;
-        max-width: 48px !important;
+        font-size: 8.5px !important;
+        max-width: 45px !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         white-space: nowrap !important;
         line-clamp: 1 !important;
       }
       #game-opponents-row .player-pedestal div:last-child {
-        font-size: 8px !important;
-        padding: 1px 3px !important;
+        font-size: 7.5px !important;
+        padding: 0.5px 2px !important;
         margin-top: 1px !important;
       }
 
-      /* Reaction bubbles scaled to 72% */
+      /* Reaction bubbles */
       .comic-reaction-popup,
       .reaction-bubble {
-        font-size: 13px !important;
-        padding: 3px 8px !important;
+        font-size: 11px !important;
+        padding: 2px 6px !important;
       }
 
       /* Header compact */
       header {
-        min-height: 58px !important;
-        padding: 3px 6px !important;
+        min-height: 40px !important;
+        max-height: 48px !important;
+        padding: 2px 4px !important;
       }
 
-      /* Main play area stacked and compact */
+      /* Main play area: stays row orientation without vertical scroll */
       main {
-        padding: 4px 8px !important;
-        gap: 8px !important;
-        flex-direction: column !important;
-        justify-content: flex-start !important;
-        overflow-y: auto !important;
+        padding: 2px 4px !important;
+        gap: 4px !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        overflow: hidden !important;
       }
 
       /* Danger Gauge compact */
@@ -1809,69 +1818,104 @@
         min-width: auto !important;
       }
       main > div:first-child > div:first-child {
-        width: 130px !important;
-        height: 72px !important;
-        padding: 3px !important;
+        width: 80px !important;
+        height: 46px !important;
+        padding: 2px !important;
       }
 
       /* Deck and Discard center area */
       main > div:nth-child(2) {
-        gap: 12px !important;
+        gap: 6px !important;
       }
       #deck-card,
       #discard-card-slot {
-        width: 95px !important;
-        height: 140px !important;
-        min-width: 95px !important;
-        min-height: 140px !important;
-        padding: 6px !important;
+        width: 62px !important;
+        height: 90px !important;
+        min-width: 62px !important;
+        min-height: 90px !important;
+        padding: 3px !important;
       }
       #deck-card svg,
       #deck-card .w-18 {
-        width: 38px !important;
-        height: 38px !important;
+        width: 24px !important;
+        height: 24px !important;
       }
 
       /* Table Chronicles streamlined panel */
       .chronicles-container {
-        width: 100% !important;
+        width: auto !important;
+        max-width: 130px !important;
       }
       #tableChronicles,
       .chronicles-box {
-        height: 95px !important;
-        min-height: 95px !important;
-        padding: 6px 8px !important;
+        height: 68px !important;
+        min-height: 68px !important;
+        padding: 3px 5px !important;
       }
       #action-log-list {
-        font-size: 11px !important;
-      }
-
-      /* Show Inventory Button on Mobile */
-      .inventory-btn {
-        display: flex !important;
+        font-size: 9.5px !important;
       }
 
       /* Emote reactions bar compact */
       main > div:last-child > div:last-child {
-        padding: 3px 6px !important;
+        padding: 2px 4px !important;
       }
 
-      /* Hide bottom hand tray and desktop card controls on mobile */
+      /* HAND TRAY IS ALWAYS VISIBLE AND COMPACT ON MOBILE */
       #player-hand-container,
       #handContainer,
-      .hand-tray,
+      .hand-tray {
+        display: flex !important;
+        padding: 6px 6px 2px 6px !important;
+      }
+
+      #player-hand-container .card,
+      #handContainer .card {
+        width: 76px !important;
+        min-width: 76px !important;
+        height: 114px !important;
+        min-height: 114px !important;
+        padding: 2.5px 3.5px !important;
+        border-radius: 8px !important;
+      }
+      #player-hand-container .card .card-art-frame,
+      #handContainer .card .card-art-frame {
+        height: 34px !important;
+      }
+      #player-hand-container .card .card-title,
+      #handContainer .card .card-title {
+        font-size: 8px !important;
+      }
+      #player-hand-container .card .card-flavor,
+      #handContainer .card .card-flavor {
+        font-size: 5.8px !important;
+      }
+      #player-hand-container .card .card-action-box,
+      #handContainer .card .card-action-box {
+        font-size: 6.8px !important;
+        line-height: 1.1 !important;
+        padding: 1.5px 2px !important;
+      }
+
+      #btn-play-card {
+        display: inline-flex !important;
+        padding: 3px 8px !important;
+        font-size: 11px !important;
+      }
+      #btn-clear-selection {
+        padding: 2px 5px !important;
+        font-size: 9px !important;
+      }
       #btn-toggle-autosort,
-      #btn-manual-sort,
-      #btn-clear-selection,
-      #btn-play-card,
-      #combo-status-bar {
-        display: none !important;
+      #btn-manual-sort {
+        font-size: 9px !important;
+        padding: 2px 4px !important;
       }
 
       /* Compact footer */
       footer {
-        padding-top: 2px !important;
-        padding-bottom: 4px !important;
+        padding-top: 1px !important;
+        padding-bottom: 2px !important;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
       }
     }
@@ -2173,10 +2217,7 @@
   </div>
 
 
-  <!-- ============================================================ -->
-  <!-- 3. SCREEN: GAME TABLE                                        -->
-  <!-- ============================================================ -->
-  <div id="screen-game" class="w-full h-screen wood-tabletop flex flex-col justify-between overflow-hidden hidden relative">
+  <div id="screen-game" class="w-full h-screen h-[100dvh] max-h-[100dvh] wood-tabletop flex flex-col justify-between overflow-hidden hidden relative">
     
     <!-- Red Flashing Screen Vignette for Combustion Cat Meltdown Alert -->
     <div id="screen-vignette-alarm" class="fixed inset-0 z-40 pointer-events-none hidden border-[12px] sm:border-[16px] border-red-600 screen-vignette-alarm bg-red-950/25"></div>
@@ -2256,49 +2297,49 @@
     </div>
 
     <!-- Top Bar: Game status, Opponents, and Menu -->
-    <header class="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-black/60 backdrop-blur-xs border-b border-black/40 z-30 flex items-center justify-between gap-2 sm:gap-3 min-h-[90px]">
-      <div class="flex items-center gap-1.5 sm:gap-2">
+    <header class="w-full px-2 sm:px-3 py-1 bg-black/65 backdrop-blur-xs border-b border-black/40 z-30 flex items-center justify-between gap-1.5 sm:gap-2 flex-shrink-0 min-h-[44px] max-h-[52px]">
+      <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
         <!-- Dedicated Top-Left Settings Button -->
-        <button id="btn-top-left-settings" title="Lab Settings & Audio Mute" class="comic-btn btn-shimmer px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 border-2 border-stone-950 text-stone-950 font-bangers text-xs sm:text-sm flex items-center gap-1.5 shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95">
+        <button id="btn-top-left-settings" title="Lab Settings & Audio Mute" class="comic-btn btn-shimmer px-2 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 border border-stone-950 text-stone-950 font-bangers text-[11px] sm:text-xs flex items-center gap-1 shadow-sm cursor-pointer transition-transform hover:scale-105 active:scale-95">
           <span>⚙️</span>
           <span>SETTINGS</span>
-          <span id="badge-top-left-audio" class="text-[10px] px-1.5 py-0.2 rounded-md bg-stone-950 text-yellow-300 font-fredoka font-bold">🎵</span>
+          <span id="badge-top-left-audio" class="text-[9px] px-1 py-0.2 rounded-md bg-stone-950 text-yellow-300 font-fredoka font-bold">🎵</span>
         </button>
-        <button id="btn-game-menu" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#4a2414] hover:bg-[#61301b] border-2 border-stone-900 font-bangers text-amber-200 text-xs tracking-wider cursor-pointer shadow-md">
+        <button id="btn-game-menu" class="px-2 py-1 rounded-lg bg-[#4a2414] hover:bg-[#61301b] border border-stone-900 font-bangers text-amber-200 text-[11px] sm:text-xs tracking-wider cursor-pointer shadow-sm">
           MENU / RULES
         </button>
-        <span id="game-room-tag" class="hidden sm:inline-block font-bangers text-xs text-stone-400">
+        <span id="game-room-tag" class="hidden md:inline-block font-bangers text-[10px] text-stone-400">
           ROOM: KTN-789
         </span>
       </div>
 
       <!-- Live Opponents Row across top -->
-      <div id="game-opponents-row" class="flex-1 flex items-center justify-center gap-3 sm:gap-5 overflow-x-auto px-2 py-1">
+      <div id="game-opponents-row" class="flex-1 flex items-center justify-center gap-2 sm:gap-3 overflow-x-auto px-1 py-0.5 min-w-0">
         <!-- Rendered dynamically -->
       </div>
 
       <!-- Right Controls: Music Toggle, SFX Toggle & Settings Button (Top Right) -->
-      <div class="flex items-center gap-1.5 sm:gap-2">
-        <button id="btn-quick-music" title="Toggle Background Music" class="comic-btn px-2 sm:px-2.5 py-1.5 rounded-xl bg-[#351a0e] hover:bg-[#4a2414] border-2 border-stone-900 text-yellow-300 font-bangers text-xs sm:text-sm flex items-center gap-1 shadow-md">
+      <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+        <button id="btn-quick-music" title="Toggle Background Music" class="comic-btn px-2 py-1 rounded-lg bg-[#351a0e] hover:bg-[#4a2414] border border-stone-900 text-yellow-300 font-bangers text-[11px] sm:text-xs flex items-center gap-1 shadow-sm">
           <span id="quick-music-icon">🎵</span>
-          <span class="hidden md:inline text-[11px] text-amber-200">BGM: <span id="quick-music-status">ON</span></span>
+          <span class="hidden md:inline text-[10px] text-amber-200">BGM: <span id="quick-music-status">ON</span></span>
         </button>
-        <button id="btn-game-sound" title="Toggle Sound Effects" class="comic-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#351a0e] hover:bg-[#4a2414] border-2 border-stone-900 text-amber-200 text-xs sm:text-sm flex items-center justify-center shadow-md">
+        <button id="btn-game-sound" title="Toggle Sound Effects" class="comic-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#351a0e] hover:bg-[#4a2414] border border-stone-900 text-amber-200 text-xs flex items-center justify-center shadow-sm">
           🔊
         </button>
-        <button id="btn-game-settings" title="Open Lab & Audio Settings" class="comic-btn btn-shimmer px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 border-2 border-stone-950 text-stone-950 font-bangers text-xs sm:text-sm flex items-center gap-1 shadow-md">
+        <button id="btn-game-settings" title="Open Lab & Audio Settings" class="comic-btn btn-shimmer px-2 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 border border-stone-950 text-stone-950 font-bangers text-[11px] sm:text-xs flex items-center gap-1 shadow-sm">
           <span>⚙️</span>
           <span class="hidden sm:inline">SETTINGS</span>
         </button>
       </div>
     </header>
 
-    <!-- Center Play Area: Speedometer Gauge, Deck, Discard, Parchment Log -->
-    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 relative z-10">
+    <!-- Center Play Area: Speedometer Gauge, Deck, Discard, Parchment Log (Compact & Proportional) -->
+    <main class="flex-1 min-h-0 w-full max-w-7xl mx-auto px-2 sm:px-4 py-1 flex flex-row items-center justify-between gap-2 sm:gap-4 relative z-10 overflow-hidden">
       
       <!-- Left: Speedometer Chance-of-Kitten Gauge -->
-      <div class="flex flex-col items-center justify-center min-w-[180px]">
-        <div class="relative w-44 h-28 sm:w-52 sm:h-34 bg-[#201008] border-4 border-amber-600 rounded-t-full p-2.5 flex flex-col items-center justify-end shadow-2xl">
+      <div class="flex flex-col items-center justify-center min-w-0 flex-shrink-0">
+        <div class="relative w-28 h-18 sm:w-34 sm:h-22 bg-[#201008] border-3 border-amber-600 rounded-t-full p-1.5 flex flex-col items-center justify-end shadow-xl">
           <!-- Dial Arch -->
           <svg class="w-full h-full" viewBox="0 0 100 60">
             <!-- Green zone (0 - 15%) -->
@@ -2316,38 +2357,38 @@
           </svg>
 
           <!-- Digital readout pill -->
-          <div class="absolute -bottom-2.5 bg-stone-900 border-2 border-stone-950 px-3 py-0.5 rounded-full font-bangers text-sm sm:text-base text-yellow-300 shadow-md">
+          <div class="absolute -bottom-2 bg-stone-900 border border-stone-950 px-2 py-0.2 rounded-full font-bangers text-xs sm:text-sm text-yellow-300 shadow-md">
             <span id="gauge-percentage-text">0%</span> DANGER
           </div>
         </div>
-        <span class="font-bangers text-xs text-amber-200 tracking-wider mt-3">CHANCE OF KITTEN</span>
+        <span class="font-bangers text-[10px] sm:text-xs text-amber-200 tracking-wider mt-1">CHANCE OF KITTEN</span>
       </div>
 
       <!-- Middle: Draw Deck & Discard Pile -->
-      <div class="relative flex items-center justify-center gap-8 sm:gap-14 flex-1">
+      <div class="relative flex items-center justify-center gap-3 sm:gap-6 flex-1 min-w-0">
         <!-- Center-Table Animated Combo Announcement Banner -->
         <div id="comboBanner" class="combo-announcement">
-          <div class="px-6 py-2.5 sm:px-8 sm:py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-400 border-3 border-stone-950 shadow-[0_8px_25px_rgba(245,158,11,0.7),0_0_15px_rgba(255,255,255,0.4)] flex flex-col items-center justify-center text-center whitespace-nowrap">
-            <div class="font-bangers text-xl sm:text-2xl text-stone-950 tracking-wider drop-shadow-sm leading-none flex items-center gap-2">
+          <div class="px-4 py-1.5 sm:px-6 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-400 border-2 border-stone-950 shadow-[0_4px_15px_rgba(245,158,11,0.7)] flex flex-col items-center justify-center text-center whitespace-nowrap">
+            <div class="font-bangers text-base sm:text-xl text-stone-950 tracking-wider drop-shadow-sm leading-none flex items-center gap-1.5">
               <span id="combo-banner-icon-left">🔥</span>
               <span id="combo-banner-title">2 OF A KIND!</span>
               <span id="combo-banner-icon-right">🔥</span>
             </div>
-            <div id="combo-banner-subtext" class="font-fredoka text-xs sm:text-sm font-bold text-stone-900 tracking-wide mt-0.5">
+            <div id="combo-banner-subtext" class="font-fredoka text-[10px] sm:text-xs font-bold text-stone-900 tracking-wide mt-0.5">
               Steal a random card
             </div>
           </div>
         </div>
 
         <!-- Draw Pile (Clickable to Draw Card on your turn) -->
-        <div id="deck-container" class="flex flex-col items-center cursor-pointer group">
-          <div id="deck-card" class="relative w-32 h-48 sm:w-40 sm:h-58 rounded-2xl bg-gradient-to-br from-[#801818] to-[#450a0a] border-4 border-stone-950 shadow-[0_12px_0_#1c0f08] flex flex-col items-center justify-center p-3 text-center transition-all group-hover:scale-103 group-hover:-translate-y-1">
+        <div id="deck-container" class="flex flex-col items-center cursor-pointer group flex-shrink-0">
+          <div id="deck-card" class="relative w-22 h-32 sm:w-26 sm:h-38 md:w-30 md:h-44 rounded-xl bg-gradient-to-br from-[#801818] to-[#450a0a] border-3 border-stone-950 shadow-[0_8px_0_#1c0f08] flex flex-col items-center justify-center p-2 text-center transition-all group-hover:scale-103 group-hover:-translate-y-1">
             <!-- Decorative Deck Stack lines -->
-            <div class="absolute -top-1.5 -left-1.5 w-full h-full rounded-2xl border-2 border-stone-900/60 pointer-events-none -z-10 bg-[#591212]"></div>
-            <div class="absolute -top-3 -left-3 w-full h-full rounded-2xl border-2 border-stone-900/40 pointer-events-none -z-20 bg-[#3d0c0c]"></div>
+            <div class="absolute -top-1 -left-1 w-full h-full rounded-xl border border-stone-900/60 pointer-events-none -z-10 bg-[#591212]"></div>
+            <div class="absolute -top-2 -left-2 w-full h-full rounded-xl border border-stone-900/40 pointer-events-none -z-20 bg-[#3d0c0c]"></div>
 
             <!-- Kitten silhouette badge -->
-            <div class="w-18 h-18 sm:w-22 sm:h-22 text-yellow-400 fill-current drop-shadow">
+            <div class="w-9 h-9 sm:w-12 sm:h-12 text-yellow-400 fill-current drop-shadow">
               <svg viewBox="0 0 100 100" class="w-full h-full">
                 <path d="M20,70 Q15,40 25,25 Q35,35 45,30 Q55,30 65,25 Q75,40 70,70 Q45,85 20,70 Z" />
                 <polygon points="25,32 15,10 40,25" />
@@ -2357,105 +2398,86 @@
               </svg>
             </div>
 
-            <div class="font-bangers text-white text-base sm:text-xl tracking-wider mt-2">
+            <div class="font-bangers text-white text-xs sm:text-base tracking-wider mt-1">
               DRAW DECK
             </div>
-            <div id="deck-count-badge" class="font-bangers text-yellow-300 text-xs sm:text-sm">
+            <div id="deck-count-badge" class="font-bangers text-yellow-300 text-[10px] sm:text-xs">
               34 CARDS LEFT
             </div>
 
             <!-- Pulse Draw Badge when it's your turn -->
-            <div id="draw-pulse-badge" class="absolute -bottom-3 bg-lime-500 border-2 border-stone-950 text-stone-950 font-bangers text-xs sm:text-sm px-3 py-0.5 rounded-full shadow-lg animate-bounce hidden">
+            <div id="draw-pulse-badge" class="absolute -bottom-2.5 bg-lime-500 border-2 border-stone-950 text-stone-950 font-bangers text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full shadow-lg animate-bounce hidden">
               CLICK TO DRAW!
             </div>
           </div>
         </div>
 
         <!-- Discard Pile (Clickable to open Discard Pile History) -->
-        <div id="discardPile" class="flex flex-col items-center cursor-pointer group" title="Click to view discard history">
-          <div id="discard-card-slot" class="w-32 h-48 sm:w-40 sm:h-58 rounded-2xl bg-black/40 border-3 border-dashed border-stone-700 flex flex-col items-center justify-center p-2 text-center relative rotate-2 shadow-inner transition-all duration-200">
-            <span class="font-bangers text-stone-500 text-sm sm:text-base">DISCARD PILE (EMPTY)</span>
+        <div id="discardPile" class="flex flex-col items-center cursor-pointer group flex-shrink-0" title="Click to view discard history">
+          <div id="discard-card-slot" class="w-22 h-32 sm:w-26 sm:h-38 md:w-30 md:h-44 rounded-xl bg-black/40 border-2 border-dashed border-stone-700 flex flex-col items-center justify-center p-1.5 text-center relative rotate-2 shadow-inner transition-all duration-200">
+            <span class="font-bangers text-stone-500 text-xs sm:text-sm">DISCARD PILE (EMPTY)</span>
           </div>
-          <div class="font-bangers text-xs text-amber-200 tracking-wider mt-2 flex items-center gap-1.5 group-hover:text-yellow-300 transition-colors">
-            <span>📜 DISCARD HISTORY</span>
-            <span id="discard-count-badge" class="bg-stone-900 border border-stone-700 text-yellow-400 text-[10px] px-2 py-0.5 rounded-full font-fredoka">0 cards</span>
+          <div class="font-bangers text-[10px] sm:text-xs text-amber-200 tracking-wider mt-1 flex items-center gap-1 group-hover:text-yellow-300 transition-colors">
+            <span>📜 DISCARD</span>
+            <span id="discard-count-badge" class="bg-stone-900 border border-stone-700 text-yellow-400 text-[9px] px-1.5 py-0.2 rounded-full font-fredoka">0 cards</span>
           </div>
         </div>
       </div>
 
       <!-- Right: Parchment Action Scroll & Quick Emotes -->
-      <div class="flex flex-col items-end gap-2.5 w-full md:w-80 lg:w-88">
+      <div class="flex flex-col items-end gap-1.5 w-44 sm:w-56 md:w-64 lg:w-72 flex-shrink-0 min-w-0">
         <!-- Parchment Log & Mobile Inventory -->
         <div class="chronicles-container w-full flex flex-col">
-          <div id="tableChronicles" class="chronicles-box w-full parchment rounded-2xl border-3 border-amber-900 p-3 shadow-xl flex flex-col h-44 sm:h-52 overflow-hidden">
-            <div class="flex items-center justify-between border-b border-amber-900/30 pb-1.5 mb-1.5">
-              <span class="font-bangers text-xs sm:text-sm text-amber-950 tracking-wider">📜 TABLE CHRONICLES</span>
-              <span id="turns-stacked-tag" class="font-bangers text-xs text-red-700 bg-red-200/70 px-2 py-0.5 rounded-md font-bold">1 TURN</span>
+          <div id="tableChronicles" class="chronicles-box w-full parchment rounded-xl border-2 border-amber-900 p-2 shadow-lg flex flex-col h-24 sm:h-28 md:h-32 overflow-hidden">
+            <div class="flex items-center justify-between border-b border-amber-900/30 pb-1 mb-1">
+              <span class="font-bangers text-[11px] sm:text-xs text-amber-950 tracking-wider">📜 TABLE CHRONICLES</span>
+              <span id="turns-stacked-tag" class="font-bangers text-[10px] text-red-700 bg-red-200/70 px-1.5 py-0.2 rounded font-bold">1 TURN</span>
             </div>
-            <div id="action-log-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1 font-fredoka text-xs text-amber-950">
+            <div id="action-log-list" class="flex-1 overflow-y-auto space-y-1 pr-1 font-fredoka text-[10px] sm:text-[11px] text-amber-950">
               <div>Match started. Good luck!</div>
             </div>
           </div>
-          <!-- Mobile Inventory Trigger Button -->
+          <!-- Mobile Inventory Trigger Button (Optional alternate full grid view) -->
           <button id="mobileInventoryBtn" class="inventory-btn">
             🎒 INVENTORY <span id="inventoryBadge" class="badge">0</span>
           </button>
         </div>
 
         <!-- In-Game Emote Reactions & Phrase Drawer (Under the Table) -->
-        <div class="relative w-full flex items-center justify-between gap-1.5 bg-black/70 p-2 rounded-2xl border-2 border-stone-800 shadow-md">
-          <div class="flex items-center gap-1.5 overflow-x-auto">
-            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="😼 Meow!" title="Meow!">😼</button>
-            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="💣 Help!" title="Help!">💣</button>
-            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="🛡️ Defused!" title="Defused!">🛡️</button>
-            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="🔥 GG!" title="GG!">🔥</button>
-            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="😱 Eek!" title="Eek!">😱</button>
-            <button class="btn-emote text-lg hover:scale-125 transition-transform cursor-pointer p-1" data-emote="😈 Hehe" title="Hehe">😈</button>
+        <div class="relative w-full flex items-center justify-between gap-1 bg-black/70 p-1 rounded-xl border border-stone-800 shadow-md">
+          <div class="flex items-center gap-1 overflow-x-auto">
+            <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer p-0.5" data-emote="😼 Meow!" title="Meow!">😼</button>
+            <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer p-0.5" data-emote="💣 Help!" title="Help!">💣</button>
+            <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer p-0.5" data-emote="🛡️ Defused!" title="Defused!">🛡️</button>
+            <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer p-0.5" data-emote="🔥 GG!" title="GG!">🔥</button>
+            <button class="btn-emote text-base hover:scale-125 transition-transform cursor-pointer p-0.5" data-emote="😈 Hehe" title="Hehe">😈</button>
           </div>
-          <button id="btn-toggle-emote-panel" title="More Emotes & Tactical Phrases" class="comic-btn px-2.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 font-bangers text-xs text-white flex items-center gap-1 cursor-pointer whitespace-nowrap shadow-sm">
+          <button id="btn-toggle-emote-panel" title="More Emotes & Tactical Phrases" class="comic-btn px-2 py-0.5 rounded-lg bg-amber-600 hover:bg-amber-500 font-bangers text-[10px] text-white flex items-center gap-0.5 cursor-pointer whitespace-nowrap shadow-xs">
             <span>💬 MORE</span>
           </button>
 
           <!-- Floating Emote Popover Drawer -->
-          <div id="emote-popover-panel" class="hidden absolute bottom-full right-0 mb-2 w-72 sm:w-80 bg-stone-900 border-2 border-amber-500 rounded-2xl p-3 shadow-2xl z-50 flex flex-col gap-2.5">
-            <div class="flex items-center justify-between border-b border-stone-800 pb-1.5">
+          <div id="emote-popover-panel" class="hidden absolute bottom-full right-0 mb-2 w-64 sm:w-72 bg-stone-900 border-2 border-amber-500 rounded-xl p-2.5 shadow-2xl z-50 flex flex-col gap-2">
+            <div class="flex items-center justify-between border-b border-stone-800 pb-1">
               <span class="font-bangers text-xs text-yellow-400 tracking-wider">💬 TACTICAL SPEECH & EMOTES</span>
               <button id="btn-close-emote-panel" class="text-stone-400 hover:text-white text-xs cursor-pointer font-bold px-1">✕</button>
             </div>
             
             <!-- Tactical Callouts -->
             <div>
-              <div class="font-bangers text-[10px] text-amber-200/70 mb-1">CALLOUT PHRASES:</div>
-              <div class="grid grid-cols-2 gap-1.5">
-                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Not today! 🛡️">Not today! 🛡️</button>
-                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Uh oh... 💣">Uh oh... 💣</button>
-                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="You're cooked! 🔥">You're cooked! 🔥</button>
-                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Stay frosty! ❄️">Stay frosty! ❄️</button>
-                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Nice try! 😼">Nice try! 😼</button>
-                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Science rules! 🧪">Science rules! 🧪</button>
-                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Don't draw! ⚠️">Don't draw! ⚠️</button>
-                <button class="btn-emote text-left px-2 py-1 rounded-lg bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-xs truncate cursor-pointer transition-colors" data-emote="Oops! 😹">Oops! 😹</button>
-              </div>
-            </div>
-
-            <!-- Extra Emoji Row -->
-            <div>
-              <div class="font-bangers text-[10px] text-amber-200/70 mb-1">REACTIONS:</div>
-              <div class="flex items-center justify-between bg-black/50 p-1.5 rounded-xl border border-stone-800">
-                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="🍿">🍿</button>
-                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="💀">💀</button>
-                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="🧊">🧊</button>
-                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="🚀">🚀</button>
-                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="🎉">🎉</button>
-                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="⚡">⚡</button>
-                <button class="btn-emote text-lg hover:scale-130 transition-transform cursor-pointer" data-emote="😎">😎</button>
+              <div class="font-bangers text-[9px] text-amber-200/70 mb-0.5">CALLOUT PHRASES:</div>
+              <div class="grid grid-cols-2 gap-1">
+                <button class="btn-emote text-left px-1.5 py-0.5 rounded bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-[11px] truncate cursor-pointer transition-colors" data-emote="Not today! 🛡️">Not today! 🛡️</button>
+                <button class="btn-emote text-left px-1.5 py-0.5 rounded bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-[11px] truncate cursor-pointer transition-colors" data-emote="Uh oh... 💣">Uh oh... 💣</button>
+                <button class="btn-emote text-left px-1.5 py-0.5 rounded bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-[11px] truncate cursor-pointer transition-colors" data-emote="You're cooked! 🔥">You're cooked! 🔥</button>
+                <button class="btn-emote text-left px-1.5 py-0.5 rounded bg-stone-800 hover:bg-amber-900/80 border border-stone-700 text-stone-200 hover:text-yellow-300 font-bangers text-[11px] truncate cursor-pointer transition-colors" data-emote="Stay frosty! ❄️">Stay frosty! ❄️</button>
               </div>
             </div>
 
             <!-- Custom Message Field -->
-            <div class="flex items-center gap-1.5 pt-1 border-t border-stone-800">
-              <input id="input-quick-chat" maxlength="32" placeholder="Custom cat speech..." class="flex-1 bg-black/70 border border-stone-700 focus:border-yellow-400 rounded-lg px-2 py-1 text-xs text-amber-100 font-fredoka focus:outline-none" />
-              <button id="btn-send-custom-chat" class="comic-btn px-2.5 py-1 bg-lime-500 hover:bg-lime-400 text-stone-950 font-bangers text-xs rounded-lg cursor-pointer">
+            <div class="flex items-center gap-1 pt-1 border-t border-stone-800">
+              <input id="input-quick-chat" maxlength="32" placeholder="Custom speech..." class="flex-1 bg-black/70 border border-stone-700 focus:border-yellow-400 rounded px-2 py-0.5 text-xs text-amber-100 font-fredoka focus:outline-none" />
+              <button id="btn-send-custom-chat" class="comic-btn px-2 py-0.5 bg-lime-500 hover:bg-lime-400 text-stone-950 font-bangers text-xs rounded cursor-pointer">
                 SEND
               </button>
             </div>
@@ -2465,12 +2487,12 @@
 
     </main>
 
-    <!-- Bottom Player Area: Hand, Avatar, Controls -->
-    <footer class="w-full bg-gradient-to-t from-black via-black/80 to-transparent pt-3 pb-2 px-2 sm:px-4 z-30 select-none">
-      <div class="max-w-7xl mx-auto flex flex-col gap-2">
+    <!-- Bottom Player Area: Hand, Avatar, Controls (Compact & Scaled) -->
+    <footer class="w-full bg-gradient-to-t from-black via-black/85 to-transparent pt-1 pb-1 px-1.5 sm:px-3 z-30 select-none flex-shrink-0">
+      <div class="max-w-7xl mx-auto flex flex-col gap-1">
         
         <!-- Bottom HUD Bar -->
-        <div class="bottom-hud-bar">
+        <div class="bottom-hud-bar py-1 px-2 sm:px-3 gap-2 sm:gap-3">
           <!-- Dedicated Left Corner: Player Identity -->
           <div class="avatar-container relative flex items-center flex-shrink-0">
             <div class="hud-player-corner player-pedestal local-player" id="my-avatar-box" data-player-id="me">
@@ -2489,54 +2511,54 @@
           </div>
 
           <!-- Distinct Center/Right: Turn Indicator Banner & 30s Turn Timer Bar -->
-          <div class="hud-turn-status flex flex-col justify-center min-w-[140px] sm:min-w-[190px] relative transition-all" id="hudTurnStatus">
-            <div class="flex items-center justify-between gap-2 w-full">
-              <span class="turn-highlight" id="hudTurnHighlight">WAITING...</span>
-              <span id="turn-timer-badge" class="font-bangers text-xs sm:text-sm px-2 py-0.5 rounded-full bg-stone-950/80 border border-lime-400 text-lime-400 flex items-center gap-1 hidden shadow-xs">
+          <div class="hud-turn-status flex flex-col justify-center min-w-[120px] sm:min-w-[155px] relative transition-all" id="hudTurnStatus">
+            <div class="flex items-center justify-between gap-1.5 w-full">
+              <span class="turn-highlight text-xs sm:text-sm" id="hudTurnHighlight">WAITING...</span>
+              <span id="turn-timer-badge" class="font-bangers text-[10px] sm:text-xs px-1.5 py-0.2 rounded-full bg-stone-950/80 border border-lime-400 text-lime-400 flex items-center gap-1 hidden shadow-xs">
                 <span id="turn-timer-clock-icon" class="inline-block">⏱️</span>
                 <span id="turn-timer-sec-text">30s</span>
               </span>
             </div>
             <!-- Dynamic 30-Second Turn Timer Progress Bar -->
-            <div id="turn-timer-progress-wrap" class="w-full bg-stone-950/90 border border-stone-700/60 h-2 rounded-full overflow-hidden mt-1 hidden shadow-inner relative">
+            <div id="turn-timer-progress-wrap" class="w-full bg-stone-950/90 border border-stone-700/60 h-1.5 rounded-full overflow-hidden mt-0.5 hidden shadow-inner relative">
               <div id="turn-timer-progress-fill" class="h-full bg-gradient-to-r from-emerald-500 to-lime-400 rounded-full transition-all duration-100 ease-linear shadow-xs" style="width: 100%;"></div>
             </div>
-            <div class="turn-subtext text-[10px] text-stone-400 mt-0.5 flex items-center justify-between" id="hudTurnSubtext">
+            <div class="turn-subtext text-[9px] text-stone-400 mt-0.2 flex items-center justify-between" id="hudTurnSubtext">
               <span id="hudTurnSubtextMsg">FOR OPPONENT</span>
-              <span id="hudTurnTimerHint" class="hidden text-amber-300/80 text-[9px] font-fredoka">auto-skips at 0s</span>
+              <span id="hudTurnTimerHint" class="hidden text-amber-300/80 text-[8px] font-fredoka">auto-skips at 0s</span>
             </div>
           </div>
 
           <!-- Hand Sorting Controls -->
-          <div class="hidden sm:flex items-center gap-1.5 bg-stone-900/90 px-2.5 py-1 rounded-xl border border-stone-800 text-xs font-fredoka flex-shrink-0">
-            <button id="btn-toggle-autosort" title="Toggle Automatic Hand Sorting" class="comic-btn px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-yellow-300 flex items-center gap-1.5 text-xs">
-              <span>⚡ Auto-Sort:</span>
+          <div class="flex items-center gap-1 bg-stone-900/90 px-2 py-0.5 rounded-lg border border-stone-800 text-[11px] font-fredoka flex-shrink-0">
+            <button id="btn-toggle-autosort" title="Toggle Automatic Hand Sorting" class="comic-btn px-1.5 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-yellow-300 flex items-center gap-1 text-[11px]">
+              <span>⚡ Auto:</span>
               <span id="autosort-status-badge" class="text-lime-400 font-bold">ON</span>
             </button>
-            <button id="btn-manual-sort" title="Sort Hand Now" class="comic-btn px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white text-xs">
+            <button id="btn-manual-sort" title="Sort Hand Now" class="comic-btn px-1.5 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white text-[11px]">
               ↕ Sort
             </button>
           </div>
 
           <!-- Action & Play Controls -->
-          <div class="flex items-center gap-2 ml-auto flex-shrink-0">
-            <button id="btn-clear-selection" class="comic-btn px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 font-bangers text-stone-300 text-xs tracking-wider cursor-pointer hidden">
+          <div class="flex items-center gap-1.5 ml-auto flex-shrink-0">
+            <button id="btn-clear-selection" class="comic-btn px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 font-bangers text-stone-300 text-xs tracking-wider cursor-pointer hidden">
               CLEAR (0)
             </button>
-            <button id="btn-play-card" class="comic-btn px-6 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 font-bangers text-stone-950 text-base tracking-wider cursor-pointer shadow-lg disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+            <button id="btn-play-card" class="comic-btn px-4 sm:px-6 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 font-bangers text-stone-950 text-xs sm:text-sm tracking-wider cursor-pointer shadow-md disabled:opacity-40 disabled:cursor-not-allowed" disabled>
               PLAY CARD
             </button>
           </div>
         </div>
 
         <!-- Combo Feedback Banner -->
-        <div id="combo-status-bar" class="hidden mx-2 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 font-fredoka text-xs flex items-center justify-between animate-fade-in">
+        <div id="combo-status-bar" class="hidden mx-2 px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 font-fredoka text-[11px] flex items-center justify-between animate-fade-in">
           <span id="combo-status-text" class="font-medium">Multi-card combo detected</span>
-          <span id="combo-hint-text" class="text-[11px] text-amber-200/70">Ready to play</span>
+          <span id="combo-hint-text" class="text-[10px] text-amber-200/70">Ready to play</span>
         </div>
 
         <!-- Horizontal Fanned Cards Tray -->
-        <div id="player-hand-container" class="hand-container hand-wrapper hand-tray w-full flex items-end justify-center overflow-visible pt-16 pb-4 min-h-[250px] gap-1 sm:gap-2.5 select-none">
+        <div id="player-hand-container" class="hand-container hand-wrapper hand-tray w-full flex items-end justify-center overflow-x-auto overflow-y-visible pt-2 pb-1 gap-1 sm:gap-1.5 select-none">
           <!-- Rendered dynamically -->
         </div>
 
@@ -6779,26 +6801,26 @@
         const opp = document.createElement('div');
         opp.id = `opp-box-${p.id}`;
         opp.setAttribute('data-player-id', p.id);
-        opp.className = `player-pedestal top-player avatar-container flex flex-col items-center justify-between p-2 sm:p-2.5 rounded-2xl border-3 transition-all ${
+        opp.className = `player-pedestal top-player avatar-container flex flex-col items-center justify-between p-1 sm:p-1.5 rounded-xl border-2 transition-all ${
           p.isDead
             ? 'eliminated opacity-38 border-stone-900 bg-stone-950/85 scale-95'
             : isActive
-            ? 'active-turn is-active-player border-yellow-400 bg-amber-950/95 ring-2 ring-yellow-400/80 shadow-[0_0_25px_rgba(251,191,36,0.85)]'
+            ? 'active-turn is-active-player border-yellow-400 bg-amber-950/95 ring-1 ring-yellow-400/80 shadow-[0_0_15px_rgba(251,191,36,0.7)]'
             : 'border-stone-800 bg-black/60 hover:border-stone-700'
-        } relative min-w-[105px] sm:min-w-[130px] max-w-[150px] flex-shrink-0 text-center`;
+        } relative min-w-[65px] sm:min-w-[80px] max-w-[105px] flex-shrink-0 text-center`;
 
         opp.innerHTML = `
           ${isActive && !p.isDead ? `
-            <div class="turn-indicator-pill absolute -top-2.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-bangers text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full shadow-lg border border-yellow-200 uppercase tracking-wider z-20 flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-stone-950 animate-ping"></span>
+            <div class="turn-indicator-pill absolute -top-2 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-bangers text-[9px] px-1.5 py-0.2 rounded-full shadow-md border border-yellow-200 uppercase tracking-wider z-20 flex items-center gap-0.5">
+              <span class="w-1 h-1 rounded-full bg-stone-950 animate-ping"></span>
               <span>TURN</span>
-              <span class="opp-turn-timer-tag hidden text-[9px] bg-stone-950/90 text-yellow-300 px-1 rounded ml-0.5 font-fredoka">30s</span>
+              <span class="opp-turn-timer-tag hidden text-[8px] bg-stone-950/90 text-yellow-300 px-1 rounded ml-0.5 font-fredoka">30s</span>
             </div>
           ` : ''}
-          <div class="avatar-wrapper relative mb-1.5 flex items-center justify-center">
-            <div class="avatar-circle w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full overflow-hidden border-3 ${
-              p.isDead ? 'border-cyan-500/40 bg-stone-950' : isActive ? 'border-yellow-400 bg-stone-900 shadow-[0_0_12px_rgba(250,204,21,0.8)]' : 'border-stone-700 bg-stone-900'
-            } relative shadow-md">
+          <div class="avatar-wrapper relative mb-0.5 flex items-center justify-center">
+            <div class="avatar-circle w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full overflow-hidden border-2 ${
+              p.isDead ? 'border-cyan-500/40 bg-stone-950' : isActive ? 'border-yellow-400 bg-stone-900 shadow-[0_0_10px_rgba(250,204,21,0.7)]' : 'border-stone-700 bg-stone-900'
+            } relative shadow-sm">
               <div class="w-full h-full ${p.isDead ? 'opacity-40 grayscale contrast-125' : ''}">
                 ${getAvatarSVG(p.avatarId)}
               </div>
@@ -6812,7 +6834,7 @@
             ${p.isDead ? `
               <!-- Small gravestone icon badge -->
               <div class="gravestone-badge" title="R.I.P. Eliminated">
-                <svg viewBox="0 0 24 28" class="w-3 h-3.5 text-stone-300 flex-shrink-0" fill="currentColor">
+                <svg viewBox="0 0 24 28" class="w-2.5 h-3 text-stone-300 flex-shrink-0" fill="currentColor">
                   <path d="M4 26h16v-14c0-4.42-3.58-8-8-8s-8 3.58-8 8v14z" fill="#44403c" stroke="#a8a29e" stroke-width="1.5"/>
                   <path d="M12 7v7M9.5 10h5" stroke="#e7e5e4" stroke-width="1.5" stroke-linecap="round"/>
                   <rect x="2" y="24" width="20" height="3" rx="1" fill="#292524" stroke="#78716c" stroke-width="1"/>
@@ -6821,20 +6843,16 @@
               </div>
             ` : ''}
           </div>
-          <div class="player-name font-bangers text-xs sm:text-sm ${p.isDead ? 'text-stone-500 line-through' : isActive ? 'text-yellow-300 font-bold' : 'text-amber-100'} leading-tight break-words max-w-[125px] w-full px-0.5 my-0.5 line-clamp-2">
+          <div class="player-name font-bangers text-[10px] sm:text-xs ${p.isDead ? 'text-stone-500 line-through' : isActive ? 'text-yellow-300 font-bold' : 'text-amber-100'} leading-none truncate max-w-[80px] w-full px-0.5 my-0.5">
             ${displayName}
           </div>
           ${p.isDead ? `
-            <div class="flex items-center justify-center gap-1 font-bangers text-[10px] sm:text-xs text-stone-400 bg-stone-900/90 px-2.5 py-0.5 rounded-full border border-stone-800 mt-1 shadow-xs">
-              <svg viewBox="0 0 24 28" class="w-2.5 h-3 text-stone-400 flex-shrink-0" fill="currentColor">
-                <path d="M4 26h16v-14c0-4.42-3.58-8-8-8s-8 3.58-8 8v14z" fill="#44403c" stroke="#78716c" stroke-width="1.2"/>
-                <path d="M12 7v7M9.5 10h5" stroke="#d6d3d1" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
+            <div class="flex items-center justify-center gap-0.5 font-bangers text-[8.5px] sm:text-[9.5px] text-stone-400 bg-stone-900/90 px-1.5 py-0.2 rounded-full border border-stone-800 mt-0.5 shadow-xs">
               <span>ELIMINATED</span>
             </div>
           ` : `
-            <div class="flex items-center justify-center gap-1 font-bangers text-[11px] sm:text-xs text-yellow-300 bg-black/60 px-2.5 py-0.5 rounded-full border border-stone-800 mt-1 shadow-xs">
-              <span>🃏 ${p.cardCount} ${p.cardCount === 1 ? 'CARD' : 'CARDS'}</span>
+            <div class="flex items-center justify-center gap-0.5 font-bangers text-[9px] sm:text-[10px] text-yellow-300 bg-black/60 px-1.5 py-0.2 rounded-full border border-stone-800 mt-0.5 shadow-xs">
+              <span>🃏 ${p.cardCount}</span>
             </div>
           `}
         `;
@@ -7370,13 +7388,15 @@
       const total = cards.length;
       if (total === 0) return;
 
-      const containerWidth = (handEl.parentElement ? handEl.parentElement.clientWidth : window.innerWidth) * 0.85; // 85% of viewport
-      const baseCardWidth = window.innerWidth <= 600 ? 145 : (window.innerWidth <= 1024 ? 130 : 175); // standard width
+      const containerWidth = (handEl.parentElement ? handEl.parentElement.clientWidth : window.innerWidth) * 0.92;
+      const isMobile = window.innerWidth <= 600 || window.innerHeight <= 620;
+      const isTablet = window.innerWidth <= 1024 || window.innerHeight <= 760;
+      const baseCardWidth = isMobile ? 76 : (isTablet ? 92 : 108);
 
       // If cards exceed available width, compress them with negative margins & scale
       if (total * baseCardWidth > containerWidth) {
-        const scaleFactor = Math.max(0.72, 1 - (total - 6) * 0.035); // scale down smoothly to min 0.72
-        const overlapOffset = Math.min(85, Math.max(25, (total * (baseCardWidth * scaleFactor) - containerWidth) / (total - 1)));
+        const scaleFactor = Math.max(0.78, 1 - (total - 5) * 0.025);
+        const overlapOffset = Math.min(baseCardWidth * 0.65, Math.max(10, (total * (baseCardWidth * scaleFactor) - containerWidth) / (total - 1)));
 
         cards.forEach((card, i) => {
           card.style.transform = `scale(${scaleFactor})`;
@@ -7394,7 +7414,7 @@
           card.style.transform = 'scale(1)';
           card.style.transformOrigin = 'bottom center';
           if (i > 0) {
-            card.style.marginLeft = window.innerWidth <= 600 ? '4px' : (window.innerWidth <= 1024 ? '8px' : '12px');
+            card.style.marginLeft = isMobile ? '3px' : (isTablet ? '5px' : '8px');
           } else {
             card.style.marginLeft = '0px';
           }
