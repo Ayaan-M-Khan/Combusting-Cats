@@ -717,9 +717,45 @@ class GameRoom {
     const currentP = this.players[this.activePlayerIndex];
     if (!currentP || !currentP.isBot || currentP.isDead) return;
 
+    // Thoughtful Bot Turn Delay (between 2.2s and 3.0s) so players can easily process the turn
+    const thinkingDelay = 2200 + Math.floor(Math.random() * 800);
+
+    const thinkingPhrases = [
+      '🤔 Thinking...',
+      '😼 Planning next move...',
+      '🔬 Assessing danger...',
+      '💭 Reading the deck...',
+      '👀 Calculating odds...',
+      '🐾 Contemplating hand...'
+    ];
+    const phrase = thinkingPhrases[Math.floor(Math.random() * thinkingPhrases.length)];
+
+    setTimeout(() => {
+      if (this.gameStarted && this.players[this.activePlayerIndex]?.id === currentP.id && this.turnState === 'NORMAL') {
+        io.to(this.id).emit('player_reacted', {
+          playerId: currentP.id,
+          reactionText: phrase,
+          playerName: currentP.name,
+        });
+      }
+    }, 450);
+
     this.botTimer = setTimeout(() => {
       this.executeBotMove(currentP);
-    }, 1200);
+    }, thinkingDelay);
+  }
+
+  announceBotAction(bot, actionLabel, callback, delayMs = 1350) {
+    io.to(this.id).emit('player_reacted', {
+      playerId: bot.id,
+      reactionText: actionLabel,
+      playerName: bot.name,
+    });
+    setTimeout(() => {
+      if (this.gameStarted && this.players[this.activePlayerIndex]?.id === bot.id && this.turnState === 'NORMAL') {
+        callback();
+      }
+    }, delayMs);
   }
 
   executeBotMove(bot) {
@@ -750,23 +786,33 @@ class GameRoom {
     // Evasion if cat is next or chance is high
     if (topIsKitten || chance > 25) {
       if (alterFuture) {
-        this.playCard(bot.id, alterFuture.id);
+        this.announceBotAction(bot, '⏳ Altering future!', () => {
+          this.playCard(bot.id, alterFuture.id);
+        });
         return;
       }
       if (attack) {
-        this.playCard(bot.id, attack.id);
+        this.announceBotAction(bot, '🚀 Thermal Blast! Take 2 turns!', () => {
+          this.playCard(bot.id, attack.id);
+        });
         return;
       }
       if (skip) {
-        this.playCard(bot.id, skip.id);
+        this.announceBotAction(bot, '🏃 Emergency Evac! Skipping!', () => {
+          this.playCard(bot.id, skip.id);
+        });
         return;
       }
       if (shuffleCard && topIsKitten) {
-        this.playCard(bot.id, shuffleCard.id);
+        this.announceBotAction(bot, '🌀 Vortex Shuffle!', () => {
+          this.playCard(bot.id, shuffleCard.id);
+        });
         return;
       }
       if (seeFuture && !knownTop) {
-        this.playCard(bot.id, seeFuture.id);
+        this.announceBotAction(bot, '👁️ Infrared Scan!', () => {
+          this.playCard(bot.id, seeFuture.id);
+        });
         return;
       }
     }
@@ -779,7 +825,9 @@ class GameRoom {
       );
       if (targets.length > 0) {
         targets.sort((a, b) => b.hand.length - a.hand.length);
-        this.playThreeOfAKind(bot.id, trio.map((c) => c.id), targets[0].id, 'COOLANT_FOAM');
+        this.announceBotAction(bot, '🎯 Playing 3-of-a-Kind!', () => {
+          this.playThreeOfAKind(bot.id, trio.map((c) => c.id), targets[0].id, 'COOLANT_FOAM');
+        }, 1500);
         return;
       }
     }
@@ -792,7 +840,9 @@ class GameRoom {
       );
       if (hasValuableInDiscard) {
         const fiveCards = distinctTypes.slice(0, 5).map((t) => typeCounts[t][0]);
-        this.playFiveDifferent(bot.id, fiveCards.map((c) => c.id));
+        this.announceBotAction(bot, '✨ 5-Card Lab Combo!', () => {
+          this.playFiveDifferent(bot.id, fiveCards.map((c) => c.id));
+        }, 1500);
         return;
       }
     }
@@ -805,7 +855,9 @@ class GameRoom {
       );
       if (targets.length > 0) {
         targets.sort((a, b) => b.hand.length - a.hand.length);
-        this.playPair(bot.id, pair.map((c) => c.id), targets[0].id);
+        this.announceBotAction(bot, '🐾 Cat Pair! Stealing card!', () => {
+          this.playPair(bot.id, pair.map((c) => c.id), targets[0].id);
+        }, 1400);
         return;
       }
     }
@@ -817,18 +869,26 @@ class GameRoom {
       );
       if (targets.length > 0) {
         targets.sort((a, b) => b.hand.length - a.hand.length);
-        this.playFavor(bot.id, favor.id, targets[0].id);
+        this.announceBotAction(bot, '😼 Feline Blackmail!', () => {
+          this.playFavor(bot.id, favor.id, targets[0].id);
+        }, 1300);
         return;
       }
     }
 
     if (seeFuture && Math.random() < 0.4 && !knownTop) {
-      this.playCard(bot.id, seeFuture.id);
+      this.announceBotAction(bot, '👁️ Peeking into deck...', () => {
+        this.playCard(bot.id, seeFuture.id);
+      }, 1200);
       return;
     }
 
-    // Draw from deck
-    this.drawCard(bot.id);
+    // Draw from deck with thoughtful announcement
+    const drawPhrases = ['Drawing a card... 🤞', 'Testing my luck! 🃏', 'Reaching into core... ⚠️', 'Drawing from deck...'];
+    const drawPhrase = drawPhrases[Math.floor(Math.random() * drawPhrases.length)];
+    this.announceBotAction(bot, drawPhrase, () => {
+      this.drawCard(bot.id);
+    }, 1300);
   }
 
   // DRAW CARD ACTION (with Emergency Combustion Cat Defuse State)
@@ -943,7 +1003,12 @@ class GameRoom {
       this.turnsRemaining--;
       this.broadcastGameState();
       this.resetTurnTimeout();
-      this.checkBotTurn();
+      clearTimeout(this.botTimer);
+      if (currentP.isBot) {
+        this.botTimer = setTimeout(() => {
+          this.checkBotTurn();
+        }, 1600);
+      }
     } else {
       this.advanceTurn(1);
     }

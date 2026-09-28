@@ -79,19 +79,185 @@
       box-shadow: inset 0 0 180px rgba(0, 0, 0, 0.95);
     }
 
+    /* ============================================================== */
+    /* ENHANCED BUTTON ANIMATIONS & TACTILE RESPONSIVENESS             */
+    /* ============================================================== */
     .comic-btn {
       position: relative;
       border: 3px solid #1a0804;
-      box-shadow: 0 6px 0 #1a0804;
-      transition: all 0.15s ease-in-out;
+      box-shadow: 0 5px 0 #1a0804;
+      transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                  box-shadow 0.12s ease, 
+                  filter 0.15s ease,
+                  background-color 0.15s ease;
+      cursor: pointer;
+      user-select: none;
+      overflow: hidden;
     }
-    .comic-btn:hover {
-      box-shadow: 0 3px 0 #1a0804;
-      transform: translateY(3px);
+    .comic-btn:hover:not(:disabled) {
+      box-shadow: 0 7px 0 #1a0804;
+      transform: translateY(-2px) scale(1.025);
+      filter: brightness(1.08);
     }
-    .comic-btn:active {
-      box-shadow: 0 0 0 #1a0804;
-      transform: translateY(6px);
+    .comic-btn:active:not(:disabled) {
+      box-shadow: 0 1px 0 #1a0804 !important;
+      transform: translateY(4px) scale(0.975) !important;
+      filter: brightness(0.95);
+    }
+
+    /* Radiant light sweep sheen on prominent action buttons */
+    .btn-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-shimmer::after {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -130%;
+      width: 60%;
+      height: 220%;
+      background: linear-gradient(
+        65deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.38) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(25deg);
+      animation: btnShimmerSweep 3.4s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    @keyframes btnShimmerSweep {
+      0%, 65% {
+        left: -130%;
+      }
+      100% {
+        left: 200%;
+      }
+    }
+
+    /* Bouncy rubber-band pulse on hover */
+    .btn-bounce:hover {
+      animation: btnRubberBand 0.5s ease-out;
+    }
+
+    @keyframes btnRubberBand {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.12, 0.9); }
+      40% { transform: scale(0.92, 1.1); }
+      50% { transform: scale(1.06, 0.95); }
+      65% { transform: scale(0.98, 1.02); }
+      100% { transform: scale(1); }
+    }
+
+    /* ============================================================== */
+    /* PLAYER PEDESTAL STYLES & ACTIVE TURN BREATHING / GLOW         */
+    /* ============================================================== */
+    .player-pedestal {
+      position: relative;
+      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.25, 1),
+                  box-shadow 0.35s ease,
+                  border-color 0.3s ease,
+                  background 0.3s ease;
+      will-change: transform, box-shadow;
+    }
+
+    /* Pedestal Base Shadow */
+    .player-pedestal::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 10%;
+      right: 10%;
+      height: 6px;
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.65) 0%, transparent 80%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -1;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    /* Active Turn Breathing Animation & Subtle Golden Glow */
+    @keyframes pedestal-breathe {
+      0%, 100% {
+        transform: translateY(0px) scale(1.03);
+        box-shadow: 0 0 16px rgba(251, 191, 36, 0.6), 0 8px 18px rgba(0, 0, 0, 0.65);
+      }
+      50% {
+        transform: translateY(-4px) scale(1.07);
+        box-shadow: 0 0 28px rgba(250, 204, 21, 0.95), 0 0 45px rgba(245, 158, 11, 0.65), 0 14px 26px rgba(0, 0, 0, 0.75);
+      }
+    }
+
+    @keyframes pedestal-ring-glow {
+      0%, 100% {
+        border-color: #facc15;
+        filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.6));
+      }
+      50% {
+        border-color: #fef08a;
+        filter: drop-shadow(0 0 14px rgba(253, 224, 71, 0.95)) drop-shadow(0 0 24px rgba(245, 158, 11, 0.6));
+      }
+    }
+
+    @keyframes pedestal-spotlight {
+      0%, 100% {
+        opacity: 0.6;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.95;
+        transform: scale(1.18);
+      }
+    }
+
+    /* Applied when taking turn */
+    .player-pedestal.active-turn,
+    .player-pedestal.is-active-player {
+      animation: pedestal-breathe 2.4s ease-in-out infinite !important;
+      border-color: #facc15 !important;
+      z-index: 25;
+    }
+
+    .player-pedestal.active-turn .avatar-circle,
+    .player-pedestal.is-active-player .avatar-circle {
+      animation: pedestal-ring-glow 2.4s ease-in-out infinite;
+      border-color: #facc15 !important;
+    }
+
+    /* Spotlight halo under active pedestal */
+    .player-pedestal.active-turn::before,
+    .player-pedestal.is-active-player::before {
+      content: '';
+      position: absolute;
+      inset: -8px -4px;
+      background: radial-gradient(ellipse at 50% 65%, rgba(251, 191, 36, 0.28) 0%, rgba(245, 158, 11, 0.12) 50%, transparent 75%);
+      border-radius: 24px;
+      pointer-events: none;
+      z-index: -1;
+      animation: pedestal-spotlight 2.4s ease-in-out infinite;
+    }
+
+    /* Active turn beacon badge */
+    .pedestal-turn-beacon {
+      position: absolute;
+      top: -8px;
+      right: -4px;
+      background: linear-gradient(135deg, #facc15, #f59e0b);
+      color: #1c1917;
+      font-family: 'Bangers', cursive, sans-serif;
+      font-size: 10px;
+      line-height: 1;
+      padding: 2.5px 6px;
+      border-radius: 8px;
+      border: 1.5px solid #1c1917;
+      box-shadow: 0 0 10px rgba(250, 204, 21, 0.8);
+      animation: popInBadge 0.25s ease-out;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 3px;
     }
 
     /* 1. Hand Tray: smooth horizontal scrolling with hidden scrollbar and generous headroom */
@@ -1871,13 +2037,19 @@
           </div>
         </button>
 
-        <!-- Auxiliary: Rules & Sound -->
-        <div class="flex items-center gap-3 pt-1">
-          <button id="btn-menu-rules" class="flex-1 py-2 px-3 rounded-xl bg-stone-900/60 border border-stone-800 text-amber-200 font-bangers text-xs tracking-wider hover:bg-stone-900/90 cursor-pointer">
-            📖 HOW TO PLAY / RULES
+        <!-- Auxiliary: Rules, Music, Sound & Settings -->
+        <div class="flex items-center gap-2 pt-1">
+          <button id="btn-menu-rules" class="flex-1 py-2 px-2.5 rounded-xl bg-stone-900/80 border border-stone-700 text-amber-200 font-bangers text-xs tracking-wider hover:bg-stone-800 cursor-pointer">
+            📖 RULES
           </button>
-          <button id="btn-menu-sound" class="py-2 px-3 rounded-xl bg-stone-900/60 border border-stone-800 text-amber-200 font-bangers text-xs tracking-wider hover:bg-stone-900/90 cursor-pointer">
-            🔊 SOUND: ON
+          <button id="btn-menu-music" class="py-2 px-2.5 rounded-xl bg-stone-900/80 border border-stone-700 text-yellow-300 font-bangers text-xs tracking-wider hover:bg-stone-800 cursor-pointer">
+            🎵 BGM: ON
+          </button>
+          <button id="btn-menu-sound" class="py-2 px-2.5 rounded-xl bg-stone-900/80 border border-stone-700 text-amber-200 font-bangers text-xs tracking-wider hover:bg-stone-800 cursor-pointer">
+            🔊 SFX: ON
+          </button>
+          <button id="btn-menu-settings" class="comic-btn py-2 px-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 border border-stone-950 text-stone-950 font-bangers text-xs tracking-wider cursor-pointer shadow">
+            ⚙️
           </button>
         </div>
 
@@ -2038,10 +2210,20 @@
         <!-- Rendered dynamically -->
       </div>
 
-      <!-- Right Sound Toggle -->
-      <button id="btn-game-sound" class="w-9 h-9 rounded-full bg-[#4a2414] hover:bg-[#61301b] border-2 border-stone-900 text-amber-200 text-sm flex items-center justify-center cursor-pointer shadow-md">
-        🔊
-      </button>
+      <!-- Right Controls: Music Toggle, SFX Toggle & Settings Button (Top Right) -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="btn-quick-music" title="Toggle Background Music" class="comic-btn px-2 sm:px-2.5 py-1.5 rounded-xl bg-[#351a0e] hover:bg-[#4a2414] border-2 border-stone-900 text-yellow-300 font-bangers text-xs sm:text-sm flex items-center gap-1 shadow-md">
+          <span id="quick-music-icon">🎵</span>
+          <span class="hidden md:inline text-[11px] text-amber-200">BGM: <span id="quick-music-status">ON</span></span>
+        </button>
+        <button id="btn-game-sound" title="Toggle Sound Effects" class="comic-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#351a0e] hover:bg-[#4a2414] border-2 border-stone-900 text-amber-200 text-xs sm:text-sm flex items-center justify-center shadow-md">
+          🔊
+        </button>
+        <button id="btn-game-settings" title="Open Lab & Audio Settings" class="comic-btn btn-shimmer px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 border-2 border-stone-950 text-stone-950 font-bangers text-xs sm:text-sm flex items-center gap-1 shadow-md">
+          <span>⚙️</span>
+          <span class="hidden sm:inline">SETTINGS</span>
+        </button>
+      </div>
     </header>
 
     <!-- Center Play Area: Speedometer Gauge, Deck, Discard, Parchment Log -->
@@ -2586,6 +2768,123 @@
       <div id="discard-history-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-2.5 overflow-y-auto max-h-[66vh] bg-stone-950/60 rounded-2xl border border-stone-800">
         <!-- Rendered dynamically -->
       </div>
+  <!-- 10. GAME SETTINGS MODAL -->
+  <div id="modal-settings" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden">
+    <div class="bg-[#1f130b] border-4 border-amber-500 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl animate-pop flex flex-col max-h-[92vh]">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-amber-800/40 pb-3 mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-amber-950 border-2 border-amber-500 flex items-center justify-center text-xl shadow">
+            ⚙️
+          </div>
+          <div>
+            <h2 class="font-bangers text-2xl sm:text-3xl text-yellow-400 tracking-wide leading-none">LAB SETTINGS</h2>
+            <p class="font-fredoka text-[11px] text-amber-200/80">AUDIO, AI PACING & INTERFACE</p>
+          </div>
+        </div>
+        <button id="btn-close-settings" class="text-stone-400 hover:text-white font-bangers text-2xl cursor-pointer p-1 leading-none transition-colors">✕</button>
+      </div>
+
+      <!-- Settings Content Body -->
+      <div class="space-y-4 overflow-y-auto pr-1 flex-1 font-fredoka text-sm">
+        
+        <!-- 1. Background Music (BGM) -->
+        <div class="bg-black/40 p-3.5 rounded-2xl border border-stone-800 flex flex-col gap-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🎵</span>
+              <div>
+                <div class="font-bangers text-base text-yellow-300">BACKGROUND MUSIC</div>
+                <div class="text-[11px] text-stone-400">Playful procedural tabletop jazz soundtrack</div>
+              </div>
+            </div>
+            <button id="setting-toggle-bgm" class="comic-btn px-4 py-1.5 rounded-xl font-bangers text-xs tracking-wider transition-all bg-emerald-700 text-white">
+              ON
+            </button>
+          </div>
+          <!-- BGM Volume Slider -->
+          <div class="flex items-center gap-3 pt-1 border-t border-stone-800/80">
+            <span class="text-xs text-stone-400 font-bold min-w-[50px]">VOLUME:</span>
+            <input id="setting-slider-bgm" type="range" min="0" max="100" value="35" class="flex-1 h-2 bg-stone-800 rounded-lg appearance-none cursor-pointer accent-amber-400" />
+            <span id="setting-bgm-vol-text" class="text-xs text-amber-300 font-bangers min-w-[36px] text-right">35%</span>
+          </div>
+        </div>
+
+        <!-- 2. Sound Effects (SFX) -->
+        <div class="bg-black/40 p-3.5 rounded-2xl border border-stone-800 flex flex-col gap-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🔊</span>
+              <div>
+                <div class="font-bangers text-base text-yellow-300">SOUND EFFECTS</div>
+                <div class="text-[11px] text-stone-400">Card slaps, explosions, defusal, and chatter</div>
+              </div>
+            </div>
+            <button id="setting-toggle-sfx" class="comic-btn px-4 py-1.5 rounded-xl font-bangers text-xs tracking-wider transition-all bg-emerald-700 text-white">
+              ON
+            </button>
+          </div>
+          <div class="flex items-center justify-between pt-1 border-t border-stone-800/80">
+            <span class="text-xs text-stone-400">Test audio synthesizer:</span>
+            <button id="btn-test-sfx" class="comic-btn px-3 py-1 bg-stone-800 hover:bg-stone-700 text-amber-200 text-xs rounded-lg font-bangers">
+              TEST CHIME 🔔
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. AI Speed & Turn Pacing -->
+        <div class="bg-black/40 p-3.5 rounded-2xl border border-stone-800 flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🤖</span>
+              <div>
+                <div class="font-bangers text-base text-yellow-300">AI OPPONENT PACING</div>
+                <div class="text-[11px] text-stone-400">Controls how fast bots think and move</div>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <button id="setting-ai-thoughtful" class="comic-btn p-2 rounded-xl border-2 text-center cursor-pointer transition-all bg-amber-950/80 border-amber-400 text-yellow-300">
+              <div class="font-bangers text-xs sm:text-sm">🧠 THOUGHTFUL (RECOMMENDED)</div>
+              <div class="text-[10px] text-amber-200/80">Realistic pause, speech bubbles, easy to follow</div>
+            </button>
+            <button id="setting-ai-fast" class="comic-btn p-2 rounded-xl border-2 text-center cursor-pointer transition-all bg-stone-900 border-stone-700 text-stone-400">
+              <div class="font-bangers text-xs sm:text-sm">⚡ FAST PACED</div>
+              <div class="text-[10px] text-stone-400">Brisk automated moves</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. Tactical Preferences -->
+        <div class="bg-black/40 p-3.5 rounded-2xl border border-stone-800 flex flex-col gap-2.5">
+          <div class="font-bangers text-sm text-yellow-300 flex items-center gap-2">
+            <span>🎮</span> GAMEPLAY PREFERENCES
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-stone-300">Auto-sort cards in hand:</span>
+            <button id="setting-toggle-autosort" class="comic-btn px-3 py-1 rounded-lg bg-stone-800 font-bangers text-xs text-lime-400">
+              ON
+            </button>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-stone-300">Tabletop screen rumble & vibration:</span>
+            <button id="setting-toggle-rumble" class="comic-btn px-3 py-1 rounded-lg bg-stone-800 font-bangers text-xs text-lime-400">
+              ON
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="mt-4 pt-3 border-t border-stone-800 flex items-center justify-between gap-3">
+        <button id="btn-settings-tutorial" class="comic-btn px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-200 font-bangers text-xs tracking-wider">
+          📖 HOW TO PLAY
+        </button>
+        <button id="btn-done-settings" class="comic-btn btn-shimmer px-6 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bangers text-sm sm:text-base tracking-wider">
+          SAVE & RESUME
+        </button>
+      </div>
     </div>
   </div>
 
@@ -2598,16 +2897,37 @@
     class SoundEngine {
       constructor() {
         this.ctx = null;
-        this.enabled = true;
+        this.enabled = localStorage.getItem('combustion_cats_sfx_enabled') !== 'false';
+        this.musicEnabled = localStorage.getItem('combustion_cats_bgm_enabled') !== 'false';
+        this.musicVolume = parseFloat(localStorage.getItem('combustion_cats_bgm_volume') || '0.32');
+        this.masterSfxGain = null;
+        this.masterMusicGain = null;
+        this.musicTimer = null;
+        this.musicPlaying = false;
+        this.musicStep = 0;
       }
       init() {
         if (!this.ctx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
           this.ctx = new AudioContext();
+
+          this.masterSfxGain = this.ctx.createGain();
+          this.masterSfxGain.gain.setValueAtTime(this.enabled ? 0.75 : 0.0001, this.ctx.currentTime);
+          this.masterSfxGain.connect(this.ctx.destination);
+
+          this.masterMusicGain = this.ctx.createGain();
+          this.masterMusicGain.gain.setValueAtTime(this.musicEnabled ? this.musicVolume : 0.0001, this.ctx.currentTime);
+          this.masterMusicGain.connect(this.ctx.destination);
         }
         if (this.ctx.state === 'suspended') {
           this.ctx.resume();
         }
+        if (this.musicEnabled && !this.musicPlaying) {
+          this.startMusic();
+        }
+      }
+      getDest() {
+        return this.masterSfxGain || (this.ctx ? this.ctx.destination : null);
       }
       playTone(freq, type, duration, gainVal = 0.15, dest = null) {
         if (!this.enabled) return;
@@ -2620,7 +2940,7 @@
           gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
           osc.connect(gain);
-          gain.connect(dest || this.ctx.destination);
+          gain.connect(dest || this.getDest());
           osc.start();
           osc.stop(this.ctx.currentTime + duration);
         } catch (e) {}
@@ -2919,6 +3239,160 @@
           gain.connect(this.ctx.destination);
           osc.start(now);
           osc.stop(now + 1.15);
+      // --- PROCEDURAL BACKGROUND MUSIC SYNTHESIZER ---
+      startMusic() {
+        if (this.musicPlaying) return;
+        this.musicPlaying = true;
+        this.musicStep = 0;
+        clearInterval(this.musicTimer);
+
+        // Cat-heist spy jazz progression in D minor
+        const chordProgressions = [
+          { bass: 73.42, notes: [174.61, 220.00, 261.63, 329.63] }, // Dm9
+          { bass: 58.27, notes: [174.61, 220.00, 293.66, 349.23] }, // Bbmaj7
+          { bass: 49.00, notes: [146.83, 196.00, 233.08, 293.66] }, // Gm7
+          { bass: 55.00, notes: [164.81, 220.00, 277.18, 329.63] }, // A7alt
+        ];
+        const melodyScales = [
+          [587.33, 659.25, 698.46, 783.99, 880.00], // D pentatonic
+          [587.33, 698.46, 783.99, 880.00, 1046.50],
+          [493.88, 587.33, 698.46, 783.99, 880.00],
+          [554.37, 659.25, 783.99, 880.00, 932.33]
+        ];
+
+        this.musicTimer = setInterval(() => {
+          if (!this.musicEnabled || !this.ctx || this.ctx.state !== 'running') return;
+          try {
+            const step = this.musicStep % 16;
+            const bar = Math.floor(step / 4);
+            const beatInBar = step % 4;
+            const now = this.ctx.currentTime;
+            const dest = this.masterMusicGain;
+            if (!dest) return;
+
+            // 1. Acoustic Bassline on downbeats
+            if (beatInBar === 0) {
+              const bassOsc = this.ctx.createOscillator();
+              const bassGain = this.ctx.createGain();
+              bassOsc.type = 'triangle';
+              bassOsc.frequency.setValueAtTime(chordProgressions[bar].bass, now);
+              bassGain.gain.setValueAtTime(0.35, now);
+              bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+              bassOsc.connect(bassGain);
+              bassGain.connect(dest);
+              bassOsc.start(now);
+              bassOsc.stop(now + 0.7);
+            }
+
+            // 2. Warm Rhodes chords on beat 0
+            if (beatInBar === 0) {
+              chordProgressions[bar].notes.forEach((freq, idx) => {
+                const chordOsc = this.ctx.createOscillator();
+                const chordGain = this.ctx.createGain();
+                chordOsc.type = 'sine';
+                chordOsc.frequency.setValueAtTime(freq, now);
+                chordGain.gain.setValueAtTime(0.11, now);
+                chordGain.gain.exponentialRampToValueAtTime(0.001, now + 0.95);
+                chordOsc.connect(chordGain);
+                chordGain.connect(dest);
+                chordOsc.start(now + idx * 0.015);
+                chordOsc.stop(now + 1.0);
+              });
+            }
+
+            // 3. Subtle hi-hat / shaker tap on offbeats
+            if (beatInBar === 1 || beatInBar === 3) {
+              const bufSize = Math.floor(this.ctx.sampleRate * 0.03);
+              const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+              const d = buf.getChannelData(0);
+              for (let i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+              const n = this.ctx.createBufferSource();
+              n.buffer = buf;
+              const filter = this.ctx.createBiquadFilter();
+              filter.type = 'highpass';
+              filter.frequency.setValueAtTime(3400, now);
+              const nGain = this.ctx.createGain();
+              nGain.gain.setValueAtTime(0.05, now);
+              nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+              n.connect(filter);
+              filter.connect(nGain);
+              nGain.connect(dest);
+              n.start(now);
+            }
+
+            // 4. Playful marimba/bell notes
+            if (beatInBar === 2 || (step % 8 === 5 && Math.random() > 0.45)) {
+              const notes = melodyScales[bar];
+              const noteFreq = notes[Math.floor(Math.random() * notes.length)];
+              const mOsc = this.ctx.createOscillator();
+              const mGain = this.ctx.createGain();
+              mOsc.type = 'sine';
+              mOsc.frequency.setValueAtTime(noteFreq, now);
+              mGain.gain.setValueAtTime(0.12, now);
+              mGain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+              mOsc.connect(mGain);
+              mGain.connect(dest);
+              mOsc.start(now);
+              mOsc.stop(now + 0.35);
+            }
+
+            this.musicStep++;
+          } catch (e) {}
+        }, 320); // 320ms per beat ~ 94 BPM
+      }
+      stopMusic() {
+        this.musicPlaying = false;
+        clearInterval(this.musicTimer);
+        this.musicTimer = null;
+      }
+      setBGMVolume(val) {
+        this.musicVolume = Math.max(0, Math.min(1, val));
+        localStorage.setItem('combustion_cats_bgm_volume', this.musicVolume);
+        if (this.masterMusicGain && this.ctx) {
+          this.masterMusicGain.gain.setValueAtTime(this.musicEnabled ? this.musicVolume : 0.0001, this.ctx.currentTime);
+        }
+      }
+      toggleMusic() {
+        this.init();
+        this.musicEnabled = !this.musicEnabled;
+        localStorage.setItem('combustion_cats_bgm_enabled', this.musicEnabled ? 'true' : 'false');
+        if (this.masterMusicGain && this.ctx) {
+          this.masterMusicGain.gain.setValueAtTime(this.musicEnabled ? this.musicVolume : 0.0001, this.ctx.currentTime);
+        }
+        if (this.musicEnabled) {
+          if (!this.musicPlaying) this.startMusic();
+        } else {
+          this.stopMusic();
+        }
+        if (typeof updateAudioUI === 'function') updateAudioUI();
+        return this.musicEnabled;
+      }
+      toggleSFX() {
+        this.init();
+        this.enabled = !this.enabled;
+        localStorage.setItem('combustion_cats_sfx_enabled', this.enabled ? 'true' : 'false');
+        if (this.masterSfxGain && this.ctx) {
+          this.masterSfxGain.gain.setValueAtTime(this.enabled ? 0.75 : 0.0001, this.ctx.currentTime);
+        }
+        if (typeof updateAudioUI === 'function') updateAudioUI();
+        return this.enabled;
+      }
+      buttonClick() {
+        if (!this.enabled) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(950, now);
+          osc.frequency.exponentialRampToValueAtTime(320, now + 0.035);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+          osc.connect(gain);
+          gain.connect(this.getDest());
+          osc.start(now);
+          osc.stop(now + 0.04);
         } catch (e) {}
       }
     }
@@ -5450,14 +5924,20 @@
           p.isDead
             ? 'eliminated opacity-38 border-stone-900 bg-stone-950/85 scale-95'
             : isActive
-            ? 'border-yellow-400 bg-amber-950/90 shadow-[0_0_20px_rgba(251,191,36,0.7)] scale-105'
+            ? 'active-turn is-active-player border-yellow-400 bg-amber-950/95 ring-2 ring-yellow-400/80 shadow-[0_0_25px_rgba(251,191,36,0.85)]'
             : 'border-stone-800 bg-black/60 hover:border-stone-700'
         } relative min-w-[105px] sm:min-w-[130px] max-w-[150px] flex-shrink-0 text-center`;
 
         opp.innerHTML = `
+          ${isActive && !p.isDead ? `
+            <div class="turn-indicator-pill absolute -top-2.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-bangers text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full shadow-lg border border-yellow-200 uppercase tracking-wider z-20 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-stone-950 animate-ping"></span>
+              <span>TURN</span>
+            </div>
+          ` : ''}
           <div class="avatar-wrapper relative mb-1.5 flex items-center justify-center">
             <div class="avatar-circle w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full overflow-hidden border-3 ${
-              p.isDead ? 'border-cyan-500/40 bg-stone-950' : isActive ? 'border-yellow-400 bg-stone-900' : 'border-stone-700 bg-stone-900'
+              p.isDead ? 'border-cyan-500/40 bg-stone-950' : isActive ? 'border-yellow-400 bg-stone-900 shadow-[0_0_12px_rgba(250,204,21,0.8)]' : 'border-stone-700 bg-stone-900'
             } relative shadow-md">
               <div class="w-full h-full ${p.isDead ? 'opacity-40 grayscale contrast-125' : ''}">
                 ${getAvatarSVG(p.avatarId)}
@@ -5481,7 +5961,7 @@
               </div>
             ` : ''}
           </div>
-          <div class="player-name font-bangers text-xs sm:text-sm ${p.isDead ? 'text-stone-500 line-through' : 'text-amber-100'} leading-tight break-words max-w-[125px] w-full px-0.5 my-0.5 line-clamp-2">
+          <div class="player-name font-bangers text-xs sm:text-sm ${p.isDead ? 'text-stone-500 line-through' : isActive ? 'text-yellow-300 font-bold' : 'text-amber-100'} leading-tight break-words max-w-[125px] w-full px-0.5 my-0.5 line-clamp-2">
             ${displayName}
           </div>
           ${p.isDead ? `
@@ -5549,9 +6029,17 @@
           }
         } else {
           myAvatarBox.classList.remove('eliminated', 'border-stone-900');
-          myAvatarBox.classList.add('border-yellow-500/70');
+          if (state.isMyTurn) {
+            myAvatarBox.classList.add('active-turn', 'is-active-player', 'border-yellow-400', 'ring-2', 'ring-yellow-400/80');
+            myAvatarBox.classList.remove('border-yellow-500/70');
+          } else {
+            myAvatarBox.classList.remove('active-turn', 'is-active-player', 'ring-2', 'ring-yellow-400/80');
+            myAvatarBox.classList.add('border-yellow-500/70');
+          }
           if (myIconContainer) {
-            myIconContainer.className = 'hud-avatar-circle avatar-circle relative flex items-center justify-center flex-shrink-0';
+            myIconContainer.className = `hud-avatar-circle avatar-circle relative flex items-center justify-center flex-shrink-0 ${
+              state.isMyTurn ? 'shadow-[0_0_12px_rgba(250,204,21,0.8)] border-yellow-400' : ''
+            }`;
             myIconContainer.innerHTML = getAvatarSVG(myP.avatarId);
           }
           if (myGravBadge) {
@@ -5559,8 +6047,8 @@
             myGravBadge.innerHTML = '';
           }
           if (myNameEl) {
-            myNameEl.className = 'hud-player-name player-name';
-            myNameEl.innerText = `${myP.name || 'OPERATOR'} (YOU)`;
+            myNameEl.className = `hud-player-name player-name ${state.isMyTurn ? 'text-yellow-300 font-bold' : ''}`;
+            myNameEl.innerText = `${myP.name || 'OPERATOR'} (YOU)${state.isMyTurn ? ' ⚡' : ''}`;
           }
           if (myCardsEl) {
             myCardsEl.innerText = `${(state.myHand || []).length} cards`;
@@ -7229,14 +7717,212 @@
       document.getElementById('modal-tutorial').classList.add('hidden');
     });
 
-    const toggleSoundFn = () => {
-      sounds.enabled = !sounds.enabled;
-      const text = sounds.enabled ? '🔊 SOUND: ON' : '🔇 SOUND: OFF';
-      document.getElementById('btn-menu-sound').innerText = text;
-      document.getElementById('btn-game-sound').innerText = sounds.enabled ? '🔊' : '🔇';
+    // --- AUDIO & SETTINGS MODAL CONTROLS ---
+    function updateAudioUI() {
+      // 1. Music quick buttons
+      const musicStatusText = sounds.musicEnabled ? 'ON' : 'OFF';
+      const quickMusicBtn = document.getElementById('btn-quick-music');
+      const quickMusicIcon = document.getElementById('quick-music-icon');
+      const quickMusicStatus = document.getElementById('quick-music-status');
+      if (quickMusicIcon) quickMusicIcon.innerText = sounds.musicEnabled ? '🎵' : '🔇';
+      if (quickMusicStatus) quickMusicStatus.innerText = musicStatusText;
+      if (quickMusicBtn) {
+        if (sounds.musicEnabled) {
+          quickMusicBtn.classList.remove('opacity-60');
+          quickMusicBtn.classList.add('border-amber-400');
+        } else {
+          quickMusicBtn.classList.add('opacity-60');
+          quickMusicBtn.classList.remove('border-amber-400');
+        }
+      }
+
+      const menuMusicBtn = document.getElementById('btn-menu-music');
+      if (menuMusicBtn) {
+        menuMusicBtn.innerText = sounds.musicEnabled ? '🎵 BGM: ON' : '🔇 BGM: OFF';
+      }
+
+      const settingToggleBgm = document.getElementById('setting-toggle-bgm');
+      if (settingToggleBgm) {
+        settingToggleBgm.innerText = sounds.musicEnabled ? 'ON' : 'OFF';
+        settingToggleBgm.className = `comic-btn px-4 py-1.5 rounded-xl font-bangers text-xs tracking-wider transition-all ${
+          sounds.musicEnabled ? 'bg-emerald-700 text-white' : 'bg-stone-800 text-stone-400'
+        }`;
+      }
+
+      // 2. SFX quick buttons
+      const gameSoundBtn = document.getElementById('btn-game-sound');
+      if (gameSoundBtn) {
+        gameSoundBtn.innerText = sounds.enabled ? '🔊' : '🔇';
+      }
+
+      const menuSoundBtn = document.getElementById('btn-menu-sound');
+      if (menuSoundBtn) {
+        menuSoundBtn.innerText = sounds.enabled ? '🔊 SFX: ON' : '🔇 SFX: OFF';
+      }
+
+      const settingToggleSfx = document.getElementById('setting-toggle-sfx');
+      if (settingToggleSfx) {
+        settingToggleSfx.innerText = sounds.enabled ? 'ON' : 'OFF';
+        settingToggleSfx.className = `comic-btn px-4 py-1.5 rounded-xl font-bangers text-xs tracking-wider transition-all ${
+          sounds.enabled ? 'bg-emerald-700 text-white' : 'bg-stone-800 text-stone-400'
+        }`;
+      }
+
+      // 3. Slider values
+      const bgmSlider = document.getElementById('setting-slider-bgm');
+      const bgmVolText = document.getElementById('setting-bgm-vol-text');
+      if (bgmSlider) {
+        bgmSlider.value = Math.round(sounds.musicVolume * 100);
+      }
+      if (bgmVolText) {
+        bgmVolText.innerText = `${Math.round(sounds.musicVolume * 100)}%`;
+      }
+    }
+
+    // Quick Header & Menu Audio Buttons
+    const quickMusicBtn = document.getElementById('btn-quick-music');
+    if (quickMusicBtn) {
+      quickMusicBtn.addEventListener('click', () => {
+        sounds.buttonClick();
+        sounds.toggleMusic();
+      });
+    }
+
+    const menuMusicBtn = document.getElementById('btn-menu-music');
+    if (menuMusicBtn) {
+      menuMusicBtn.addEventListener('click', () => {
+        sounds.buttonClick();
+        sounds.toggleMusic();
+      });
+    }
+
+    const gameSoundBtn = document.getElementById('btn-game-sound');
+    if (gameSoundBtn) {
+      gameSoundBtn.addEventListener('click', () => {
+        sounds.buttonClick();
+        sounds.toggleSFX();
+      });
+    }
+
+    const menuSoundBtn = document.getElementById('btn-menu-sound');
+    if (menuSoundBtn) {
+      menuSoundBtn.addEventListener('click', () => {
+        sounds.buttonClick();
+        sounds.toggleSFX();
+      });
+    }
+
+    // Settings Modal Open/Close Controls
+    const openSettingsFn = () => {
+      sounds.buttonClick();
+      updateAudioUI();
+      const modal = document.getElementById('modal-settings');
+      if (modal) modal.classList.remove('hidden');
     };
-    document.getElementById('btn-menu-sound').addEventListener('click', toggleSoundFn);
-    document.getElementById('btn-game-sound').addEventListener('click', toggleSoundFn);
+
+    const closeSettingsFn = () => {
+      sounds.buttonClick();
+      const modal = document.getElementById('modal-settings');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    const gameSettingsBtn = document.getElementById('btn-game-settings');
+    if (gameSettingsBtn) gameSettingsBtn.addEventListener('click', openSettingsFn);
+
+    const menuSettingsBtn = document.getElementById('btn-menu-settings');
+    if (menuSettingsBtn) menuSettingsBtn.addEventListener('click', openSettingsFn);
+
+    const closeSettingsBtn = document.getElementById('btn-close-settings');
+    if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', closeSettingsFn);
+
+    const doneSettingsBtn = document.getElementById('btn-done-settings');
+    if (doneSettingsBtn) doneSettingsBtn.addEventListener('click', closeSettingsFn);
+
+    const modalSettingsBackdrop = document.getElementById('modal-settings');
+    if (modalSettingsBackdrop) {
+      modalSettingsBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalSettingsBackdrop) closeSettingsFn();
+      });
+    }
+
+    const settingsTutorialBtn = document.getElementById('btn-settings-tutorial');
+    if (settingsTutorialBtn) {
+      settingsTutorialBtn.addEventListener('click', () => {
+        sounds.buttonClick();
+        closeSettingsFn();
+        document.getElementById('modal-tutorial').classList.remove('hidden');
+      });
+    }
+
+    // Modal Inner Toggles & Sliders
+    const settingToggleBgm = document.getElementById('setting-toggle-bgm');
+    if (settingToggleBgm) {
+      settingToggleBgm.addEventListener('click', () => {
+        sounds.buttonClick();
+        sounds.toggleMusic();
+      });
+    }
+
+    const settingToggleSfx = document.getElementById('setting-toggle-sfx');
+    if (settingToggleSfx) {
+      settingToggleSfx.addEventListener('click', () => {
+        sounds.buttonClick();
+        sounds.toggleSFX();
+      });
+    }
+
+    const settingSliderBgm = document.getElementById('setting-slider-bgm');
+    if (settingSliderBgm) {
+      settingSliderBgm.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10) / 100;
+        sounds.setBGMVolume(val);
+        const bgmVolText = document.getElementById('setting-bgm-vol-text');
+        if (bgmVolText) bgmVolText.innerText = `${Math.round(val * 100)}%`;
+      });
+    }
+
+    const testSfxBtn = document.getElementById('btn-test-sfx');
+    if (testSfxBtn) {
+      testSfxBtn.addEventListener('click', () => {
+        if (sounds && sounds.reactionChime) {
+          sounds.reactionChime();
+        } else {
+          sounds.bubblePop();
+        }
+      });
+    }
+
+    // AI Speed Preference in Settings
+    const btnAiThoughtful = document.getElementById('setting-ai-thoughtful');
+    const btnAiFast = document.getElementById('setting-ai-fast');
+    if (btnAiThoughtful && btnAiFast) {
+      btnAiThoughtful.addEventListener('click', () => {
+        sounds.buttonClick();
+        btnAiThoughtful.className = 'comic-btn p-2 rounded-xl border-2 text-center cursor-pointer transition-all bg-amber-950/80 border-amber-400 text-yellow-300';
+        btnAiFast.className = 'comic-btn p-2 rounded-xl border-2 text-center cursor-pointer transition-all bg-stone-900 border-stone-700 text-stone-400';
+        showComboNotification('AI SPEED', 'Thoughtful AI pacing enabled (natural speech bubbles & deliberate moves)', '🧠');
+      });
+      btnAiFast.addEventListener('click', () => {
+        sounds.buttonClick();
+        btnAiFast.className = 'comic-btn p-2 rounded-xl border-2 text-center cursor-pointer transition-all bg-amber-950/80 border-amber-400 text-yellow-300';
+        btnAiThoughtful.className = 'comic-btn p-2 rounded-xl border-2 text-center cursor-pointer transition-all bg-stone-900 border-stone-700 text-stone-400';
+        showComboNotification('AI SPEED', 'Fast AI pacing selected', '⚡');
+      });
+    }
+
+    // Initial audio UI sync
+    updateAudioUI();
+
+    // Universal button tactile sound & animated feel
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('button, .comic-btn, .game-card, .btn-emote');
+      if (btn && sounds && typeof sounds.buttonClick === 'function') {
+        // Skip test sound button to avoid double chime
+        if (btn.id !== 'btn-test-sfx' && !btn.classList.contains('avatar-reaction-opt')) {
+          sounds.buttonClick();
+        }
+      }
+    });
 
     // --- AVATAR ANCHORED REACTION & SPEECH BUBBLE SYSTEM ---
     const recentReactionTimestamps = new Map();
