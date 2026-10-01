@@ -227,6 +227,24 @@ export default function App() {
     }
   }, [players, gamePhase]);
 
+  // Subtle audio cue when a player's turn begins (distinct sound for local vs AI)
+  const lastSignaledTurnRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (gamePhase !== 'playing' || players.length === 0) {
+      lastSignaledTurnRef.current = null;
+      return;
+    }
+    const currentPlayer = players[activePlayerIndex];
+    if (!currentPlayer || currentPlayer.isDead) return;
+
+    const turnKey = `${currentPlayer.id}_${activePlayerIndex}_${turnsRemaining}`;
+    if (lastSignaledTurnRef.current !== turnKey) {
+      lastSignaledTurnRef.current = turnKey;
+      sounds.playTurnStart(currentPlayer.isHuman, !currentPlayer.isHuman);
+    }
+  }, [gamePhase, activePlayerIndex, turnsRemaining, players]);
+
+
   // DRAW CARD LOGIC
   const handleDrawCard = useCallback(() => {
     if (modalType !== null || drawPile.length === 0) return;

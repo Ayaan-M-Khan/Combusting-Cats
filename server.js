@@ -617,6 +617,7 @@ class GameRoom {
       { type: 'TIMELINE_SCRAMBLE', count: 3 },
       { type: 'FELINE_BLACKMAIL', count: 4 },
       { type: 'THERMODYNAMIC_VORTEX', count: 4 },
+      { type: 'NOPE', count: 5 },
       { type: 'CAT_STATIC_SPARK', count: 4 },
       { type: 'CAT_NUCLEAR_NACHO', count: 4 },
       { type: 'CAT_PLASMA_PURR', count: 4 },
@@ -689,8 +690,15 @@ class GameRoom {
     }
 
     let nextIdx = (this.activePlayerIndex + 1) % this.players.length;
-    while (this.players[nextIdx].isDead) {
+    let safetyCounter = 0;
+    while (this.players[nextIdx]?.isDead && safetyCounter < this.players.length) {
       nextIdx = (nextIdx + 1) % this.players.length;
+      safetyCounter++;
+    }
+
+    if (safetyCounter >= this.players.length) {
+      this.checkGameOver();
+      return;
     }
 
     this.activePlayerIndex = nextIdx;
@@ -734,24 +742,36 @@ class GameRoom {
 
   checkGameOver() {
     const alive = this.players.filter((p) => !p.isDead);
-    if (alive.length === 1) {
-      const winner = alive[0];
-      this.matchStats.winnerName = winner.name;
-      this.matchStats.isHumanWinner = !winner.isBot;
+    if (alive.length <= 1) {
+      const winner = alive[0] || this.players[0];
+      if (winner) {
+        this.matchStats.winnerName = winner.name;
+        this.matchStats.isHumanWinner = !winner.isBot;
 
-      this.log(
-        winner.name,
-        winner.avatarId,
-        `👑 VICTORY! ${winner.name} survived and won the match!`
-      );
+        this.log(
+          winner.name,
+          winner.avatarId,
+          `👑 VICTORY! ${winner.name} survived and won the match!`
+        );
 
-      io.to(this.id).emit('game_over', {
-        winnerId: winner.id,
-        winnerName: winner.name,
-        winnerAvatar: winner.avatarId,
-        isHumanWinner: !winner.isBot,
-        stats: this.matchStats,
-      });
+        io.to(this.id).emit('game_over', {
+          winnerId: winner.id,
+          winnerName: winner.name,
+          winnerAvatar: winner.avatarId,
+          isHumanWinner: !winner.isBot,
+          stats: this.matchStats,
+        });
+      }
+
+      this.gameStarted = false;
+      clearTimeout(this.botTimer);
+      clearTimeout(this.turnTimeout);
+      clearTimeout(this.defuseTimer);
+      clearTimeout(this.nopeTimer);
+      clearTimeout(this.favorTimeout);
+      clearTimeout(this.alterTimeout);
+      clearTimeout(this.discardTimeout);
+      this.turnTimerExpiresAt = null;
 
       this.broadcastGameState();
     }
@@ -789,7 +809,14 @@ class GameRoom {
     }, 450);
 
     this.botTimer = setTimeout(() => {
-      this.executeBotMove(currentP);
+      try {
+        this.executeBotMove(currentP);
+      } catch (err) {
+        console.error('Error in executeBotMove:', err);
+        if (this.gameStarted && this.turnState === 'NORMAL') {
+          this.drawCard(currentP.id);
+        }
+      }
     }, thinkingDelay);
   }
 
@@ -800,8 +827,15 @@ class GameRoom {
       playerName: bot.name,
     });
     setTimeout(() => {
-      if (this.gameStarted && this.players[this.activePlayerIndex]?.id === bot.id && this.turnState === 'NORMAL') {
-        callback();
+      try {
+        if (this.gameStarted && (this.players[this.activePlayerIndex]?.id === bot.id || this.players[this.activePlayerIndex]?.socketId === bot.socketId) && this.turnState === 'NORMAL') {
+          callback();
+        }
+      } catch (err) {
+        console.error('Error in announceBotAction callback:', err);
+        if (this.gameStarted && this.turnState === 'NORMAL') {
+          this.drawCard(bot.id);
+        }
       }
     }, delayMs);
   }
@@ -942,7 +976,7 @@ class GameRoom {
   // DRAW CARD ACTION (with Emergency Combustion Cat Defuse State)
   drawCard(playerId) {
     const currentP = this.players[this.activePlayerIndex];
-    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL') return;
+    if (!currentP || (currentP.id !== playerId && currentP.socketId !== playerId) || this.turnState !== 'NORMAL') return;
 
     clearTimeout(this.turnTimeout);
 
@@ -1017,12 +1051,14 @@ class GameRoom {
     this.log(currentP.name, currentP.avatarId, `drew a card from the reactor core.`);
 
     this.players.forEach((p) => {
-      io.to(p.socketId).emit('card_drawn', {
-        playerId: currentP.id,
-        playerName: currentP.name,
-        deckCount: this.drawPile.length,
-        card: (p.id === currentP.id) ? drawnCard : null,
-      });
+      if (p.socketId) {
+        io.to(p.socketId).emit('card_drawn', {
+          playerId: currentP.id,
+          playerName: currentP.name,
+          deckCount: this.drawPile.length,
+          card: (p.id === currentP.id) ? drawnCard : null,
+        });
+      }
     });
 
     // Bot banter if drawing safely under high tension
@@ -1067,7 +1103,7 @@ class GameRoom {
     if (this.turnState !== 'DEFUSING') return;
     clearTimeout(this.defuseTimer);
 
-    const currentP = this.players.find((p) => p.id === playerId);
+    const currentP = this.players.find((p) => p.id === playerId || p.socketId === playerId);
     if (!currentP || currentP.isDead) return;
 
     const kittenCard = this.turnStateData?.kittenCard || createCard('COMBUSTION_CAT');
@@ -1152,6 +1188,7 @@ class GameRoom {
     if (this.turnsRemaining > 1) {
       this.turnsRemaining--;
       this.broadcastGameState();
+      this.resetTurnTimeout();
       this.checkBotTurn();
     } else {
       this.advanceTurn(1);
@@ -1460,7 +1497,7 @@ class GameRoom {
   // PLAY REGULAR CARD (Validates turn & initiates Nope Window)
   playCard(playerId, cardId) {
     const currentP = this.players[this.activePlayerIndex];
-    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL') return;
+    if (!currentP || (currentP.id !== playerId && currentP.socketId !== playerId) || this.turnState !== 'NORMAL') return;
 
     const cardIdx = currentP.hand.findIndex((c) => c.id === cardId);
     if (cardIdx === -1) return;
@@ -1531,8 +1568,8 @@ class GameRoom {
   // FAVOR CARD (Initiates Nope Window)
   playFavor(playerId, cardId, targetPlayerId) {
     const currentP = this.players[this.activePlayerIndex];
-    const victim = this.players.find((p) => p.id === targetPlayerId);
-    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL' || !victim || victim.isDead || victim.hand.length === 0)
+    const victim = this.players.find((p) => p.id === targetPlayerId || p.socketId === targetPlayerId);
+    if (!currentP || (currentP.id !== playerId && currentP.socketId !== playerId) || this.turnState !== 'NORMAL' || !victim || victim.isDead || victim.hand.length === 0)
       return;
 
     const cardIdx = currentP.hand.findIndex((c) => c.id === cardId);
@@ -1561,7 +1598,7 @@ class GameRoom {
 
   // EXECUTE FAVOR ACTION (After surviving Nope window)
   executeFavorAction(currentP, targetPlayerId) {
-    const victim = this.players.find((p) => p.id === targetPlayerId);
+    const victim = this.players.find((p) => p.id === targetPlayerId || p.socketId === targetPlayerId);
     if (!victim || victim.isDead || victim.hand.length === 0) {
       this.broadcastGameState();
       this.checkBotTurn();
@@ -1609,7 +1646,7 @@ class GameRoom {
     if (this.turnState !== 'AWAITING_FAVOR') return;
     clearTimeout(this.favorTimeout);
     const victim = this.players.find((p) => p.id === victimId || p.socketId === victimId);
-    const requester = this.players.find((p) => p.id === this.turnStateData?.requesterId);
+    const requester = this.players.find((p) => p.id === this.turnStateData?.requesterId || p.socketId === this.turnStateData?.requesterId);
 
     if (!victim || !requester) return;
 
@@ -1630,8 +1667,8 @@ class GameRoom {
   // 2-OF-A-KIND (PAIR) COMBO: Steal random card (Initiates Nope Window)
   playPair(playerId, pairCardIds, targetPlayerId) {
     const currentP = this.players[this.activePlayerIndex];
-    const victim = this.players.find((p) => p.id === targetPlayerId);
-    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL' || !victim || victim.isDead || victim.hand.length === 0)
+    const victim = this.players.find((p) => p.id === targetPlayerId || p.socketId === targetPlayerId);
+    if (!currentP || (currentP.id !== playerId && currentP.socketId !== playerId) || this.turnState !== 'NORMAL' || !victim || victim.isDead || victim.hand.length === 0)
       return;
 
     const cardsToPlay = currentP.hand.filter((c) => pairCardIds.includes(c.id));
@@ -1654,7 +1691,7 @@ class GameRoom {
   }
 
   executePairAction(currentP, cardsToPlay, targetPlayerId) {
-    const victim = this.players.find((p) => p.id === targetPlayerId);
+    const victim = this.players.find((p) => p.id === targetPlayerId || p.socketId === targetPlayerId);
     if (!victim || victim.isDead || victim.hand.length === 0) {
       this.broadcastGameState();
       this.checkBotTurn();
@@ -1694,8 +1731,8 @@ class GameRoom {
   // 3-OF-A-KIND COMBO: Targeted Card Demand (Initiates Nope Window)
   playThreeOfAKind(playerId, cardIds, targetPlayerId, demandedCardType) {
     const currentP = this.players[this.activePlayerIndex];
-    const victim = this.players.find((p) => p.id === targetPlayerId);
-    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL' || !victim || victim.isDead || victim.hand.length === 0)
+    const victim = this.players.find((p) => p.id === targetPlayerId || p.socketId === targetPlayerId);
+    if (!currentP || (currentP.id !== playerId && currentP.socketId !== playerId) || this.turnState !== 'NORMAL' || !victim || victim.isDead || victim.hand.length === 0)
       return;
 
     const cardsToPlay = currentP.hand.filter((c) => cardIds.includes(c.id));
@@ -1722,7 +1759,7 @@ class GameRoom {
   }
 
   executeThreeOfAKindAction(currentP, cardsToPlay, targetPlayerId, demandedCardType) {
-    const victim = this.players.find((p) => p.id === targetPlayerId);
+    const victim = this.players.find((p) => p.id === targetPlayerId || p.socketId === targetPlayerId);
     if (!victim || victim.isDead) {
       this.broadcastGameState();
       this.checkBotTurn();
@@ -1781,7 +1818,7 @@ class GameRoom {
   // 5-DIFFERENT COMBO: Discard Pile Retrieval (Initiates Nope Window)
   playFiveDifferent(playerId, cardIds) {
     const currentP = this.players[this.activePlayerIndex];
-    if (!currentP || currentP.id !== playerId || this.turnState !== 'NORMAL') return;
+    if (!currentP || (currentP.id !== playerId && currentP.socketId !== playerId) || this.turnState !== 'NORMAL') return;
 
     const cardsToPlay = currentP.hand.filter((c) => cardIds.includes(c.id));
     if (cardsToPlay.length !== 5) return;
@@ -2054,9 +2091,7 @@ io.on('connection', (socket) => {
   socket.on('toggle_ready', ({ roomId }) => {
     const room = rooms.get(roomId);
     if (!room) return;
-    if (room.gameStarted) {
-      room.resetToLobby();
-    }
+    if (room.gameStarted) return;
 
     const player = room.players.find((p) => p.socketId === socket.id);
     if (player && !player.isHost) {
@@ -2177,16 +2212,48 @@ io.on('connection', (socket) => {
     room.setupGame();
   });
 
-  // 9. GAMEPLAY: DRAW CARD
-  socket.on('draw_card', ({ roomId }) => {
+  // 8b. START PRACTICE GAME (Add 3 bots and launch immediately)
+  socket.on('start_practice_game', ({ roomId }, callback) => {
     const room = rooms.get(roomId);
+    if (!room || room.gameStarted || room.hostId !== socket.id) {
+      if (callback) callback({ success: false });
+      return;
+    }
+
+    while (room.players.length < 4) {
+      const availableBot = BOT_NAMES.find((b) => !room.players.some((p) => p.name === b.name)) || {
+        name: `Bot ${room.players.length + 1}`,
+        avatarId: 'sharky',
+      };
+      const botId = `bot_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+      room.players.push({
+        id: botId,
+        socketId: null,
+        name: availableBot.name,
+        avatarId: availableBot.avatarId,
+        isHost: false,
+        isReady: true,
+        isBot: true,
+        isDead: false,
+        hand: [],
+        disconnectedAt: null,
+      });
+    }
+
+    room.setupGame();
+    if (callback) callback({ success: true });
+  });
+
+  // 9. GAMEPLAY: DRAW CARD
+  socket.on('draw_card', ({ roomId } = {}) => {
+    const room = rooms.get(roomId || socketToRoom.get(socket.id));
     if (!room || !room.gameStarted) return;
     room.drawCard(socket.id);
   });
 
   // 10. GAMEPLAY: PLAY CARD
-  socket.on('play_card', ({ roomId, cardId, targetPlayerId, cardPairIds, comboType, cardIds, demandedCardType }) => {
-    const room = rooms.get(roomId);
+  socket.on('play_card', ({ roomId, cardId, targetPlayerId, cardPairIds, comboType, cardIds, demandedCardType } = {}) => {
+    const room = rooms.get(roomId || socketToRoom.get(socket.id));
     if (!room || !room.gameStarted) return;
 
     const sender = room.players.find((p) => p.socketId === socket.id || p.id === socket.id);
@@ -2231,8 +2298,8 @@ io.on('connection', (socket) => {
   });
 
   // 10b. GAMEPLAY: PLAY COMBO
-  socket.on('play_combo', ({ roomId, comboType, cardIds, targetPlayerId, demandedCardType }) => {
-    const room = rooms.get(roomId);
+  socket.on('play_combo', ({ roomId, comboType, cardIds, targetPlayerId, demandedCardType } = {}) => {
+    const room = rooms.get(roomId || socketToRoom.get(socket.id));
     if (!room || !room.gameStarted) return;
 
     if (comboType === 'PAIR' || comboType === 'TWO_OF_A_KIND') {
@@ -2245,49 +2312,50 @@ io.on('connection', (socket) => {
   });
 
   // 10c. GAMEPLAY: SELECT DISCARD CARD (for 5-Card Combo)
-  socket.on('select_discard_card', ({ roomId, cardId }) => {
-    const room = rooms.get(roomId);
+  socket.on('select_discard_card', ({ roomId, cardId } = {}) => {
+    const room = rooms.get(roomId || socketToRoom.get(socket.id));
     if (!room || !room.gameStarted) return;
     room.selectDiscardCard(socket.id, cardId);
   });
 
   // 11. DEFUSE KITTEN
-  socket.on('defuse_kitten', ({ roomId, position }) => {
-    const room = rooms.get(roomId);
+  socket.on('defuse_kitten', ({ roomId, position } = {}) => {
+    const room = rooms.get(roomId || socketToRoom.get(socket.id));
     if (!room || !room.gameStarted) return;
     room.defuseKitten(socket.id, position);
   });
 
   // 11b. PLAY NOPE
-  socket.on('play_nope', ({ roomId }) => {
-    const room = rooms.get(roomId);
+  socket.on('play_nope', ({ roomId } = {}) => {
+    const room = rooms.get(roomId || socketToRoom.get(socket.id));
     if (!room || !room.gameStarted) return;
     room.playNope(socket.id);
   });
 
   // 12. ALTER THE FUTURE CONFIRM
-  socket.on('reorder_future', ({ roomId, cardIds }) => {
-    const room = rooms.get(roomId);
+  socket.on('reorder_future', ({ roomId, cardIds } = {}) => {
+    const room = rooms.get(roomId || socketToRoom.get(socket.id));
     if (!room || !room.gameStarted) return;
     room.reorderFuture(socket.id, cardIds);
   });
 
   // 13. FAVOR GIVE
-  socket.on('favor_give', ({ roomId, cardId }) => {
-    const room = rooms.get(roomId);
+  socket.on('favor_give', ({ roomId, cardId } = {}) => {
+    const room = rooms.get(roomId || socketToRoom.get(socket.id));
     if (!room || !room.gameStarted) return;
     room.resolveFavorGive(socket.id, cardId);
   });
 
   // 14. IN-GAME CHAT & EMOTES
-  socket.on('send_chat', ({ roomId, message, emote }) => {
-    const room = rooms.get(roomId);
+  socket.on('send_chat', ({ roomId, message, emote } = {}) => {
+    const targetRoomId = roomId || socketToRoom.get(socket.id);
+    const room = rooms.get(targetRoomId);
     if (!room) return;
 
     const sender = room.players.find((p) => p.socketId === socket.id);
     if (!sender) return;
 
-    io.to(roomId).emit('chat_message', {
+    io.to(room.id).emit('chat_message', {
       senderId: sender.id,
       senderName: sender.name,
       senderAvatar: sender.avatarId,
@@ -2297,14 +2365,15 @@ io.on('connection', (socket) => {
   });
 
   // 14b. AVATAR REACTION / SPEECH BUBBLE
-  socket.on('send_reaction', ({ roomId, reactionText }) => {
-    const room = rooms.get(roomId);
+  socket.on('send_reaction', ({ roomId, reactionText } = {}) => {
+    const targetRoomId = roomId || socketToRoom.get(socket.id);
+    const room = rooms.get(targetRoomId);
     if (!room) return;
 
     const sender = room.players.find((p) => p.socketId === socket.id);
     if (!sender) return;
 
-    io.to(roomId).emit('player_reacted', {
+    io.to(room.id).emit('player_reacted', {
       playerId: sender.id,
       reactionText: (reactionText || '').slice(0, 30),
       playerName: sender.name,
@@ -2312,11 +2381,12 @@ io.on('connection', (socket) => {
   });
 
   // 15. LEAVE ROOM
-  socket.on('leave_room', ({ roomId }) => {
-    const room = rooms.get(roomId);
+  socket.on('leave_room', ({ roomId } = {}) => {
+    const targetRoomId = roomId || socketToRoom.get(socket.id);
+    const room = rooms.get(targetRoomId);
     if (!room) return;
 
-    socket.leave(roomId);
+    socket.leave(targetRoomId);
     socketToRoom.delete(socket.id);
 
     const leavingIdx = room.players.findIndex((p) => p.socketId === socket.id);
@@ -2326,7 +2396,7 @@ io.on('connection', (socket) => {
 
     const remainingHumans = room.players.filter((p) => !p.isBot);
     if (remainingHumans.length === 0 && (!room.gameStarted || room.players.length === 0)) {
-      rooms.delete(roomId);
+      rooms.delete(targetRoomId);
       return;
     }
 

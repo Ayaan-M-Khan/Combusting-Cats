@@ -238,6 +238,178 @@ class SoundEngine {
       osc.stop(startTime + 0.45);
     });
   }
+
+  /**
+   * Subtle, pleasant rising chime (D5 -> A5 with soft bell overtone)
+   * to notify the local player that their turn has started.
+   */
+  public playLocalTurn() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const dest = this.ctx.destination;
+
+    // Upbeat, warm rising chime (D5 -> A5)
+    const osc1 = this.ctx.createOscillator();
+    const gain1 = this.ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(587.33, t); // D5
+    gain1.gain.setValueAtTime(0.18, t);
+    gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    osc1.connect(gain1);
+    gain1.connect(dest);
+    osc1.start(t);
+    osc1.stop(t + 0.19);
+
+    const osc2 = this.ctx.createOscillator();
+    const gain2 = this.ctx.createGain();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(880, t + 0.05); // A5
+    gain2.gain.setValueAtTime(0.20, t + 0.05);
+    gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+    osc2.connect(gain2);
+    gain2.connect(dest);
+    osc2.start(t + 0.05);
+    osc2.stop(t + 0.29);
+
+    // Subtle high-frequency bell sparkle
+    const osc3 = this.ctx.createOscillator();
+    const gain3 = this.ctx.createGain();
+    osc3.type = 'sine';
+    osc3.frequency.setValueAtTime(1760, t + 0.05); // A6
+    gain3.gain.setValueAtTime(0.04, t + 0.05);
+    gain3.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    osc3.connect(gain3);
+    gain3.connect(dest);
+    osc3.start(t + 0.05);
+    osc3.stop(t + 0.23);
+  }
+
+  /**
+   * Subtle, gentle synthetic blip / robotic computation pip
+   * to indicate an AI player's turn has begun.
+   */
+  public playAiTurn() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const dest = this.ctx.destination;
+
+    // Subtle, filtered electronic tech blip
+    const osc1 = this.ctx.createOscillator();
+    const gain1 = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(1400, t);
+
+    osc1.type = 'triangle';
+    osc1.frequency.setValueAtTime(370, t); // F#4
+    osc1.frequency.exponentialRampToValueAtTime(440, t + 0.04);
+    gain1.gain.setValueAtTime(0.12, t);
+    gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+
+    osc1.connect(filter);
+    filter.connect(gain1);
+    gain1.connect(dest);
+    osc1.start(t);
+    osc1.stop(t + 0.08);
+
+    // Second softer micro-pip
+    const osc2 = this.ctx.createOscillator();
+    const gain2 = this.ctx.createGain();
+    const filter2 = this.ctx.createBiquadFilter();
+    filter2.type = 'lowpass';
+    filter2.frequency.setValueAtTime(1200, t + 0.04);
+
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(520, t + 0.04);
+    osc2.frequency.exponentialRampToValueAtTime(480, t + 0.09);
+    gain2.gain.setValueAtTime(0.09, t + 0.04);
+    gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
+
+    osc2.connect(filter2);
+    filter2.connect(gain2);
+    gain2.connect(dest);
+    osc2.start(t + 0.04);
+    osc2.stop(t + 0.12);
+  }
+
+  /**
+   * Turn begin signal router providing distinct sound for local versus AI players.
+   */
+  public playTurnStart(isLocal: boolean = true, isAi: boolean = !isLocal) {
+    if (isLocal) {
+      this.playLocalTurn();
+    } else {
+      this.playAiTurn();
+    }
+  }
+
+  public turnStart(isLocal: boolean = true, isAi: boolean = !isLocal) {
+    this.playTurnStart(isLocal, isAi);
+  }
+
+  /**
+   * Urgent low time warning sound effect triggered when the turn timer countdown reaches 5 seconds.
+   * Produces an alert dual-pitch tone followed by an escalating urgency warning pulse.
+   */
+  public lowTimeWarning(secondsLeft: number = 5) {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const t = this.ctx.currentTime;
+      const dest = this.ctx.destination;
+
+      // Escalating frequency scale based on urgency (5s down to 1s)
+      const baseFreq = 880 + (5 - Math.max(1, secondsLeft)) * 75;
+
+      // Pulse 1: Alert attack pip
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(baseFreq, t);
+      osc1.frequency.exponentialRampToValueAtTime(baseFreq * 1.15, t + 0.05);
+      gain1.gain.setValueAtTime(0.24, t);
+      gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+      osc1.connect(gain1);
+      gain1.connect(dest);
+      osc1.start(t);
+      osc1.stop(t + 0.08);
+
+      // Pulse 2: Resonant high warning echo (double-beep alert)
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(baseFreq * 1.25, t + 0.06);
+      osc2.frequency.exponentialRampToValueAtTime(baseFreq * 1.38, t + 0.13);
+      gain2.gain.setValueAtTime(0.22, t + 0.06);
+      gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+      osc2.connect(gain2);
+      gain2.connect(dest);
+      osc2.start(t + 0.06);
+      osc2.stop(t + 0.17);
+    } catch (e) {}
+  }
+
+  public playLowTimeWarning(secondsLeft: number = 5) {
+    this.lowTimeWarning(secondsLeft);
+  }
+
+  public timerWarning(secondsLeft: number = 5) {
+    this.lowTimeWarning(secondsLeft);
+  }
+
+  public playTimerWarning(secondsLeft: number = 5) {
+    this.lowTimeWarning(secondsLeft);
+  }
 }
 
 export const sounds = new SoundEngine();
+
+
